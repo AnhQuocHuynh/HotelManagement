@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HotelManager.Data;
+using HotelManager.Models.Enums;
 
 namespace HotelManager.Models
 {
