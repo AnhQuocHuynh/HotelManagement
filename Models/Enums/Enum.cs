@@ -1,4 +1,4 @@
-﻿namespace HotelManager.Models
+﻿namespace HotelManager.Models.Enums
 {
     public enum RoomType
     {
