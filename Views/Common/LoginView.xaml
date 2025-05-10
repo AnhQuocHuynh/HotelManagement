@@ -1,0 +1,138 @@
+﻿<UserControl x:Class="HotelManager.Views.Common.LoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:HotelManager.ViewModels.Common"
+             xmlns:helpers="clr-namespace:HotelManager.Helpers"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:Background="#F5EFE7">
+
+    <UserControl.DataContext>
+        <vm:LoginViewModel/>
+    </UserControl.DataContext>
+
+    <Grid>
+
+        <Border Width="600" Height="350"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                CornerRadius="20"
+                Background="#D8C4B6">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="100"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Who are you -->
+                <TextBlock Text="Who are you?"
+                           FontSize="20"
+                           Grid.Row="0"
+                           Padding="10"
+                           HorizontalAlignment="Left" Margin="240,0,0,0"></TextBlock>
+
+                <!-- manager button -->
+                <Border Background="#F5EFE7"
+                        Height="30" Width="100"
+                        CornerRadius="10"
+                        Margin="0,30,250,0">
+                    <Button x:Name="managerButton"
+                            Content="Manager"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Command="{Binding IsManagerCommand}"></Button>
+                </Border>
+
+                <!-- receptionist button -->
+                <Border Background="#F5EFE7"
+                        Height="30" Width="100"
+                        CornerRadius="10"
+                        Margin="0,30,0,0">
+                    <Button x:Name="receptionistButton"
+                            Content="Receptionist"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Command="{Binding IsReceptionistCommand}"></Button>
+                </Border>
+
+                <!-- attendent button -->
+                <Border Background="#F5EFE7"
+                        Height="30" Width="100"
+                        CornerRadius="10"
+                        Margin="0,30,-250,0">
+                    <Button x:Name="attendentButton"
+                            Content="Attendent"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Command="{Binding IsAttendentCommand}"></Button>
+                </Border>
+
+                <!-- input border -->
+                <Border Grid.Row="1"
+                        Background="#3E5879"
+                        CornerRadius="0,0,20,20">
+                    <Grid>
+                        
+                        <!-- user name -->
+                        <TextBlock Text="User Name:"
+                                   FontSize="20"
+                                   Foreground="#EEEEEE"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Top"
+                                   Margin="100,20,0,0"></TextBlock>
+                        <Border Background="#EEEEEE"
+                                Height="30" Width="400"
+                                CornerRadius="10"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                Margin="0,50,0,0">
+                            <TextBox x:Name="usernameTextBox"
+                                     Background="Transparent"
+                                     BorderBrush="Transparent"
+                                     Text="{Binding UserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </Border>
+                        
+                        <!-- password -->
+                        <TextBlock Text="Password:"
+                                   FontSize="20"
+                                   Foreground="#EEEEEE"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Top"
+                                   Margin="100,100,0,0"></TextBlock>
+                        <Border Background="#EEEEEE"
+                                Height="30" Width="400"
+                                CornerRadius="10"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                Margin="0,130,0,0">
+                            <Grid>
+                                <TextBox x:Name="passwordTextBox"
+                                         Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Background="Transparent"
+                                         BorderBrush="Transparent"></TextBox>
+                                <PasswordBox x:Name="passwordPasswordBox"
+                                             helpers:PasswordBoxAssistant.BoundPassword="{Binding Password, Mode=TwoWay}"
+                                             Background="Transparent"
+                                             BorderBrush="Transparent"></PasswordBox>
+                            </Grid>
+                        </Border>
+
+                        <!-- login button -->
+                        <Border Background="#D8C4B6"
+                                Height="30" Width="100"
+                                CornerRadius="10"
+                                Margin="0,150,0,0">
+                            <Button x:Name="loginButton"
+                                    Content="Login"
+                                    Background="Transparent"
+                                    BorderBrush="Transparent" Height="30" VerticalAlignment="Bottom"
+                                    Command="{Binding LoginCommand}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
