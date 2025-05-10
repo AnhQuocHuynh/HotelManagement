@@ -20,6 +20,22 @@
 
   <ItemGroup>
     <Folder Include="Services\" />
+    <Folder Include="Resources\" />
+    <Folder Include="Resources\Images\" />
+    <Folder Include="Resources\Fonts\" />
+    <Folder Include="Resources\Icons\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Images\**" />
+    <None Remove="Resources\Fonts\**" />
+    <None Remove="Resources\Icons\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\**" />
+    <Resource Include="Resources\Fonts\**" />
+    <Resource Include="Resources\Icons\**" />
   </ItemGroup>
 
 </Project>

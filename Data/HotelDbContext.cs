@@ -1,11 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using HotelManager.Models;
+using HotelManager.Config;
 
 namespace HotelManager.Data
 {
     public class HotelDbContext : DbContext
     {
+        public HotelDbContext() { }
+
         public HotelDbContext(DbContextOptions<HotelDbContext> options) : base(options) { }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer(DatabaseConfig.GetConnectionString());
+            }
+        }
 
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Room> Rooms { get; set; }
