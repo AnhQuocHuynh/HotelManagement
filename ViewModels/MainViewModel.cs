@@ -1,29 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using HotelManager.Utilities;
 
 namespace HotelManager.ViewModels
 {
-    public class MainViewModel : BaseViewModel
+    public class MainViewModel : INotifyPropertyChanged
     {
-        private string _welcomeMessage = "Welcome to Hotel Manager!";
-        public string WelcomeMessage
+        private object _currentView;
+        public object CurrentView
         {
-            get => _welcomeMessage;
-            set
-            {
-                _welcomeMessage = value;
-                OnPropertyChanged();
-            }
+            get => _currentView;
+            set { _currentView = value; OnPropertyChanged(); }
         }
-        public ICommand ShowMessageCommand { get; }
+
+        public ICommand ShowLoginCommand { get; }
+        public ICommand ShowHomeCommand { get; }
 
         public MainViewModel()
         {
-            ShowMessageCommand = new RelayCommand(_ => WelcomeMessage = "Let's build a great hotel app!");
+            ShowLoginCommand = new RelayCommand(_ => CurrentView = new Views.LoginView());
+            ShowHomeCommand = new RelayCommand(_ => CurrentView = new Views.HomeView());
+
+            CurrentView = new Views.LoginView();
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string name = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }
