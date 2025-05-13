@@ -4,9 +4,50 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HotelManager.Views"
+        xmlns:vm="clr-namespace:HotelManager.ViewModels"
         mc:Ignorable="d"
         Title="AdminView" Height="450" Width="800">
-    <Grid>
-        
+    <Window.DataContext>
+        <vm:AdminViewModel />
+    </Window.DataContext>
+    <Grid Margin="10">
+        <!-- Grid for displaying accounts -->
+        <DataGrid ItemsSource="{Binding Accounts}" 
+                  AutoGenerateColumns="False" 
+                  CanUserAddRows="False"
+                  SelectionMode="Single"
+                  SelectedItem="{Binding SelectedUser}"
+                  Margin="0,0,0,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Username" Binding="{Binding Username}" />
+                <DataGridTextColumn Header="Full Name" Binding="{Binding FullName}" />
+                <DataGridTextColumn Header="Role" Binding="{Binding Role}" />
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" />
+                <DataGridTextColumn Header="Phone Number" Binding="{Binding PhoneNumber}" />
+
+                <DataGridTemplateColumn Header="Actions">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Edit" Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding}" />
+                                <Button Content="Delete" Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" CommandParameter="{Binding}" Margin="5,0,0,0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Button to open new account form -->
+        <Button Content="Add New Account" 
+                Command="{Binding AddCommand}" 
+                HorizontalAlignment="Right" 
+                VerticalAlignment="Bottom" 
+                Width="150" 
+                Height="40" 
+                Background="#4CAF50" 
+                Foreground="White"
+                FontWeight="Bold">
+        </Button>
     </Grid>
 </Window>
