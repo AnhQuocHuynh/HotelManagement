@@ -1,5 +1,6 @@
 ﻿using HotelManager.Helpers;
 using HotelManager.Models;
+using HotelManager.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelManager.Data
