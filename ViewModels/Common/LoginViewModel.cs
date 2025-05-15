@@ -55,7 +55,8 @@ namespace HotelManager.ViewModels.Common
             IsManagerCommand = new RelayCommand(_ => IsManager());
             IsReceptionistCommand = new RelayCommand(_ => IsReceptionist());
             IsAttendentCommand = new RelayCommand(_ => IsAttendent());
-            ChangePasswordVisibilityCommand = new RelayCommand(_ => ChangePasswordVisibility());
+
+            PasswordVisibility = false;
         }
 
 
@@ -90,12 +91,6 @@ namespace HotelManager.ViewModels.Common
         private void IsAttendent()
         {
             Position = "Attendent";
-        }
-
-        // chage password visibility
-        private void ChangePasswordVisibility()
-        {
-            PasswordVisibility = !PasswordVisibility;
         }
 
     }

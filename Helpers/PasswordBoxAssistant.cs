@@ -12,11 +12,14 @@ namespace HotelManager.Helpers
     // Hỗ trợ binding cho PasswordBox
     public static class PasswordBoxAssistant
     {
-        // tạo thêm thuộc tính attached BoundPassword cho passwordBox trong file xaml vì passwordBox ko có thuộc tính như content hay text để binding
-        // hoạt động khi BoundPassword thay đổi thoogn tin
-        public static readonly DependencyProperty BoundPassword =
-            DependencyProperty.RegisterAttached("BoundPassword", typeof(string), typeof(PasswordBoxAssistant),
-                new PropertyMetadata(string.Empty, OnBoundPasswordChanged));
+        public static readonly DependencyProperty BoundPassword = DependencyProperty.RegisterAttached(
+            "BoundPassword",
+            typeof(string),
+            typeof(PasswordBoxAssistant),
+            new FrameworkPropertyMetadata(
+                string.Empty,
+                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                OnBoundPasswordChanged));
 
         // getter & setter
         // cho phép dùng trong xaml
