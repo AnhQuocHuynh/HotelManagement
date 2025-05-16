@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using HotelManager.Models;
+using HotelManager.Services.Common.Implements;
 using HotelManager.Utilities;
+using HotelManager.Data.Common;
 
 namespace HotelManager.ViewModels.Common
 {
@@ -63,20 +66,39 @@ namespace HotelManager.ViewModels.Common
 
         // fuctions
 
-        // login
-        private void Login()
-        {
-            if (isEmpty())
-            {
-                Console.WriteLine("Empty name/pass");
-            }
-
-        }
-
         // check if username or password text box empty
         private bool isEmpty()
         {
             return string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(Password);
+        }
+
+        // check if username & password is correct
+        private async Task<bool> isCorrect()
+        {
+            var loginProcess = new LoginProcess(new UserAuthenticationService(new UserRepository(new Data.HotelDbContext())));
+            UserAccount account = await loginProcess.Login(UserName, Password);
+            return account != null;
+        }
+
+        // login
+        private async Task Login()
+        {
+            if (isEmpty())
+            {
+                Console.WriteLine("Empty username or password");
+                return;
+            }
+
+            bool correction = await isCorrect();
+            if (correction)
+            {
+                Console.WriteLine("Login successful");
+            }
+            else
+            {
+                Console.WriteLine("Invalid username or password");
+            }
+
         }
 
         // change possition
