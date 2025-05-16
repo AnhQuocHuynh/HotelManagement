@@ -1,20 +1,31 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using HotelManager.Models;
 using HotelManager.Config;
+using Microsoft.Extensions.Configuration;
 
 namespace HotelManager.Data
 {
     public class HotelDbContext : DbContext
     {
+        private readonly IConfiguration _configuration;
+
         public HotelDbContext() { }
 
         public HotelDbContext(DbContextOptions<HotelDbContext> options) : base(options) { }
+
+        public HotelDbContext(DbContextOptions<HotelDbContext> options, IConfiguration configuration) 
+            : base(options)
+        {
+            _configuration = configuration;
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(DatabaseConfig.GetConnectionString());
+                var connectionString = _configuration?.GetConnectionString("DefaultConnection") 
+                    ?? "Server=.;Database=HotelManager;Trusted_Connection=True;TrustServerCertificate=True;";
+                optionsBuilder.UseSqlServer(connectionString);
             }
         }
 
@@ -81,11 +92,13 @@ namespace HotelManager.Data
 
                 entity.HasOne(id => id.Invoice)
                       .WithMany(i => i.InvoiceDetails)
-                      .HasForeignKey(id => id.InvoiceId);
+                      .HasForeignKey(id => id.InvoiceId)
+                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(id => id.Room)
                       .WithMany(r => r.InvoiceDetails)
-                      .HasForeignKey(id => id.RoomNumber);
+                      .HasForeignKey(id => id.RoomNumber)
+                      .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<Payment>(entity =>
