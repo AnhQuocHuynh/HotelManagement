@@ -61,3 +61,12 @@ appsettings.*.json
 *.bak
 *.swp
 *.DS_Store
+/Data/HotelDbContext.cs
+/Views/MainWindow.xaml
+/ViewModels/MainViewModel.cs
+Views/MainWindow.xaml
+Views/MainWindow.xaml
+ViewModels/MainViewModel.cs
+Config/DatabaseConfig.cs
+/Config/DatabaseConfig.cs
+Config/DatabaseConfig.cs

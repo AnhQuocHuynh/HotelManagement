@@ -1,4 +1,5 @@
 ﻿using HotelManager.Models;
+using HotelManager.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace HotelManager.Services.Common.Interfaces
 {
     public interface ILoginProcess
     {
-        Task<UserAccount> Login(string username, string password);
+        Task<UserAccount> Login(string username, string password, UserRole role);
     }
 }

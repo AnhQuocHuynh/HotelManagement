@@ -103,7 +103,8 @@
                                      Padding="8,6"
                                      Background="White"
                                      BorderBrush="Gray"
-                                     BorderThickness="1">
+                                     BorderThickness="1"
+                                     Visibility="Visible">
                             <PasswordBox.Template>
                                 <ControlTemplate TargetType="PasswordBox">
                                     <Border Background="{TemplateBinding Background}"
@@ -117,27 +118,30 @@
                         </PasswordBox>
                         <TextBox x:Name="Password_tb"
                                  Text="{Binding Password}"
-                                 Visibility="{Binding PasswordVisibility, Converter={StaticResource BoolToVisConverter}}"
+                                 Visibility="{Binding PasswordVisibility}"
                                  Style="{StaticResource DefaultTextBoxStyle}"
                                  FontWeight="Bold"
                                  Height="30"
                                  Width="400"
                                  Margin="0,50,0,0"></TextBox>
+                        
                         <!-- show password -->
                         <CheckBox x:Name="showPassword_CheckBos"
-                                  IsChecked="{Binding PasswordVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                  IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                   HorizontalAlignment="Right"
                                   VerticalAlignment="Bottom"
                                   Margin="0,0,70,90">
                         </CheckBox>
+                        
                         <!-- login button -->
                         <Button x:Name="Login_btn"
                                 Style="{StaticResource DefaultButtonStyle}"
+                                Command="{Binding LoginCommand}"
+                                IsEnabled="{Binding LoginButtonEnabled}"
                                 Content="Login"
                                 Height="30"
                                 Width="100"
-                                Margin="0,150,0,0"
-                                Command="{Binding LoginCommand}"></Button>
+                                Margin="0,150,0,0"></Button>
                     </Grid>
                 </Border>
             </Grid>

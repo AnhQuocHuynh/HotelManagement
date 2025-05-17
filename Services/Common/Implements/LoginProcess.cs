@@ -1,4 +1,6 @@
-﻿using HotelManager.Models;
+﻿using HotelManager.Data.Common;
+using HotelManager.Models;
+using HotelManager.Models.Enums;
 using HotelManager.Services.Common.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -8,27 +10,16 @@ using System.Threading.Tasks;
 
 namespace HotelManager.Services.Common.Implements
 {
-    public class LoginProcess : ILoginProcess
+    public class LoginProcess : Services.Common.Interfaces.ILoginProcess
     {
-        private readonly IUserAuthenticationService _authenticationService; // service xử lý user (đọc DB,...)
-
-        public LoginProcess(IUserAuthenticationService authenticationService)
+        public async Task<UserAccount> Login(string username, string password, UserRole role)
         {
-            _authenticationService = authenticationService;
-        }
+            UserAccountRepository userAccountRepository = new UserAccountRepository();
 
-        // Hàm đăng nhập chính
-        public async Task<UserAccount> Login(string username, string password)
-        {
-            // Ở đây bạn gọi service kiểm tra user/pass
-            UserAccount user = await _authenticationService.Authenticate(username, password);
-            if (user == null)
-                throw new UnauthorizedAccessException("Sai tên đăng nhập hoặc mật khẩu");
+            UserAccount account = await userAccountRepository.FindAccountAsync(username, password, role);
 
-            Utilities.AppSession.CurrentUserAccount = user;
-
-            // Trả về user nếu đăng nhập thành công
-            return user;
+            return account;
         }
     }
+
 }
