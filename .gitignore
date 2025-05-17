@@ -64,3 +64,6 @@ appsettings.*.json
 /Config/DatabaseConfig.cs
 /Migrations
 /HotelManager.csproj
+/Migrations/HotelDbContextModelSnapshot.cs
+/Migrations/20250514162030_InitialCreate.Designer.cs
+/Migrations/20250514162030_InitialCreate.cs
