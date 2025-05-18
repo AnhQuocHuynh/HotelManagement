@@ -10,14 +10,14 @@
     <Window.DataContext>
         <vm:AdminViewModel />
     </Window.DataContext>
-    <Grid Margin="10">
+    <Grid Margin="10,10,10,10">
         <!-- Grid for displaying accounts -->
         <DataGrid ItemsSource="{Binding Accounts}" 
                   AutoGenerateColumns="False" 
                   CanUserAddRows="False"
                   SelectionMode="Single"
                   SelectedItem="{Binding SelectedUser}"
-                  Margin="0,0,0,10">
+                  Margin="0,0,0,40">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Username" Binding="{Binding Username}" />
                 <DataGridTextColumn Header="Full Name" Binding="{Binding FullName}" />
@@ -40,7 +40,7 @@
 
         <!-- Button to open new account form -->
         <Button Content="Add New Account" 
-                Command="{Binding AddCommand}" 
+                Command="{Binding AddNewAccountCommand}" 
                 HorizontalAlignment="Right" 
                 VerticalAlignment="Bottom" 
                 Width="150" 

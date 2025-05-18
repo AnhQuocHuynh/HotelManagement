@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HotelManager.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -7,31 +8,26 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Navigation;
+using CommunityToolkit.Mvvm.Input;
 using HotelManager.Data;
+using HotelManager.Interfaces;
 using HotelManager.Models;
+using HotelManager.Services;
+using RelayCommand = HotelManager.Utilities.RelayCommand;
 
 namespace HotelManager.ViewModels
 {
     //Tuấn
     //Todo: 1. Hiển thị danh sách tài khoản, 2. Tạo tài khoản mới, 3. Sửa tài khoản, 4. Xóa tài khoản, 5. Ràng buộc phân quyền
-    internal class AdminViewModel : INotifyPropertyChanged
+    internal class AdminViewModel : BaseViewModel
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        private readonly UserAccountService _userService;
         public ICommand AddCommand { get; set; }
         public ICommand UpdateCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
-        public AdminViewModel()
-        {
-            AddCommand = new RelayCommand(Add);
-            UpdateCommand = new RelayCommand(Update);
-            DeleteCommand = new RelayCommand(Delete);
-        }
-        //Values
-        private readonly HotelDbContext _dbContext = new HotelDbContext();
+        public ICommand AddNewAccountCommand { get; set; }
+
         public ObservableCollection<UserAccount> Accounts { get; set; } = new();
         private UserAccount _selectedUser;
         public UserAccount SelectedUser
@@ -43,24 +39,53 @@ namespace HotelManager.ViewModels
                 OnPropertyChanged(nameof(SelectedUser));
             }
         }
-
-        private void Add(object obj)
+        public AdminViewModel() : this(new UserAccountService()) { LoadAccounts(); }
+        public AdminViewModel(IService<UserAccount> userService)
         {
-            // Implement the logic to add a new room
-            // For example, show a dialog to enter room details and save it to the database
+            _userService = (UserAccountService)userService;
+
+            AddCommand = new RelayCommand(async param => await AddAsync(SelectedUser));
+            UpdateCommand = new RelayCommand(async param => await UpdateAsync(SelectedUser));
+            DeleteCommand = new RelayCommand(async param => await DeleteAsync(SelectedUser));
+            AddNewAccountCommand = new RelayCommand(param => AddNewAccount());
+
+            LoadAccounts();
         }
-        private void Update(object obj)
+        public async void LoadAccounts()
         {
-            // Implement the logic to update an existing room
-            // For example, show a dialog to edit room details and save the changes to the database
+
+            // Fix for CS1593: Ensure the RelayCommand constructor matches the expected delegate signature.  
+            
+            var accounts = await _userService.GetAllAsync();
+            Accounts.Clear();
+            foreach (var account in accounts)
+            {
+                Accounts.Add(account);
+            }
         }
-        private void Delete(object obj)
+        private async Task AddAsync(UserAccount account)
         {
-            // Implement the logic to delete a room
-            // For example, show a confirmation dialog and delete the room from the database
+            var added = await _userService.CreateAsync(account);
+            Accounts.Add(added);
         }
 
-        //1. Hiển thị danh sách tài khoản
+        private async Task UpdateAsync(UserAccount account)
+        {
+            await _userService.UpdateAsync(account);
+            // Refresh list or raise OnPropertyChanged
+            OnPropertyChanged(nameof(Accounts));
+        }
 
+        private async Task DeleteAsync(UserAccount account)
+        {
+            if (await _userService.DeleteAsync(account.Id))
+            {
+                Accounts.Remove(account);
+            }
+        }
+
+        private void AddNewAccount()
+        {
+        }
     }
 }

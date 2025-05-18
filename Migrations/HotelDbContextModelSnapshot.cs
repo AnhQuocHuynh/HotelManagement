@@ -293,7 +293,7 @@ namespace HotelManager.Migrations
                     b.HasOne("HotelManager.Models.Room", "Room")
                         .WithMany("InvoiceDetails")
                         .HasForeignKey("RoomNumber")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Invoice");

@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
     <Folder Include="Resources\" />
     <Folder Include="Resources\Images\" />
     <Folder Include="Resources\Fonts\" />
