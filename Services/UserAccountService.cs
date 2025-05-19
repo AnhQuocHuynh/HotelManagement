@@ -12,10 +12,16 @@ namespace HotelManager.Services
 {
     internal class UserAccountService : IService<UserAccount>
     {
-        //private readonly HotelDbContext _dbContext;
+        private readonly HotelDbContext _dbContext;
+
+        public UserAccountService(HotelDbContext dbContext)
+        {
+            _dbContext = dbContext;
+            HotelDbInitializer.Seed(_dbContext);
+        }
         public async Task<bool> DeleteAsync(int id)
         {
-            using var _dbContext = new HotelDbContext();
+            //using var _dbContext = new HotelDbContext();
             var entity = await _dbContext.UserAccounts.FindAsync(id);
             if (entity == null)
             {
@@ -27,19 +33,19 @@ namespace HotelManager.Services
         }
         public Task<UserAccount> CreateAsync(UserAccount entity)
         {
-            using var _dbContext = new HotelDbContext();
+            //using var _dbContext = new HotelDbContext();
             _dbContext.UserAccounts.Add(entity);
             _dbContext.SaveChangesAsync();
             return Task.FromResult(entity);
         }
         public async Task<IEnumerable<UserAccount>> GetAllAsync()
         {
-            using var _dbContext = new HotelDbContext();
-            return await _dbContext.UserAccounts.ToListAsync();
+            //using var _dbContext = new HotelDbContext();
+            return await _dbContext.UserAccounts.Include(u => u.Employee).ToListAsync();
         }
         public async Task<UserAccount> GetByIdAsync(int id)
         {
-            using var _dbContext = new HotelDbContext();
+            //using var _dbContext = new HotelDbContext();
             var entity = await _dbContext.UserAccounts.FindAsync(id);
             if (entity == null)
             {
@@ -49,7 +55,7 @@ namespace HotelManager.Services
         }
         public Task<UserAccount> UpdateAsync(UserAccount entity)
         {
-            using var _dbContext = new HotelDbContext();
+            //using var _dbContext = new HotelDbContext();
             _dbContext.UserAccounts.Update(entity);
             _dbContext.SaveChanges();
             return Task.FromResult(entity);

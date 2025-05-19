@@ -20,10 +20,10 @@
                   Margin="0,0,0,40">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Username" Binding="{Binding Username}" />
-                <DataGridTextColumn Header="Full Name" Binding="{Binding FullName}" />
+                <DataGridTextColumn Header="Full Name" Binding="{Binding Employee.FullName}" />
                 <DataGridTextColumn Header="Role" Binding="{Binding Role}" />
-                <DataGridTextColumn Header="Email" Binding="{Binding Email}" />
-                <DataGridTextColumn Header="Phone Number" Binding="{Binding PhoneNumber}" />
+                <DataGridTextColumn Header="Email" Binding="{Binding Employee.Email}" />
+                <DataGridTextColumn Header="Phone Number" Binding="{Binding Employee.PhoneNumber}" />
 
                 <DataGridTemplateColumn Header="Actions">
                     <DataGridTemplateColumn.CellTemplate>

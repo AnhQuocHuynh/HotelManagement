@@ -15,6 +15,8 @@ using HotelManager.Interfaces;
 using HotelManager.Models;
 using HotelManager.Services;
 using RelayCommand = HotelManager.Utilities.RelayCommand;
+using HotelManager.Helpers;
+using HotelManager.Models.Enums;
 
 namespace HotelManager.ViewModels
 {
@@ -39,7 +41,16 @@ namespace HotelManager.ViewModels
                 OnPropertyChanged(nameof(SelectedUser));
             }
         }
-        public AdminViewModel() : this(new UserAccountService()) { LoadAccounts(); }
+        public AdminViewModel()
+        {
+            _userService = new UserAccountService(new HotelDbContext());
+            AddCommand = new RelayCommand(async param => await AddAsync(SelectedUser));
+            UpdateCommand = new RelayCommand(async param => await UpdateAsync(SelectedUser));
+            DeleteCommand = new RelayCommand(async param => await DeleteAsync(SelectedUser));
+            AddNewAccountCommand = new RelayCommand(param => AddNewAccount());
+
+            LoadAccounts();
+        }
         public AdminViewModel(IService<UserAccount> userService)
         {
             _userService = (UserAccountService)userService;
@@ -80,12 +91,16 @@ namespace HotelManager.ViewModels
         {
             if (await _userService.DeleteAsync(account.Id))
             {
-                Accounts.Remove(account);
+                // DO NOT USE THIS RIGHT NOW
+                //Accounts.Remove(account);
             }
         }
 
         private void AddNewAccount()
         {
+
         }
+        
     }
+
 }

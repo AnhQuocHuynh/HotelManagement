@@ -23,8 +23,8 @@ namespace HotelManager.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var connectionString = _configuration?.GetConnectionString("DefaultConnection") 
-                    ?? "Server=.;Database=HotelManager;Trusted_Connection=True;TrustServerCertificate=True;";
+                var connectionString = _configuration?.GetConnectionString("DefaultConnection")
+           ?? DatabaseConfig.GetConnectionString();
                 optionsBuilder.UseSqlServer(connectionString);
             }
         }
