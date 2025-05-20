@@ -6,11 +6,15 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using HotelManager.Models.Enums;
 using HotelManager.Utilities;
+using HotelManager.ViewModels.Common;
+using HotelManager.ViewModels.Common.test;
+using HotelManager.Views.Common;
 
 namespace HotelManager.ViewModels
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : BaseViewModel
     {
         private object _currentView;
         public object CurrentView
@@ -19,19 +23,25 @@ namespace HotelManager.ViewModels
             set { _currentView = value; OnPropertyChanged(); }
         }
 
-        public ICommand ShowLoginCommand { get; }
-        public ICommand ShowHomeCommand { get; }
-
         public MainViewModel()
         {
-            ShowLoginCommand = new RelayCommand(_ => CurrentView = new Views.LoginView());
-            ShowHomeCommand = new RelayCommand(_ => CurrentView = new Views.HomeView());
-
-            CurrentView = new Views.LoginView();
+            ViewModelRegistration.RegisterAll();
+            CurrentView = ViewModelLocator.GetView<LoginViewModel, LoginView>();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string name = null) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        public void BaseViewLocator(UserRole role)
+        {
+            switch (role)
+            {
+                case UserRole.Manager:
+                    CurrentView = ViewModelLocator.GetView<testManagerBaseVM, Views.Common.test.testManagerBaseView>();
+                    break;
+                case UserRole.Staff:
+                    CurrentView = ViewModelLocator.GetView<testReceptionistBaseVM, Views.Common.test.testReceptionistBaseView>();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

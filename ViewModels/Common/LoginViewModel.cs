@@ -110,8 +110,7 @@ namespace HotelManager.ViewModels.Common
             UserAccount account = await loginProcess.Login(UserName, Password, Role);
             if (account == null)
                 return false;
-            else
-                return true;
+            return true;
         }
 
         // login
@@ -129,10 +128,29 @@ namespace HotelManager.ViewModels.Common
                     return;
                 }
 
-                bool correction = await isCorrect();
-                if (correction)
+                //ILoginProcess loginProcess = new LoginProcess();
+                //UserAccount account = await loginProcess.Login(UserName, Password, Role);
+
+                //if (account != null)
+                //{
+                //    MessageBox.Show("login successful");
+                //    AppSession.SetCurrentUserAccount(account);
+                //    MainViewModel _mainVM = new MainViewModel();
+                //    _mainVM.BaseViewLocator(account.Role);// Store the logged-in user in the session
+                //}
+                //else
+                //{
+                //    MessageBox.Show("login unsuccessful");
+                //}
+
+                bool isLoginSuccessful = await isCorrect();
+                if (isLoginSuccessful)
                 {
                     MessageBox.Show("login successful");
+                    UserAccount account = await new UserAccountRepository().FindAccountAsync(UserName, Password, Role);
+                    AppSession.SetCurrentUserAccount(account); // Store the logged-in user in the session
+                    MainViewModel _mainVM = new MainViewModel();
+                    _mainVM.BaseViewLocator(account.Role);
                 }
                 else
                 {
