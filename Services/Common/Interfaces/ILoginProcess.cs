@@ -10,6 +10,6 @@ namespace HotelManager.Services.Common.Interfaces
 {
     public interface ILoginProcess
     {
-        Task<UserAccount> Login(string username, string password, UserRole role);
+        Task<UserAccount> Login(string username, string password, EmployeePosition position);
     }
 }

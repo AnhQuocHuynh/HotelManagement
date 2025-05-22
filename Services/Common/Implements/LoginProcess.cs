@@ -1,4 +1,5 @@
 ﻿using HotelManager.Data.Common;
+using HotelManager.Helpers;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
 using HotelManager.Services.Common.Interfaces;
@@ -12,11 +13,11 @@ namespace HotelManager.Services.Common.Implements
 {
     public class LoginProcess : Services.Common.Interfaces.ILoginProcess
     {
-        public async Task<UserAccount> Login(string username, string password, UserRole role)
+        public async Task<UserAccount> Login(string username, string password, EmployeePosition position)
         {
-            UserAccountRepository userAccountRepository = new UserAccountRepository();
+            EmployeeAccountRepository userAccountRepository = new EmployeeAccountRepository();
 
-            UserAccount account = await userAccountRepository.FindAccountAsync(username, password, role);
+            UserAccount account = await userAccountRepository.FindAccountAsync(username, HashHelper.HashPassword(password),position);
 
             return account;
         }

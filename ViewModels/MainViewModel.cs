@@ -26,18 +26,32 @@ namespace HotelManager.ViewModels
         public MainViewModel()
         {
             ViewModelRegistration.RegisterAll();
-            CurrentView = ViewModelLocator.GetView<LoginViewModel, LoginView>();
+
+            var loginView = ViewDataContextService.CreateViewWithViewModel<LoginViewModel, LoginView>();
+
+            CurrentView = loginView;
+
+            if (loginView.DataContext is LoginViewModel loginVM)
+            {
+                loginVM.LoginSucceeded += position =>
+                {
+                    BaseViewLocator(position);
+                };
+            }
         }
 
-        public void BaseViewLocator(UserRole role)
+        public void BaseViewLocator(EmployeePosition position)
         {
-            switch (role)
+            switch (position)
             {
-                case UserRole.Manager:
+                case EmployeePosition.Manager:
                     CurrentView = ViewModelLocator.GetView<testManagerBaseVM, Views.Common.test.testManagerBaseView>();
                     break;
-                case UserRole.Staff:
+                case EmployeePosition.Receptionist:
                     CurrentView = ViewModelLocator.GetView<testReceptionistBaseVM, Views.Common.test.testReceptionistBaseView>();
+                    break;
+                case EmployeePosition.Cleaner:
+                    CurrentView = ViewModelLocator.GetView<testAttendentBaseVM, Views.Common.test.testAttendentBaseView>();
                     break;
                 default:
                     break;

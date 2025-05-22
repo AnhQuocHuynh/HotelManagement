@@ -9,10 +9,6 @@
              d:DesignHeight="450" d:DesignWidth="800"
              d:Background="Transparent">
 
-    <UserControl.DataContext>
-        <vm:LoginViewModel/>
-    </UserControl.DataContext>
-
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
     </UserControl.Resources>
@@ -43,6 +39,7 @@
                 <Button x:Name="isManager_btn"
                         Content="Manager"
                         Style="{StaticResource DefaultButtonStyle}"
+                        Background="{Binding ManagerBtnBackground}"
                         Height="30"
                         Width="100"
                         Margin="0,30,250,0"
@@ -52,6 +49,7 @@
                 <Button x:Name="isReceptionist_btn"
                         Content="Receptionist"
                         Style="{StaticResource DefaultButtonStyle}"
+                        Background="{Binding ReceptionistBtnBackground}"
                         Height="30"
                         Width="100"
                         Margin="0,30,0,0"
@@ -61,6 +59,7 @@
                 <Button x:Name="isAttendent_btn"
                         Content="Attendent"
                         Style="{StaticResource DefaultButtonStyle}"
+                        Background="{Binding AttendantBtnBackground}"
                         Height="30"
                         Width="100"
                         Margin="0,30,-250,0"
