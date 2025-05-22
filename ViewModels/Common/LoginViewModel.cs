@@ -28,7 +28,7 @@ namespace HotelManager.ViewModels.Common
         private EmployeePosition _position;
         private bool _loginButtonEnabled = true; // Button state
 
-        //position button background
+        //position button background để biết hiện tại đang  chọn chức vụ nào
         private Brush _managerBtnBackground;
         private Brush _receptionistBtnBackground;
         private Brush _attendantBtnBackground;
@@ -133,6 +133,7 @@ namespace HotelManager.ViewModels.Common
             IsReceptionistCommand = new RelayCommand(_ => IsReceptionist());
             IsAttendentCommand = new RelayCommand(_ => IsAttendent());
 
+            // gán chức vụ là manager khi vừa chạy
             IsManager();
         }
 
@@ -163,7 +164,7 @@ namespace HotelManager.ViewModels.Common
         private async Task Login()
         {
             // chờ có kết quả login thì mới cho phép button hoạt động
-            // nếu ko nhấn button liên tục thì yêu cầu trả về liên tục --> trả về nhiều kết quả
+            // nếu ko, khi nhấn button liên tục thì yêu cầu trả về liên tục --> trả về nhiều kết quả
             LoginButtonEnabled = false; // Disable the button
 
             try

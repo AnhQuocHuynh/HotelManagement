@@ -10,15 +10,12 @@ namespace HotelManager.Utilities
 {
     public static class AppSession
     {
+        // lưu trữ thông tin người dùng hiện tại
         private static UserAccount CurrentUserAccount { get; set; }
-        private static List<Room> RoomList { get; set; } = new List<Room>();
-        private static List<Service> ServiceList { get; set; } = new List<Service>();
 
         public static void Clear()
         {
             CurrentUserAccount = null;
-            RoomList.Clear();
-            ServiceList.Clear();
         }
 
         public static void SetCurrentUserAccount(UserAccount userAccount)

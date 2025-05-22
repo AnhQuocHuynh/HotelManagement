@@ -11,6 +11,7 @@ using HotelManager.Utilities;
 using HotelManager.ViewModels.Common;
 using HotelManager.ViewModels.Common.test;
 using HotelManager.Views.Common;
+using HotelManager.Views.Common.test;
 
 namespace HotelManager.ViewModels
 {
@@ -25,10 +26,11 @@ namespace HotelManager.ViewModels
 
         public MainViewModel()
         {
+            // đăng ký tất cả các ViewModel và View tương ứng
             ViewModelRegistration.RegisterAll();
 
+            // gán datacontext cho view
             var loginView = ViewDataContextService.CreateViewWithViewModel<LoginViewModel, LoginView>();
-
             CurrentView = loginView;
 
             if (loginView.DataContext is LoginViewModel loginVM)
@@ -45,13 +47,13 @@ namespace HotelManager.ViewModels
             switch (position)
             {
                 case EmployeePosition.Manager:
-                    CurrentView = ViewModelLocator.GetView<testManagerBaseVM, Views.Common.test.testManagerBaseView>();
+                    CurrentView = ViewDataContextService.CreateViewWithViewModel<testManagerBaseVM, testManagerBaseView>();
                     break;
                 case EmployeePosition.Receptionist:
-                    CurrentView = ViewModelLocator.GetView<testReceptionistBaseVM, Views.Common.test.testReceptionistBaseView>();
+                    CurrentView = ViewDataContextService.CreateViewWithViewModel<testReceptionistBaseVM, testReceptionistBaseView>();
                     break;
                 case EmployeePosition.Cleaner:
-                    CurrentView = ViewModelLocator.GetView<testAttendentBaseVM, Views.Common.test.testAttendentBaseView>();
+                    CurrentView = ViewDataContextService.CreateViewWithViewModel<testAttendentBaseVM, testAttendentBaseView>(); 
                     break;
                 default:
                     break;
