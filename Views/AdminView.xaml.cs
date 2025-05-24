@@ -22,8 +22,6 @@ namespace HotelManager.Views
         public AdminView()
         {
             InitializeComponent();
-            // Set the DataContext to the ViewModel
-            DataContext = new ViewModels.AdminViewModel();
         }
     }
 }
