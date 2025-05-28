@@ -13,12 +13,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace HotelManager.Views
+namespace HotelManager.Views.Common
 {
     /// <summary>
     /// Interaction logic for LoginView.xaml
     /// </summary>
-    public partial class LoginView : Page
+    public partial class LoginView : UserControl
     {
         public LoginView()
         {

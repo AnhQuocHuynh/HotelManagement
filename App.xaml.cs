@@ -9,5 +9,6 @@ namespace HotelManager;
 /// </summary>
 public partial class App : Application
 {
+
 }
 
