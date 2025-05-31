@@ -21,11 +21,24 @@ namespace HotelManager.ViewModels
 
         public ICommand ShowLoginCommand { get; }
         public ICommand ShowHomeCommand { get; }
+        public ICommand ShowCleanerCommand { get; }
+        public ICommand ShowTechnicianCommand { get; }
 
         public MainViewModel()
         {
             ShowLoginCommand = new RelayCommand(_ => CurrentView = new Views.LoginView());
             ShowHomeCommand = new RelayCommand(_ => CurrentView = new Views.HomeView());
+            ShowCleanerCommand = new RelayCommand(_ =>
+            {
+                var cleanerWindow = new Views.StaffViews.CleanerView();
+                cleanerWindow.Show();
+            });
+            ShowTechnicianCommand = new RelayCommand(_ =>
+            {
+                var technicianWindow = new Views.StaffViews.TechnicianView();
+                technicianWindow.Show();
+            });
+
 
             CurrentView = new Views.LoginView();
         }
