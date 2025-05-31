@@ -1,12 +1,87 @@
-﻿<Window x:Class="HotelManager.Views.StaffViews.TechnicianView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:HotelManager.Views.StaffViews"
-        mc:Ignorable="d"
-        Title="TechnicianView" Height="450" Width="800">
-    <Grid>
-        
+﻿<Window x:Class="HotelManager.Views.StaffViews.TechnicianView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Technician - Nhân viên kỹ thuật" Height="600" Width="900" WindowStartupLocation="CenterScreen" Background="#F4F4F4" FontSize="16">
+
+    <Window.Resources>
+        <!-- Style cho nút hiện đại -->
+        <Style x:Key="ModernButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="MinWidth" Value="130" />
+            <Setter Property="Background" Value="#007ACC" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Header cho DataGrid -->
+        <Style x:Key="DataGridHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#007ACC" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+        <!-- CheckBox cho báo cáo sửa chữa: khi đã sửa (IsResolved=True) thì vô hiệu hóa -->
+        <Style x:Key="CheckBoxCellStyleTechnician" TargetType="CheckBox">
+            <Setter Property="IsEnabled" Value="True" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsResolved}" Value="True">
+                    <Setter Property="IsEnabled" Value="False" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <!-- Notification Banner -->
+            <RowDefinition Height="Auto" />
+            <!-- Danh sách báo cáo lỗi -->
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Notification Banner -->
+        <Border x:Name="NotificationBanner" Background="#e0f7fa" Padding="10" CornerRadius="4" Grid.Row="0">
+            <DockPanel>
+                <TextBlock Text="You are Technician" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+                <Button Content="X" Width="20" Height="20" DockPanel.Dock="Right" Background="Transparent" BorderThickness="0" Foreground="Black" />
+            </DockPanel>
+        </Border>
+
+        <!-- DataGrid danh sách báo cáo lỗi -->
+        <DataGrid Grid.Row="1" ItemsSource="{Binding MaintenanceReports}" AutoGenerateColumns="False" Margin="0,10,0,0" ColumnHeaderStyle="{StaticResource DataGridHeaderStyle}" CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Số phòng" Binding="{Binding Room.RoomNumber}" Width="*" />
+                <DataGridTextColumn Header="Mô tả lỗi" Binding="{Binding Description}" Width="*" />
+                <DataGridTemplateColumn Header="Ảnh Lỗi" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding ImagePath}" Width="80" Height="60" Stretch="UniformToFill" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn Header="Ngày báo cáo" Binding="{Binding ReportedDate, StringFormat=dd/MM/yyyy HH:mm}" Width="*" />
+                <!-- Checkbox xác nhận báo cáo đã sửa xong -->
+                <DataGridTemplateColumn Header="Thao tác" Width="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Đã xong" Command="{Binding DataContext.ConfirmResolvedCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" Style="{StaticResource ModernButtonStyle}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>
