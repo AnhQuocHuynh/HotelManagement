@@ -23,8 +23,9 @@ namespace HotelManager.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
+                // Sử dụng connection string từ DatabaseConfig thay vì hardcoded default
                 var connectionString = _configuration?.GetConnectionString("DefaultConnection")
-                    ?? "Server=.;Database=HotelManager;Trusted_Connection=True;TrustServerCertificate=True;";
+                    ?? Config.DatabaseConfig.GetConnectionString();
                 optionsBuilder.UseSqlServer(connectionString);
             }
         }

@@ -31,21 +31,109 @@ namespace HotelManager.Data
 
             if (!context.Employees.Any())
             {
-                var emp = new Employee
+                // Admin User
+                var adminEmp = new Employee
                 {
-                    FullName = "Admin User 1",
+                    FullName = "Admin User",
                     Position = EmployeePosition.Manager, 
-                    Email = "admin@example.com",
-                    PhoneNumber = "0900000000"
+                    Email = "admin@hotelmanager.com",
+                    PhoneNumber = "0900000000",
+                    HireDate = DateTime.Now.AddYears(-2)
                 };
-                context.Employees.Add(emp);
+                context.Employees.Add(adminEmp);
 
                 context.UserAccounts.Add(new UserAccount
                 {
                     Username = "admin1",
                     PasswordHash = HashHelper.HashPassword("admin1"),
                     Role = UserRole.Admin,
-                    Employee = emp
+                    Employee = adminEmp,
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
+                });
+
+                // Manager User
+                var managerEmp = new Employee
+                {
+                    FullName = "Manager User",
+                    Position = EmployeePosition.Manager,
+                    Email = "manager@hotelmanager.com", 
+                    PhoneNumber = "0900000001",
+                    HireDate = DateTime.Now.AddYears(-1)
+                };
+                context.Employees.Add(managerEmp);
+
+                context.UserAccounts.Add(new UserAccount
+                {
+                    Username = "manager1",
+                    PasswordHash = HashHelper.HashPassword("manager1"),
+                    Role = UserRole.Manager,
+                    Employee = managerEmp,
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
+                });
+
+                // Cleaner Staff
+                var cleanerEmp = new Employee
+                {
+                    FullName = "Cleaner User",
+                    Position = EmployeePosition.Cleaner,
+                    Email = "cleaner@hotelmanager.com",
+                    PhoneNumber = "0900000002", 
+                    HireDate = DateTime.Now.AddMonths(-6)
+                };
+                context.Employees.Add(cleanerEmp);
+
+                context.UserAccounts.Add(new UserAccount
+                {
+                    Username = "cleaner1",
+                    PasswordHash = HashHelper.HashPassword("cleaner1"),
+                    Role = UserRole.Staff,
+                    Employee = cleanerEmp,
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
+                });
+
+                // Technician Staff  
+                var technicianEmp = new Employee
+                {
+                    FullName = "Technician User",
+                    Position = EmployeePosition.Technician,
+                    Email = "technician@hotelmanager.com",
+                    PhoneNumber = "0900000003",
+                    HireDate = DateTime.Now.AddMonths(-8)
+                };
+                context.Employees.Add(technicianEmp);
+
+                context.UserAccounts.Add(new UserAccount
+                {
+                    Username = "technician1", 
+                    PasswordHash = HashHelper.HashPassword("technician1"),
+                    Role = UserRole.Staff,
+                    Employee = technicianEmp,
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
+                });
+
+                // Receptionist Staff
+                var receptionistEmp = new Employee
+                {
+                    FullName = "Receptionist User",
+                    Position = EmployeePosition.Receptionist,
+                    Email = "receptionist@hotelmanager.com",
+                    PhoneNumber = "0900000004",
+                    HireDate = DateTime.Now.AddMonths(-4)
+                };
+                context.Employees.Add(receptionistEmp);
+
+                context.UserAccounts.Add(new UserAccount
+                {
+                    Username = "receptionist1",
+                    PasswordHash = HashHelper.HashPassword("receptionist1"), 
+                    Role = UserRole.Staff,
+                    Employee = receptionistEmp,
+                    CreatedAt = DateTime.Now,
+                    IsActive = true
                 });
             }
 

@@ -20,7 +20,7 @@ namespace HotelManager.Views.StaffViews
     /// <summary>
     /// Interaction logic for TechnicianView.xaml
     /// </summary>
-    public partial class TechnicianView : Window
+    public partial class TechnicianView : UserControl
     {
         public TechnicianView()
         {

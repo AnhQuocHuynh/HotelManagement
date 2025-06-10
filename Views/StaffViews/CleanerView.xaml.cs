@@ -20,7 +20,7 @@ namespace HotelManager.Views.StaffViews
     /// <summary>
     /// Interaction logic for CleanerView.xaml
     /// </summary>
-    public partial class CleanerView : Window
+    public partial class CleanerView : UserControl
     {
         public CleanerView()
         {

@@ -1,5 +1,12 @@
-﻿<Window x:Class="HotelManager.Views.StaffViews.CleanerView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Cleaner - Nhân viên dọn phòng" Height="650" Width="900" WindowStartupLocation="CenterScreen" Background="#F4F4F4" FontSize="16">
-    <Window.Resources>
+﻿<UserControl x:Class="HotelManager.Views.StaffViews.CleanerView" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="650" d:DesignWidth="900" 
+             Background="#F4F4F4" FontSize="16">
+    <UserControl.Resources>
         <!-- Style cho nút hiện đại -->
         <Style x:Key="ModernButtonStyle" TargetType="Button">
             <Setter Property="Margin" Value="5" />
@@ -38,7 +45,7 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-    </Window.Resources>
+    </UserControl.Resources>
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -100,4 +107,4 @@
             </StackPanel>
         </Expander>
     </Grid>
-</Window>
+</UserControl>
