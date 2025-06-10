@@ -170,6 +170,39 @@ namespace HotelManager.Migrations
                     b.ToTable("InvoiceDetails");
                 });
 
+            modelBuilder.Entity("HotelManager.Models.MaintenanceReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsResolved")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ReportedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RoomNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomNumber");
+
+                    b.ToTable("MaintenanceReports");
+                });
+
             modelBuilder.Entity("HotelManager.Models.Payment", b =>
                 {
                     b.Property<int>("Id")
@@ -301,6 +334,17 @@ namespace HotelManager.Migrations
                     b.Navigation("Room");
                 });
 
+            modelBuilder.Entity("HotelManager.Models.MaintenanceReport", b =>
+                {
+                    b.HasOne("HotelManager.Models.Room", "Room")
+                        .WithMany("MaintenanceReports")
+                        .HasForeignKey("RoomNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("HotelManager.Models.Payment", b =>
                 {
                     b.HasOne("HotelManager.Models.Invoice", "Invoice")
@@ -351,6 +395,8 @@ namespace HotelManager.Migrations
                     b.Navigation("Bookings");
 
                     b.Navigation("InvoiceDetails");
+
+                    b.Navigation("MaintenanceReports");
                 });
 #pragma warning restore 612, 618
         }

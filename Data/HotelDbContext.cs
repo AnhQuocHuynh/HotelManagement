@@ -142,7 +142,7 @@ namespace HotelManager.Data
                 entity.Property(m => m.ReportedDate).IsRequired();
 
                 entity.HasOne(m => m.Room)
-                      .WithMany() // hoặc .WithMany(r => r.MaintenanceReports) nếu bạn thêm vào Room
+                      .WithMany(r => r.MaintenanceReports)
                       .HasForeignKey(m => m.RoomNumber)
                       .OnDelete(DeleteBehavior.Cascade);
             });

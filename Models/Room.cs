@@ -15,6 +15,7 @@ namespace HotelManager.Models
         public decimal PricePerNight { get; set; } = 0m;
         public ICollection<Booking> Bookings { get; set; }
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
+        public ICollection<MaintenanceReport> MaintenanceReports { get; set; }
 
     }
 }
