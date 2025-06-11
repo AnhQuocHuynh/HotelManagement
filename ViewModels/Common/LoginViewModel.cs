@@ -91,7 +91,7 @@ namespace HotelManager.ViewModels.Common
                     if (user != null)
                     {
                         // Set current user session
-                        Utilities.AppSession.CurrentUserAccount = user;
+                        Utilities.AppSession.SetCurrentUserAccount(user);
                         return true;
                     }
                     return false;

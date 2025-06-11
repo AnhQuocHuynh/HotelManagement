@@ -48,7 +48,7 @@ namespace HotelManager.ViewModels
         // Navigation method based on user role
         public void NavigateBasedOnUserRole()
             {
-            var currentUser = Utilities.AppSession.CurrentUserAccount;
+            var currentUser = Utilities.AppSession.GetCurrentUserAccount();
             if (currentUser == null) return;
 
             switch (currentUser.Role)
