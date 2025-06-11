@@ -11,17 +11,23 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using HotelManager.Data;
+using HotelManager.Services;
+using HotelManager.ViewModels.StaffViewModels;
 
 namespace HotelManager.Views.StaffViews
 {
     /// <summary>
     /// Interaction logic for TechnicianView.xaml
     /// </summary>
-    public partial class TechnicianView : Window
+    public partial class TechnicianView : UserControl
     {
         public TechnicianView()
         {
             InitializeComponent();
+            var context = new HotelDbContext(); // hoặc DI context nếu bạn dùng
+            var service = new MaintenanceService(context);
+            DataContext = new TechnicianViewModel(service);
         }
     }
 }

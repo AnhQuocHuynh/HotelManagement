@@ -8,30 +8,19 @@ using HotelManager.Models;
 using HotelManager.Services.Common.Implements;
 using HotelManager.Utilities;
 using HotelManager.Data.Common;
-using HotelManager.Services.Common.Interfaces;
-using HotelManager.Models.Enums;
-using System.Windows;
-using System.Drawing;
-using Microsoft.VisualBasic;
-using System.Windows.Media;
-using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelManager.ViewModels.Common
 {
     class LoginViewModel : BaseViewModel
     {
+        // Event to notify main view model about successful login
+        public static event Action OnLoginSuccess;
         // khai bao bien
         private string _userName;
         private string _password;
-        private string _passwordVisibility = "Hidden";
-        private bool _ischecked = false;
-        private EmployeePosition _position;
-        private bool _loginButtonEnabled = true; // Button state
-
-        //position button background để biết hiện tại đang  chọn chức vụ nào
-        private Brush _managerBtnBackground;
-        private Brush _receptionistBtnBackground;
-        private Brush _attendantBtnBackground;
+        private bool _passwordVisibility;
+        private string _position;
 
         public string UserName
         {
@@ -44,73 +33,15 @@ namespace HotelManager.ViewModels.Common
             set { _password = value; OnPropertyChanged(); }
         }
 
-        public string PasswordVisibility
+        public bool PasswordVisibility
         {
             get { return _passwordVisibility; }
             set { _passwordVisibility = value; OnPropertyChanged(); }
         }
-
-        public bool IsChecked
-        {
-            get { return _ischecked; }
-            set
-            {
-                _ischecked = value;
-                if (_ischecked)
-                {
-                    PasswordVisibility = "Visible";
-                }
-                else
-                {
-                    PasswordVisibility = "Hidden";
-                }
-                OnPropertyChanged();
-            }
-        }
-
-        public EmployeePosition Position
+        public string Position
         {
             get { return _position; }
             set { _position = value; OnPropertyChanged(); }
-        }
-
-        public bool LoginButtonEnabled
-        {
-            get { return _loginButtonEnabled; }
-            set
-            {
-                _loginButtonEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-
-        //position button background;
-        public Brush ManagerBtnBackground
-        {
-            get { return _managerBtnBackground; }
-            set
-            {
-                _managerBtnBackground = value;
-                OnPropertyChanged();
-            }
-        }
-        public Brush ReceptionistBtnBackground
-        {
-            get { return _receptionistBtnBackground; }
-            set
-            {
-                _receptionistBtnBackground = value;
-                OnPropertyChanged();
-            }
-        }
-        public Brush AttendantBtnBackground
-        {
-            get { return _attendantBtnBackground; }
-            set
-            {
-                _attendantBtnBackground = value;
-                OnPropertyChanged();
-            }
         }
 
         // ICommnd
@@ -118,23 +49,20 @@ namespace HotelManager.ViewModels.Common
         public ICommand IsManagerCommand { get; set; }
         public ICommand IsReceptionistCommand { get; set; }
         public ICommand IsAttendentCommand { get; set; }
+        public ICommand ChangePasswordVisibilityCommand { get; set; }
 
 
 
-        // **** Constructor
+// **** Constructor
         public LoginViewModel()
         {
-            // test xem constructor đc gọi bao nhiêu lần
-            Debug.WriteLine("LoginViewModel created");
-
             // coommand
             LoginCommand = new RelayCommand(_ => Login());
             IsManagerCommand = new RelayCommand(_ => IsManager());
             IsReceptionistCommand = new RelayCommand(_ => IsReceptionist());
             IsAttendentCommand = new RelayCommand(_ => IsAttendent());
 
-            // gán chức vụ là manager khi vừa chạy
-            IsManager();
+            PasswordVisibility = false;
         }
 
 
@@ -148,89 +76,75 @@ namespace HotelManager.ViewModels.Common
         }
 
         // check if username & password is correct
-        //private async Task<bool> isCorrect()
-        //{
-        //    ILoginProcess loginProcess = new LoginProcess();
-        //    UserAccount account = await loginProcess.Login(UserName, Password, Role);
-        //    if (account == null)
-        //        return false;
-        //    return true;
-        //}
-
-        // goi event cho mainview biet doi current view
-        public event Action<EmployeePosition>? LoginSucceeded;
+        private async Task<bool> isCorrect()
+        {
+            try
+            {
+                // Direct authentication without complex layers
+                using (var context = new Data.HotelDbContext())
+                {
+                    var hashedPassword = Helpers.HashHelper.HashPassword(Password);
+                    var user = context.UserAccounts
+                        .Include(u => u.Employee) // Include Employee data for role-based navigation
+                        .FirstOrDefault(u => u.Username == UserName && u.PasswordHash == hashedPassword);
+                    
+                    if (user != null)
+                    {
+                        // Set current user session
+                        Utilities.AppSession.CurrentUserAccount = user;
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Authentication error: {ex.Message}");
+                return false;
+            }
+        }
 
         // login
-        private async Task Login()
+        private async void Login()
         {
-            // chờ có kết quả login thì mới cho phép button hoạt động
-            // nếu ko, khi nhấn button liên tục thì yêu cầu trả về liên tục --> trả về nhiều kết quả
-            LoginButtonEnabled = false; // Disable the button
+            if (isEmpty())
+            {
+                System.Windows.MessageBox.Show("Username or password is empty!");
+                return;
+            }
 
             try
             {
-                if (isEmpty())
-                {
-                    MessageBox.Show("empty usernamee or password");
-                    return;
-                }
-
-                ILoginProcess loginProcess = new LoginProcess();
-                UserAccount account = await loginProcess.Login(UserName, Password, Position);
-
-                if (account != null)
-                {
-                    MessageBox.Show("login successful");
-                    AppSession.SetCurrentUserAccount(account);
-                    LoginSucceeded?.Invoke(account.Employee.Position);
-                }
-                else
-                {
-                    MessageBox.Show("login unsuccessful");
-                }
-
-                //bool isLoginSuccessful = await isCorrect();
-                //if (isLoginSuccessful)
-                //{
-                //    MessageBox.Show("login successful");
-                //    UserAccount account = await new UserAccountRepository().FindAccountAsync(UserName, Password, Role);
-                //    AppSession.SetCurrentUserAccount(account); // Store the logged-in user in the session
-                //    MainViewModel _mainVM = new MainViewModel();
-                //    _mainVM.BaseViewLocator(account.Role);
-                //}
-                //else
-                //{
-                //    MessageBox.Show("login unsuccessful");
-                //}
-            }
-            finally
+            bool correction = await isCorrect();
+            if (correction)
             {
-                LoginButtonEnabled = true; // Re-enable the button
+                    System.Windows.MessageBox.Show("Login successful!");
+                    // Trigger navigation to appropriate view
+                    OnLoginSuccess?.Invoke();
+            }
+            else
+            {
+                    System.Windows.MessageBox.Show("Invalid username or password!");
+            }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Login error: {ex.Message}!");
             }
         }
 
         // change possition
         private void IsManager()
         {
-            Position = EmployeePosition.Manager;
-            MessageBox.Show("You are " + Position);
-            ManagerBtnBackground = (Brush)Application.Current.Resources["AccentBrush"];
-            ReceptionistBtnBackground = AttendantBtnBackground = (Brush)Application.Current.Resources["PrimaryBrush"];
-
+            Position = "Manager";
         }
         private void IsReceptionist()
         {
-            Position = EmployeePosition.Receptionist;
-            MessageBox.Show("You are " + Position);
-            ReceptionistBtnBackground = (Brush)Application.Current.Resources["AccentBrush"];
-            ManagerBtnBackground = AttendantBtnBackground = (Brush)Application.Current.Resources["PrimaryBrush"];
+            Position = "Receptionist";
         }
         private void IsAttendent()
         {
-            Position = EmployeePosition.Cleaner;
-            MessageBox.Show("You are " + Position);
-            AttendantBtnBackground = (Brush)Application.Current.Resources["AccentBrush"];
-            ManagerBtnBackground = ReceptionistBtnBackground = (Brush)Application.Current.Resources["PrimaryBrush"];
+            Position = "Attendent";
         }
 
     }

@@ -2,10 +2,10 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:HotelManager.ViewModels"
-        Title="Hotel Manager" Height="450" Width="800">
+        Title="Hotel Manager" Height="300" Width="400">
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
 
-
-    <StackPanel>
-        <UserControl x:Name="MainUserControl" Content="{Binding CurrentView}" />
-    </StackPanel>
+    <ContentControl Content="{Binding CurrentView}" />
 </Window>

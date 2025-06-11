@@ -6,16 +6,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using HotelManager.Models.Enums;
 using HotelManager.Utilities;
-using HotelManager.ViewModels.Common;
-using HotelManager.ViewModels.Common.test;
-using HotelManager.Views.Common;
-using HotelManager.Views.Common.test;
 
 namespace HotelManager.ViewModels
 {
-    public class MainViewModel : BaseViewModel
+    public class MainViewModel : INotifyPropertyChanged
     {
         private object _currentView;
         public object CurrentView
@@ -24,40 +19,75 @@ namespace HotelManager.ViewModels
             set { _currentView = value; OnPropertyChanged(); }
         }
 
+        public ICommand ShowLoginCommand { get; }
+        public ICommand ShowHomeCommand { get; }
+        public ICommand ShowAdminCommand { get; }
+        public ICommand ShowCleanerCommand { get; }
+        public ICommand ShowTechnicianCommand { get; }
+        public ICommand ShowReceptionistCommand { get; }
+        public ICommand ShowManagerCommand { get; }
+        public ICommand LogoutCommand { get; }
+
         public MainViewModel()
         {
-            // đăng ký tất cả các ViewModel và View tương ứng
-            ViewModelRegistration.RegisterAll();
+            ShowLoginCommand = new RelayCommand(_ => CurrentView = new Views.Common.LoginView());
+            ShowHomeCommand = new RelayCommand(_ => CurrentView = new Views.HomeView());
+            ShowAdminCommand = new RelayCommand(_ => CurrentView = new Views.AdminView());
+            ShowCleanerCommand = new RelayCommand(_ => CurrentView = new Views.StaffViews.CleanerView());
+            ShowTechnicianCommand = new RelayCommand(_ => CurrentView = new Views.StaffViews.TechnicianView());
+            ShowReceptionistCommand = new RelayCommand(_ => CurrentView = new Views.StaffViews.ReceptionistView());
+            ShowManagerCommand = new RelayCommand(_ => CurrentView = new Views.StaffViews.ManagerView());
+            LogoutCommand = new RelayCommand(_ => Logout());
 
-            // gán datacontext cho view
-            var loginView = ViewDataContextService.CreateViewWithViewModel<LoginViewModel, LoginView>();
-            CurrentView = loginView;
+            // Subscribe to login success event
+            ViewModels.Common.LoginViewModel.OnLoginSuccess += NavigateBasedOnUserRole;
 
-            if (loginView.DataContext is LoginViewModel loginVM)
-            {
-                loginVM.LoginSucceeded += position =>
-                {
-                    BaseViewLocator(position);
-                };
-            }
+            CurrentView = new Views.Common.LoginView();
         }
 
-        public void BaseViewLocator(EmployeePosition position)
-        {
-            switch (position)
+        // Navigation method based on user role
+        public void NavigateBasedOnUserRole()
             {
-                case EmployeePosition.Manager:
-                    CurrentView = ViewDataContextService.CreateViewWithViewModel<testManagerBaseVM, testManagerBaseView>();
+            var currentUser = Utilities.AppSession.CurrentUserAccount;
+            if (currentUser == null) return;
+
+            switch (currentUser.Role)
+            {
+                case Models.Enums.UserRole.Admin:
+                    CurrentView = new Views.AdminView();
                     break;
-                case EmployeePosition.Receptionist:
-                    CurrentView = ViewDataContextService.CreateViewWithViewModel<testReceptionistBaseVM, testReceptionistBaseView>();
+                case Models.Enums.UserRole.Manager:
+                    CurrentView = new Views.StaffViews.ManagerView();
                     break;
-                case EmployeePosition.Cleaner:
-                    CurrentView = ViewDataContextService.CreateViewWithViewModel<testAttendentBaseVM, testAttendentBaseView>(); 
+                case Models.Enums.UserRole.Staff:
+                    // For staff, check their position
+                    if (currentUser.Employee?.Position == Models.Enums.EmployeePosition.Cleaner)
+                        CurrentView = new Views.StaffViews.CleanerView();
+                    else if (currentUser.Employee?.Position == Models.Enums.EmployeePosition.Technician)
+                        CurrentView = new Views.StaffViews.TechnicianView();
+                    else if (currentUser.Employee?.Position == Models.Enums.EmployeePosition.Receptionist)
+                        CurrentView = new Views.StaffViews.ReceptionistView();
+                    else
+                        CurrentView = new Views.HomeView();
+                    break;
+                case Models.Enums.UserRole.Customer:
+                    CurrentView = new Views.HomeView();
                     break;
                 default:
+                    CurrentView = new Views.HomeView();
                     break;
             }
         }
+
+        // Logout method
+        public void Logout()
+        {
+            Utilities.AppSession.Clear();
+            CurrentView = new Views.Common.LoginView();
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string name = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }
