@@ -47,64 +47,96 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="10">
+    <Grid>
         <Grid.RowDefinitions>
-            <!-- Notification Banner -->
+            <!-- Header with title and logout button -->
             <RowDefinition Height="Auto" />
-            <!-- Danh sách phòng cần dọn -->
+            <!-- Content area -->
             <RowDefinition Height="*" />
-            <!-- Phần báo cáo hư hỏng -->
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Notification Banner -->
-        <Border x:Name="NotificationBanner" Background="#e0f7fa" Padding="10" CornerRadius="4" Grid.Row="0">
-            <DockPanel>
-                <TextBlock Text="You are Cleaner" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
-                <Button Content="X" Width="23" Height="20" DockPanel.Dock="Right" Background="Transparent" BorderThickness="0" Foreground="Black"  />
-            </DockPanel>
+        <!-- Header with title and logout button -->
+        <Border Background="#007ACC" Height="50" Grid.Row="0">
+            <Grid>
+                <TextBlock Text="Cleaner Dashboard" 
+                           FontSize="20" 
+                           FontWeight="Bold" 
+                           Foreground="White" 
+                           VerticalAlignment="Center" 
+                           HorizontalAlignment="Left" 
+                           Margin="20,0,0,0"/>
+                <Button Content="Logout" 
+                        Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                        Width="80" 
+                        Height="30" 
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Center" 
+                        Margin="0,0,20,0"
+                        Background="DarkRed"
+                        Foreground="White"/>
+            </Grid>
         </Border>
 
-        <!-- DataGrid danh sách phòng cần dọn -->
-        <DataGrid Grid.Row="1" ItemsSource="{Binding RoomsToClean}" AutoGenerateColumns="False" Margin="0,10,0,10" ColumnHeaderStyle="{StaticResource DataGridHeaderStyle}" CanUserAddRows="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Số phòng" Binding="{Binding RoomNumber}" Width="*" />
-                <DataGridTextColumn Header="Loại phòng" Binding="{Binding RoomType}" Width="*" />
-                <DataGridTextColumn Header="Trạng thái" Binding="{Binding IsAvailable}" Width="*" />
-                <DataGridTemplateColumn Header="Hành động" Width="*">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Content="Dọn xong" Command="{Binding DataContext.MarkAsCleanedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Margin="0,0,10,0" />
-                                <Button Content="Báo lỗi" Command="{Binding DataContext.ReportIssueCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+        <!-- Content Area -->
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.RowDefinitions>
+                <!-- Notification Banner -->
+                <RowDefinition Height="Auto" />
+                <!-- Danh sách phòng cần dọn -->
+                <RowDefinition Height="*" />
+                <!-- Phần báo cáo hư hỏng -->
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-            </DataGrid.Columns>
-        </DataGrid>
+            <!-- Notification Banner -->
+            <Border x:Name="NotificationBanner" Background="#e0f7fa" Padding="10" CornerRadius="4" Grid.Row="0">
+                <DockPanel>
+                    <TextBlock Text="You are Cleaner" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
+                    <Button Content="X" Width="23" Height="20" DockPanel.Dock="Right" Background="Transparent" BorderThickness="0" Foreground="Black"  />
+                </DockPanel>
+            </Border>
 
-        <!-- Phần báo cáo hư hỏng (cho phép nhập số phòng, mô tả, kèm ảnh) -->
-        <Expander Grid.Row="2" Header="Báo cáo hư hỏng" IsExpanded="{Binding IsReportExpanded}" FontSize="16" Margin="0,10,0,0">
-            <StackPanel Margin="10">
-                <!-- Một mục báo cáo; nếu cần thêm có thể dùng ItemsControl -->
-                <StackPanel Orientation="Vertical" Margin="0,0,0,10">
-                    <TextBlock Text="Số phòng:" />
-                    <TextBox Text="{Binding DamageReport.RoomNumber}" Margin="0,5,0,10" />
+            <!-- DataGrid danh sách phòng cần dọn -->
+            <DataGrid Grid.Row="1" ItemsSource="{Binding RoomsToClean}" AutoGenerateColumns="False" Margin="0,10,0,10" ColumnHeaderStyle="{StaticResource DataGridHeaderStyle}" CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Số phòng" Binding="{Binding RoomNumber}" Width="*" />
+                    <DataGridTextColumn Header="Loại phòng" Binding="{Binding RoomType}" Width="*" />
+                    <DataGridTextColumn Header="Trạng thái" Binding="{Binding IsAvailable}" Width="*" />
+                    <DataGridTemplateColumn Header="Hành động" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Content="Dọn xong" Command="{Binding DataContext.MarkAsCleanedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Margin="0,0,10,0" />
+                                    <Button Content="Báo lỗi" Command="{Binding DataContext.ReportIssueCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
-                    <TextBlock Text="Chi tiết vật dụng hư hỏng:" />
-                    <TextBox Text="{Binding DamageReport.Description}" Margin="0,5,0,10" AcceptsReturn="True" Height="60" />
+                </DataGrid.Columns>
+            </DataGrid>
 
-                    <TextBlock Text="Ảnh (Tùy chọn):" />
-                    <StackPanel Orientation="Horizontal" Margin="0,5,0,10">
-                        <TextBox Text="{Binding DamageReport.ImagePath}" Width="200" IsReadOnly="True" />
-                        <Button Content="Chọn ảnh" Command="{Binding SelectImageCommand}" Style="{StaticResource ModernButtonStyle}" />
+            <!-- Phần báo cáo hư hỏng (cho phép nhập số phòng, mô tả, kèm ảnh) -->
+            <Expander Grid.Row="2" Header="Báo cáo hư hỏng" IsExpanded="{Binding IsReportExpanded}" FontSize="16" Margin="0,10,0,0">
+                <StackPanel Margin="10">
+                    <!-- Một mục báo cáo; nếu cần thêm có thể dùng ItemsControl -->
+                    <StackPanel Orientation="Vertical" Margin="0,0,0,10">
+                        <TextBlock Text="Số phòng:" />
+                        <TextBox Text="{Binding DamageReport.RoomNumber}" Margin="0,5,0,10" />
+
+                        <TextBlock Text="Chi tiết vật dụng hư hỏng:" />
+                        <TextBox Text="{Binding DamageReport.Description}" Margin="0,5,0,10" AcceptsReturn="True" Height="60" />
+
+                        <TextBlock Text="Ảnh (Tùy chọn):" />
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,10">
+                            <TextBox Text="{Binding DamageReport.ImagePath}" Width="200" IsReadOnly="True" />
+                            <Button Content="Chọn ảnh" Command="{Binding SelectImageCommand}" Style="{StaticResource ModernButtonStyle}" />
+                        </StackPanel>
                     </StackPanel>
+                    <!-- Nút gửi báo cáo -->
+                    <Button Content="Gửi báo cáo hư hỏng" Command="{Binding SendDamageReportCommand}" Style="{StaticResource ModernButtonStyle}" HorizontalAlignment="Right" />
                 </StackPanel>
-                <!-- Nút gửi báo cáo -->
-                <Button Content="Gửi báo cáo hư hỏng" Command="{Binding SendDamageReportCommand}" Style="{StaticResource ModernButtonStyle}" HorizontalAlignment="Right" />
-            </StackPanel>
-        </Expander>
+            </Expander>
+        </Grid>
     </Grid>
 </UserControl>

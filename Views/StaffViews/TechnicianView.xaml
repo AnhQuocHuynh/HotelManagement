@@ -4,11 +4,86 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="900" 
+             d:DesignHeight="600" d:DesignWidth="1200" 
              Background="{StaticResource AccentBrush}" FontSize="16">
+    <UserControl.Resources>
+        <!-- Boolean to Visibility Converter -->
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+        
+        <!-- Header cho DataGrid -->
+        <Style x:Key="DataGridHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#007ACC" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+        
+        <!-- Style cho button cần sửa chữa (màu đỏ) -->
+        <Style x:Key="NeedRepairButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="MinWidth" Value="120" />
+            <Setter Property="Background" Value="#dc3545" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Style cho button đã sửa chữa (màu xanh) -->
+        <Style x:Key="RepairedButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="MinWidth" Value="120" />
+            <Setter Property="Background" Value="#28a745" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Style cho button upload ảnh -->
+        <Style x:Key="UploadButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="MinWidth" Value="80" />
+            <Setter Property="Background" Value="#17a2b8" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="10" />
+        </Style>
+    </UserControl.Resources>
+    
     <Grid>
+        <Grid.RowDefinitions>
+            <!-- Header with title and logout button -->
+            <RowDefinition Height="Auto" />
+            <!-- Content area -->
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
         <!-- Header with title and logout button -->
-        <Border Background="{StaticResource PrimaryBrush}" Height="50" VerticalAlignment="Top">
+        <Border Background="{StaticResource PrimaryBrush}" Height="50" Grid.Row="0">
             <Grid>
                 <TextBlock Text="Technician Dashboard" 
                            FontSize="20" 
@@ -28,12 +103,98 @@
                         Foreground="White"/>
             </Grid>
         </Border>
-        
-        <!-- Main content area -->
-        <TextBlock Text="Welcome to Technician Dashboard!" 
-                   FontSize="24" 
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center"
-                   Foreground="White"/>
+
+        <!-- Content Area -->
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Title for maintenance reports -->
+            <TextBlock Text="Danh sách báo cáo sửa chữa" 
+                       Grid.Row="0"
+                       FontSize="18" 
+                       FontWeight="Bold"
+                       Foreground="White"
+                       Margin="0,10,0,10"
+                       HorizontalAlignment="Left"/>
+
+            <!-- DataGrid for maintenance reports -->
+            <DataGrid Grid.Row="1" 
+                      ItemsSource="{Binding MaintenanceReports}" 
+                      AutoGenerateColumns="False" 
+                      ColumnHeaderStyle="{StaticResource DataGridHeaderStyle}" 
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      IsReadOnly="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Số phòng" Binding="{Binding RoomNumber}" Width="80" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Mô tả hư hỏng" Binding="{Binding Description}" Width="250" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Ngày báo cáo" Binding="{Binding ReportedDate, StringFormat=dd/MM/yyyy HH:mm}" Width="120" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Ảnh báo cáo" Binding="{Binding ImagePath}" Width="150" IsReadOnly="True"/>
+                    
+                    <!-- Cột hiển thị ngày hoàn thành -->
+                    <DataGridTextColumn Header="Ngày hoàn thành" Binding="{Binding CompletedDate, StringFormat=dd/MM/yyyy HH:mm}" Width="120" IsReadOnly="True"/>
+                    
+                    <!-- Cột hiển thị ảnh minh chứng hoàn thành -->
+                    <DataGridTextColumn Header="Ảnh minh chứng" Binding="{Binding CompletionImagePath}" Width="150" IsReadOnly="True"/>
+                    
+                    <!-- Cột trạng thái với button động -->
+                    <DataGridTemplateColumn Header="Trạng thái" Width="130">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <!-- Button màu đỏ khi chưa sửa, màu xanh khi đã sửa -->
+                                <Button Command="{Binding DataContext.ToggleResolvedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                        CommandParameter="{Binding}">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Margin" Value="5" />
+                                            <Setter Property="MinWidth" Value="120" />
+                                            <Setter Property="Background" Value="#dc3545" />
+                                            <Setter Property="Foreground" Value="White" />
+                                            <Setter Property="BorderBrush" Value="Transparent" />
+                                            <Setter Property="Cursor" Value="Hand" />
+                                            <Setter Property="FontWeight" Value="SemiBold" />
+                                            <Setter Property="FontSize" Value="12" />
+                                            <Setter Property="Content" Value="Cần sửa chữa" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsResolved}" Value="True">
+                                                    <Setter Property="Background" Value="#28a745" />
+                                                    <Setter Property="Content" Value="Đã sửa chữa" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    
+                    <!-- Cột upload ảnh minh chứng (chỉ hiện khi đã sửa) -->
+                    <DataGridTemplateColumn Header="Upload ảnh" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Tải ảnh" 
+                                        Command="{Binding DataContext.SelectCompletionImageCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource UploadButtonStyle}"
+                                        Visibility="{Binding IsResolved, Converter={StaticResource BoolToVisConverter}}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
     </Grid>
 </UserControl>

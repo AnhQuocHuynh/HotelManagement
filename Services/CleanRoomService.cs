@@ -57,10 +57,27 @@ namespace HotelManager.Services
         }
         public async Task SendDamageReportAsync(MaintenanceReport report)
         {
+            // Validate required fields
+            if (string.IsNullOrEmpty(report.RoomNumber))
+                throw new ArgumentException("Room number is required");
+            
+            if (string.IsNullOrEmpty(report.Description))
+                throw new ArgumentException("Description is required");
+
+            // Check if room exists
+            var room = await _context.Rooms.FirstOrDefaultAsync(r => r.RoomNumber == report.RoomNumber);
+            if (room == null)
+                throw new ArgumentException($"Room {report.RoomNumber} does not exist");
+
+            // Set properties
             report.ReportedDate = DateTime.Now;
             report.IsResolved = false;
+            
+            // Don't set Room navigation property, just RoomNumber foreign key
+            report.Room = null;
 
-            await _context.AddAsync(report);
+            // Add to specific DbSet
+            _context.MaintenanceReports.Add(report);
             await _context.SaveChangesAsync();
         }
 

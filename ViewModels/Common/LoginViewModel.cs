@@ -115,17 +115,17 @@ namespace HotelManager.ViewModels.Common
 
             try
             {
-                bool correction = await isCorrect();
-                if (correction)
-                {
+            bool correction = await isCorrect();
+            if (correction)
+            {
                     System.Windows.MessageBox.Show("Login successful!");
                     // Trigger navigation to appropriate view
                     OnLoginSuccess?.Invoke();
-                }
-                else
-                {
+            }
+            else
+            {
                     System.Windows.MessageBox.Show("Invalid username or password!");
-                }
+            }
             }
             catch (Exception ex)
             {

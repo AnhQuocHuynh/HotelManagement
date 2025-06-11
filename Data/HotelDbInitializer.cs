@@ -29,9 +29,12 @@ namespace HotelManager.Data
                 );
             }
 
-            if (!context.Employees.Any())
+            // Create accounts individually (only if they don't already exist)
+            
+            // Admin User
+            if (!context.UserAccounts.Any(u => u.Username == "admin1"))
             {
-                // Admin User
+                System.Diagnostics.Debug.WriteLine("Creating admin1 account...");
                 var adminEmp = new Employee
                 {
                     FullName = "Admin User",
@@ -51,8 +54,17 @@ namespace HotelManager.Data
                     CreatedAt = DateTime.Now,
                     IsActive = true
                 });
+            }
 
-                // Manager User
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("admin1 account already exists, skipping...");
+            }
+
+            // Manager User
+            if (!context.UserAccounts.Any(u => u.Username == "manager1"))
+            {
+                System.Diagnostics.Debug.WriteLine("Creating manager1 account...");
                 var managerEmp = new Employee
                 {
                     FullName = "Manager User",
@@ -72,8 +84,16 @@ namespace HotelManager.Data
                     CreatedAt = DateTime.Now,
                     IsActive = true
                 });
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("manager1 account already exists, skipping...");
+            }
 
-                // Cleaner Staff
+            // Cleaner Staff
+            if (!context.UserAccounts.Any(u => u.Username == "cleaner1"))
+            {
+                System.Diagnostics.Debug.WriteLine("Creating cleaner1 account...");
                 var cleanerEmp = new Employee
                 {
                     FullName = "Cleaner User",
@@ -93,8 +113,16 @@ namespace HotelManager.Data
                     CreatedAt = DateTime.Now,
                     IsActive = true
                 });
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("cleaner1 account already exists, skipping...");
+            }
 
-                // Technician Staff  
+            // Technician Staff  
+            if (!context.UserAccounts.Any(u => u.Username == "technician1"))
+            {
+                System.Diagnostics.Debug.WriteLine("Creating technician1 account...");
                 var technicianEmp = new Employee
                 {
                     FullName = "Technician User",
@@ -114,8 +142,16 @@ namespace HotelManager.Data
                     CreatedAt = DateTime.Now,
                     IsActive = true
                 });
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("technician1 account already exists, skipping...");
+            }
 
-                // Receptionist Staff
+            // Receptionist Staff
+            if (!context.UserAccounts.Any(u => u.Username == "receptionist1"))
+            {
+                System.Diagnostics.Debug.WriteLine("Creating receptionist1 account...");
                 var receptionistEmp = new Employee
                 {
                     FullName = "Receptionist User",
@@ -136,8 +172,20 @@ namespace HotelManager.Data
                     IsActive = true
                 });
             }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("receptionist1 account already exists, skipping...");
+            }
 
             context.SaveChanges();
+            
+            // Debug: Show all accounts in database
+            var allAccounts = context.UserAccounts.Include(u => u.Employee).ToList();
+            System.Diagnostics.Debug.WriteLine($"Total UserAccounts in database: {allAccounts.Count}");
+            foreach (var account in allAccounts)
+            {
+                System.Diagnostics.Debug.WriteLine($"Username: {account.Username}, Role: {account.Role}, Position: {account.Employee?.Position}");
+            }
 
             if (!context.Bookings.Any())
             {

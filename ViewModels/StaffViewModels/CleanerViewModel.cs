@@ -130,8 +130,32 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             try
             {
+                // Debug information
+                System.Diagnostics.Debug.WriteLine($"Attempting to send damage report:");
+                System.Diagnostics.Debug.WriteLine($"RoomNumber: '{DamageReport.RoomNumber}'");
+                System.Diagnostics.Debug.WriteLine($"Description: '{DamageReport.Description}'");
+                System.Diagnostics.Debug.WriteLine($"ImagePath: '{DamageReport.ImagePath}'");
+
+                // Validate required fields
+                if (string.IsNullOrWhiteSpace(DamageReport.RoomNumber))
+                {
+                    MessageBox.Show("Vui lòng nhập số phòng!", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(DamageReport.Description))
+                {
+                    MessageBox.Show("Vui lòng nhập mô tả hư hỏng!", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                System.Diagnostics.Debug.WriteLine("Validation passed, calling service...");
+                
                 DamageReport.ReportedDate = DateTime.Now;
                 await _cleanroomService.SendDamageReportAsync(DamageReport);
+                
+                System.Diagnostics.Debug.WriteLine("Service call completed successfully");
+                
                 MessageBox.Show("Gửi báo cáo thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 DamageReport = new MaintenanceReport(); // Reset form
@@ -139,6 +163,8 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error in SendDamageReport: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 MessageBox.Show($"Gửi báo cáo thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
