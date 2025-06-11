@@ -46,9 +46,6 @@ namespace HotelManager.ViewModels.Common
 
         // ICommnd
         public ICommand LoginCommand { get; set; }
-        public ICommand IsManagerCommand { get; set; }
-        public ICommand IsReceptionistCommand { get; set; }
-        public ICommand IsAttendentCommand { get; set; }
         public ICommand ChangePasswordVisibilityCommand { get; set; }
 
 
@@ -58,9 +55,6 @@ namespace HotelManager.ViewModels.Common
         {
             // coommand
             LoginCommand = new RelayCommand(_ => Login());
-            IsManagerCommand = new RelayCommand(_ => IsManager());
-            IsReceptionistCommand = new RelayCommand(_ => IsReceptionist());
-            IsAttendentCommand = new RelayCommand(_ => IsAttendent());
 
             PasswordVisibility = false;
         }
@@ -132,20 +126,5 @@ namespace HotelManager.ViewModels.Common
                 System.Windows.MessageBox.Show($"Login error: {ex.Message}!");
             }
         }
-
-        // change possition
-        private void IsManager()
-        {
-            Position = "Manager";
-        }
-        private void IsReceptionist()
-        {
-            Position = "Receptionist";
-        }
-        private void IsAttendent()
-        {
-            Position = "Attendent";
-        }
-
     }
 }

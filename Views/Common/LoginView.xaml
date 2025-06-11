@@ -9,17 +9,17 @@
              d:DesignHeight="450" d:DesignWidth="800"
              d:Background="Transparent">
 
-    <UserControl.DataContext>
-        <vm:LoginViewModel/>
-    </UserControl.DataContext>
-
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
     </UserControl.Resources>
 
+    <UserControl.DataContext>
+        <vm:LoginViewModel />
+    </UserControl.DataContext>
+
     <Grid>
 
-        <Border Width="600" Height="350"
+        <Border Width="450" Height="300"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Center"
                 CornerRadius="10"
@@ -27,44 +27,18 @@
                 Background="White">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="100"/>
+                    <RowDefinition Height="60"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Who are you -->
-                <TextBlock Text="Who are you?"
-                           Foreground="Black"
-                           FontSize="20"
+                <!-- "Sign In" -->
+                <TextBlock Text="HOTEL MANAGEMENT"
+                           Foreground="#0D47A1"
+                           FontSize="25"
+                           FontWeight="Bold"
                            Grid.Row="0"
                            HorizontalAlignment="Center" 
-                           Margin="0,10,0,0"></TextBlock>
-
-                <!-- manager button -->
-                <Button x:Name="isManager_btn"
-                        Content="Manager"
-                        Style="{StaticResource DefaultButtonStyle}"
-                        Height="30"
-                        Width="100"
-                        Margin="0,30,250,0"
-                        Command="{Binding IsManagerCommand}"></Button>
-
-                <!-- receptionist button -->
-                <Button x:Name="isReceptionist_btn"
-                        Content="Receptionist"
-                        Style="{StaticResource DefaultButtonStyle}"
-                        Height="30"
-                        Width="100"
-                        Margin="0,30,0,0"
-                        Command="{Binding IsReceptionistCommand}"></Button>
-
-                <!-- attendent button -->
-                <Button x:Name="isAttendent_btn"
-                        Content="Attendent"
-                        Style="{StaticResource DefaultButtonStyle}"
-                        Height="30"
-                        Width="100"
-                        Margin="0,30,-250,0"
-                        Command="{Binding IsAttendentCommand}"></Button>
+                           Margin="0,15,0,0"></TextBlock>
 
                 <!-- input border -->
                 <Border Grid.Row="1"
@@ -78,12 +52,12 @@
                                    Foreground="#EEEEEE"
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Top"
-                                   Margin="100,20,0,0"></TextBlock>
+                                   Margin="80,20,0,0"></TextBlock>
                         <TextBox x:Name="UserName_tb"
                                  Style="{StaticResource DefaultTextBoxStyle}"
                                  FontWeight="Bold"
                                  Height="30"
-                                 Width="400"
+                                 Width="300"
                                  Margin="0,0,0,110"
                                  Text="{Binding UserName}"></TextBox>
 
@@ -93,12 +67,12 @@
                                    Foreground="#EEEEEE"
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Top"
-                                   Margin="100,100,0,0"></TextBlock>
+                                   Margin="80,100,0,0"></TextBlock>
 
                         <PasswordBox x:Name="Password_PasswordBox"
                                      helpers:PasswordBoxAssistant.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Height="30"
-                                     Width="400"
+                                     Width="300"
                                      Margin="0,50,0,0"
                                      Padding="8,6"
                                      Background="White"
@@ -121,14 +95,14 @@
                                  Style="{StaticResource DefaultTextBoxStyle}"
                                  FontWeight="Bold"
                                  Height="30"
-                                 Width="400"
+                                 Width="300"
                                  Margin="0,50,0,0"></TextBox>
                         <!-- show password -->
                         <CheckBox x:Name="showPassword_CheckBos"
                                   IsChecked="{Binding PasswordVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                   HorizontalAlignment="Right"
                                   VerticalAlignment="Bottom"
-                                  Margin="0,0,70,90">
+                                  Margin="0,0,50,90">
                         </CheckBox>
                         <!-- login button -->
                         <Button x:Name="Login_btn"
