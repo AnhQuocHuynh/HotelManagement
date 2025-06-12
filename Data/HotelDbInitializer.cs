@@ -93,6 +93,102 @@ namespace HotelManager.Data
             }
 
             context.SaveChanges();
+
+            // Thêm dữ liệu mẫu cho Customer nếu bảng trống
+            if (!context.Customers.Any())
+            {
+                context.Customers.AddRange(
+                    new Customer
+                    {
+                        FullName = "Nguyễn Văn A",
+                        PhoneNumber = "0901234567",
+                        CCCD = "012345678901",
+                        Type = CustomerType.Single
+                    },
+                    new Customer
+                    {
+                        FullName = "Trần Thị B",
+                        PhoneNumber = "0912345678",
+                        CCCD = "123456789012",
+                        Type = CustomerType.Family
+                    },
+                    new Customer
+                    {
+                        FullName = "Lê Văn C",
+                        PhoneNumber = "0923456789",
+                        CCCD = "234567890123",
+                        Type = CustomerType.Business
+                    },
+                    new Customer
+                    {
+                        FullName = "Phạm Thị D",
+                        PhoneNumber = "0934567890",
+                        CCCD = "345678901234",
+                        Type = CustomerType.VIP
+                    },
+                    new Customer
+                    {
+                        FullName = "Hoàng Văn E",
+                        PhoneNumber = "0945678901",
+                        CCCD = "456789012345",
+                        Type = CustomerType.Single
+                    }
+                );
+
+                context.SaveChanges();
+            }
+            if (!context.Rooms.Any())
+            {
+                var rooms = new List<Room>
+                {
+                    new Room { RoomNumber = "101", RoomType = RoomType.Standard, PricePerNight = 500000, IsAvailable = true },
+                    new Room { RoomNumber = "102", RoomType = RoomType.Deluxe, PricePerNight = 750000, IsAvailable = true },
+                    new Room { RoomNumber = "201", RoomType = RoomType.Suite, PricePerNight = 1000000, IsAvailable = false }
+                };
+                context.Rooms.AddRange(rooms);
+                context.SaveChanges();
+            }
+            if (!context.Bookings.Any())
+            {
+                var customers = context.Customers.ToList();
+                var rooms = context.Rooms.ToList();
+
+                var bookings = new List<Booking>
+                {
+                    new Booking
+                    {
+                        CheckInDate = new DateTime(2025, 6, 10),
+                        CheckOutDate = new DateTime(2025, 6, 12),
+                        Status = BookingStatus.Confirmed,
+                        CustomerId = customers.First(c => c.FullName == "Nguyễn Văn An").Id,
+                        RoomNumber = "101",
+                        Customer = customers.First(c => c.FullName == "Nguyễn Văn An"),
+                        RoomType = RoomType.Standard
+                    },
+                    new Booking
+                    {
+                        CheckInDate = new DateTime(2025, 6, 8),
+                        CheckOutDate = new DateTime(2025, 6, 10),
+                        Status = BookingStatus.CheckedOut,
+                        CustomerId = customers.First(c => c.FullName == "Trần Thị Bình").Id,
+                        RoomNumber = "102",
+                        Customer = customers.First(c => c.FullName == "Trần Thị Bình"),
+                        RoomType = RoomType.Deluxe
+                    },
+                    new Booking
+                    {
+                        CheckInDate = new DateTime(2025, 6, 11),
+                        CheckOutDate = new DateTime(2025, 6, 15),
+                        Status = BookingStatus.Pending,
+                        CustomerId = customers.First(c => c.FullName == "Lê Hoàng Cường").Id,
+                        RoomNumber = "201",
+                        Customer = customers.First(c => c.FullName == "Lê Hoàng Cường"),
+                        RoomType = RoomType.Suite
+                    }
+                };
+                context.Bookings.AddRange(bookings);
+                context.SaveChanges();
+            }
         }
     }
 }

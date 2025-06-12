@@ -2,13 +2,16 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:HotelManager.ViewModels"
-        Title="Hotel Manager" Height="300" Width="400">
+        Title="Hotel Manager" Height="300" Width="400"
+        xmlns:views="clr-namespace:HotelManager.Views"
+        xmlns:staff="clr-namespace:HotelManager.Views.StaffViews"
+        >
+    
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
 
-    <StackPanel Margin="20">
-        <TextBlock Text="{Binding WelcomeMessage}" FontSize="20" Margin="0 0 0 10"/>
-        <Button Content="Click Me!" Command="{Binding ShowMessageCommand}" Width="100" Height="30"/>
-    </StackPanel>
+    <Grid Margin="10">
+        <staff:ReceptionistView />
+    </Grid>
 </Window>

@@ -24,7 +24,7 @@ namespace HotelManager.Data
             if (!optionsBuilder.IsConfigured)
             {
                 var connectionString = _configuration?.GetConnectionString("DefaultConnection") 
-                    ?? "Server=.;Database=HotelManager;Trusted_Connection=True;TrustServerCertificate=True;";
+                    ?? "Server=LAPTOP-HR42JU06\\SQLEXPRESS;Database=HotelManager;Trusted_Connection=True;TrustServerCertificate=True;";
                 optionsBuilder.UseSqlServer(connectionString);
             }
         }
