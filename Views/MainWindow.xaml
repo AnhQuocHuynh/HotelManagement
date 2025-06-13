@@ -7,8 +7,5 @@
         <vm:MainViewModel />
     </Window.DataContext>
 
-    <StackPanel Margin="20">
-        <TextBlock Text="{Binding WelcomeMessage}" FontSize="20" Margin="0 0 0 10"/>
-        <Button Content="Click Me!" Command="{Binding ShowMessageCommand}" Width="100" Height="30"/>
-    </StackPanel>
+    <ContentControl Content="{Binding CurrentView}" />
 </Window>

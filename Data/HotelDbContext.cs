@@ -13,7 +13,7 @@ namespace HotelManager.Data
 
         public HotelDbContext(DbContextOptions<HotelDbContext> options) : base(options) { }
 
-        public HotelDbContext(DbContextOptions<HotelDbContext> options, IConfiguration configuration) 
+        public HotelDbContext(DbContextOptions<HotelDbContext> options, IConfiguration configuration)
             : base(options)
         {
             _configuration = configuration;
@@ -23,8 +23,9 @@ namespace HotelManager.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var connectionString = _configuration?.GetConnectionString("DefaultConnection") 
-                    ?? "Server=.;Database=HotelManager;Trusted_Connection=True;TrustServerCertificate=True;";
+                // Sử dụng connection string từ DatabaseConfig thay vì hardcoded default
+                var connectionString = _configuration?.GetConnectionString("DefaultConnection")
+                    ?? Config.DatabaseConfig.GetConnectionString();
                 optionsBuilder.UseSqlServer(connectionString);
             }
         }
@@ -37,6 +38,8 @@ namespace HotelManager.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<UserAccount> UserAccounts { get; set; }
+        public DbSet<MaintenanceReport> MaintenanceReports { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -132,6 +135,19 @@ namespace HotelManager.Data
                       .WithOne(e => e.UserAccount)
                       .HasForeignKey<UserAccount>(u => u.EmployeeId);
             });
+            modelBuilder.Entity<MaintenanceReport>(entity =>
+            {
+                entity.HasKey(m => m.Id);
+
+                entity.Property(m => m.Description).IsRequired();
+                entity.Property(m => m.ReportedDate).IsRequired();
+
+                entity.HasOne(m => m.Room)
+                      .WithMany(r => r.MaintenanceReports)
+                      .HasForeignKey(m => m.RoomNumber)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
         }
     }
 }
