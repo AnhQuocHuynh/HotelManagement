@@ -10,21 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
-using HotelManager.ViewModels;
 
 namespace HotelManager.Views
 {
     /// <summary>
-    /// Interaction logic for AdminView.xaml
+    /// Interaction logic for EmployeeEditView.xaml
     /// </summary>
-    public partial class AdminView : UserControl
+    public partial class EmployeeEditView : UserControl
     {
-        public AdminView()
+        public EmployeeEditView()
         {
             InitializeComponent();
-            //to be deleted later
-            //this.DataContext = new AdminViewModel();
         }
     }
 }

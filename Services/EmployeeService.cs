@@ -16,7 +16,7 @@ namespace HotelManager.Services
         public EmployeeService(HotelDbContext dbContext)
         {
             _dbContext = dbContext;
-            HotelDbInitializer.Seed(_dbContext);
+            //HotelDbInitializer.Seed(_dbContext);
         }
         public async Task<bool> DeleteAsync(int id)
         {
