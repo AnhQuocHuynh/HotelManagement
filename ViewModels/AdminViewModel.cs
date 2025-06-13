@@ -27,12 +27,23 @@ namespace HotelManager.ViewModels
     internal class AdminViewModel : BaseViewModel
     {
         private readonly EmployeeService _employeeService;
+        private readonly DialogService _dialogService = new DialogService();
         public ICommand AddCommand { get; set; }
         public ICommand UpdateCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
         public ICommand AddNewEmployeeCommand { get; set; }
 
-        public ObservableCollection<Employee> Employees { get; set; } = new();
+        private ObservableCollection<Employee> _employees = new();
+        public ObservableCollection<Employee> Employees
+        {
+            get => _employees;
+            set
+            {
+                _employees = value;
+                OnPropertyChanged(nameof(Employees));
+            }
+        }
+
         private Employee _selectedEmployee;
         public Employee SelectedEmployee
         {
@@ -45,8 +56,7 @@ namespace HotelManager.ViewModels
         }
 
         //New employee data getter
-        public IEnumerable<EmployeePosition> EmployeePositions { get; } = Enum.GetValues(typeof(EmployeePosition))
-            .Cast<EmployeePosition>(); //To be fixed
+        public IEnumerable<EmployeePosition> EmployeePositions { get; } = EnumHelper.EmployeePositions; //To be fixed
 
         private EmployeePosition _selectedPosition;
         public EmployeePosition SelectedPosition
@@ -105,84 +115,85 @@ namespace HotelManager.ViewModels
         {
             _employeeService = new EmployeeService(new HotelDbContext());
             AddCommand = new RelayCommand(async param => await AddAsync(SelectedEmployee));
-            UpdateCommand = new RelayCommand(async param => await UpdateAsync(SelectedEmployee));
+            UpdateCommand = new RelayCommand(async param => Update(SelectedEmployee));
             DeleteCommand = new RelayCommand(async param => await DeleteAsync(SelectedEmployee));
             AddNewEmployeeCommand = new RelayCommand(param => AddNewEmployee());
 
             LoadEmployees();
-            SetDummyEmployees();
+            //SetDummyEmployees();
         }
         public AdminViewModel(IService<Employee> employeeService)
         {
             _employeeService = (EmployeeService)employeeService;
 
             AddCommand = new RelayCommand(async param => await AddAsync(SelectedEmployee));
-            UpdateCommand = new RelayCommand(async param => await UpdateAsync(SelectedEmployee));
+            UpdateCommand = new RelayCommand(async param => Update(SelectedEmployee));
             DeleteCommand = new RelayCommand(async param => await DeleteAsync(SelectedEmployee));
             AddNewEmployeeCommand = new RelayCommand(param => AddNewEmployee());
 
             LoadEmployees();
-            SetDummyEmployees();
+            //SetDummyEmployees();
         }
         public async void LoadEmployees()
         {
             var employees = await _employeeService.GetAllAsync();
-            Employees.Clear();
-            foreach (var employee in employees)
-            {
-                Employees.Add(employee);
-            }
+            Employees.Clear(); 
+            foreach (var emp in employees)
+                Employees.Add(emp); //Trigger UI update
         }
 
-        private void SetDummyEmployees()
-        {
-            var dummyEmployees = new List<(string? Username, string FullName, string Email, string Phone, EmployeePosition Position)>
-    {
-        ("user1", "Nguyen Test 1", "user1@example.com", "0901111111", EmployeePosition.Receptionist),
-        (null, "Nguyen Test 2", "user2@example.com", "0902222222", EmployeePosition.Technician),
-        ("user3", "Nguyen Test 3", "user3@example.com", "0903333333", EmployeePosition.Receptionist)
-    };
+    //    private void SetDummyEmployees()
+    //    {
+    //        var dummyEmployees = new List<(string? Username, string FullName, string Email, string Phone, EmployeePosition Position)>
+    //{
+    //    ("user1", "Nguyen Test 1", "user1@example.com", "0901111111", EmployeePosition.Receptionist),
+    //    (null, "Nguyen Test 2", "user2@example.com", "0902222222", EmployeePosition.Technician),
+    //    ("user3", "Nguyen Test 3", "user3@example.com", "0903333333", EmployeePosition.Receptionist)
+    //};
 
-            foreach (var (username, fullName, email, phone, position) in dummyEmployees)
-            {
-                var employee = new Employee
-                {
-                    FullName = fullName,
-                    Email = email,
-                    PhoneNumber = phone,
-                    HireDate = DateTime.UtcNow,
-                    Position = position,
-                    UserAccount = username != null ? new UserAccount
-                    {
-                        Username = username,
-                        PasswordHash = HashHelper.HashPassword(username),
-                        Role = UserRole.Staff,
-                        CreatedAt = DateTime.UtcNow,
-                        IsActive = true
-                    } : null
-                };
+    //        foreach (var (username, fullName, email, phone, position) in dummyEmployees)
+    //        {
+    //            var employee = new Employee
+    //            {
+    //                FullName = fullName,
+    //                Email = email,
+    //                PhoneNumber = phone,
+    //                HireDate = DateTime.UtcNow,
+    //                Position = position,
+    //                UserAccount = username != null ? new UserAccount
+    //                {
+    //                    Username = username,
+    //                    PasswordHash = HashHelper.HashPassword(username),
+    //                    Role = UserRole.Staff,
+    //                    CreatedAt = DateTime.UtcNow,
+    //                    IsActive = true
+    //                } : null
+    //            };
 
-                Employees.Add(employee);
-            }
-        }
+    //            Employees.Add(employee);
+    //        }
+    //    }
         private async Task AddAsync(Employee employee)
         {
             var added = await _employeeService.CreateAsync(employee);
             Employees.Add(added);
         }
 
-        private async Task UpdateAsync(Employee employee)
+        private void Update(Employee employee)
         {
-            if(employee.Email == null || employee.FullName == null || employee.PhoneNumber == null)
+            if(employee == null)
             {
-                throw new ArgumentException("Employee details cannot be null.");
+                MessageBox.Show("Vui lòng chọn 1 nhân viên để chỉnh sửa!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
-            if(StringExtensions.IsValidEmail(employee.Email) == false)
+
+            var editVM = new EmployeeEditViewModel(employee);
+            var result = _dialogService.ShowDialog(editVM);
+
+            if (result == true)
             {
-                throw new ArgumentException("Invalid email format.");
+                LoadEmployees(); // refresh data if needed
             }
-            await _employeeService.UpdateAsync(employee);
-            OnPropertyChanged(nameof(Employees));
         }
 
         private async Task DeleteAsync(Employee employee)
@@ -193,7 +204,6 @@ namespace HotelManager.ViewModels
 
         private void AddNewEmployee()
         {
-            //SetDummyEmployees();
             try
             {
                 //Validate employee details
