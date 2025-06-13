@@ -8,11 +8,14 @@ using HotelManager.Models;
 using HotelManager.Services.Common.Implements;
 using HotelManager.Utilities;
 using HotelManager.Data.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelManager.ViewModels.Common
 {
     class LoginViewModel : BaseViewModel
     {
+        // Event to notify main view model about successful login
+        public static event Action OnLoginSuccess;
         // khai bao bien
         private string _userName;
         private string _password;
@@ -75,30 +78,59 @@ namespace HotelManager.ViewModels.Common
         // check if username & password is correct
         private async Task<bool> isCorrect()
         {
-            var loginProcess = new LoginProcess(new UserAuthenticationService(new UserRepository(new Data.HotelDbContext())));
-            UserAccount account = await loginProcess.Login(UserName, Password);
-            return account != null;
+            try
+            {
+                // Direct authentication without complex layers
+                using (var context = new Data.HotelDbContext())
+                {
+                    var hashedPassword = Helpers.HashHelper.HashPassword(Password);
+                    var user = context.UserAccounts
+                        .Include(u => u.Employee) // Include Employee data for role-based navigation
+                        .FirstOrDefault(u => u.Username == UserName && u.PasswordHash == hashedPassword);
+                    
+                    if (user != null)
+                    {
+                        // Set current user session
+                        Utilities.AppSession.CurrentUserAccount = user;
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Authentication error: {ex.Message}");
+                return false;
+            }
         }
 
         // login
-        private async Task Login()
+        private async void Login()
         {
             if (isEmpty())
             {
-                Console.WriteLine("Empty username or password");
+                System.Windows.MessageBox.Show("Username or password is empty!");
                 return;
             }
 
+            try
+            {
             bool correction = await isCorrect();
             if (correction)
             {
-                Console.WriteLine("Login successful");
+                    System.Windows.MessageBox.Show("Login successful!");
+                    // Trigger navigation to appropriate view
+                    OnLoginSuccess?.Invoke();
             }
             else
             {
-                Console.WriteLine("Invalid username or password");
+                    System.Windows.MessageBox.Show("Invalid username or password!");
             }
-
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Login error: {ex.Message}!");
+            }
         }
 
         // change possition

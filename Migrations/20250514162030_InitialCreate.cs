@@ -181,6 +181,29 @@ namespace HotelManager.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "MaintenanceReports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoomNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReportedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsResolved = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MaintenanceReports", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MaintenanceReports_Rooms_RoomNumber",
+                        column: x => x.RoomNumber,
+                        principalTable: "Rooms",
+                        principalColumn: "RoomNumber",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_CustomerId",
                 table: "Bookings",
@@ -216,6 +239,11 @@ namespace HotelManager.Migrations
                 table: "UserAccounts",
                 column: "EmployeeId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MaintenanceReports_RoomNumber",
+                table: "MaintenanceReports",
+                column: "RoomNumber");
         }
 
         /// <inheritdoc />
@@ -226,6 +254,9 @@ namespace HotelManager.Migrations
 
             migrationBuilder.DropTable(
                 name: "Payments");
+
+            migrationBuilder.DropTable(
+                name: "MaintenanceReports");
 
             migrationBuilder.DropTable(
                 name: "UserAccounts");
