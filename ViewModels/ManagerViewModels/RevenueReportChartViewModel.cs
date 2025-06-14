@@ -284,7 +284,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
         new LineSeries<ObservablePoint>
         {
             Values = bookingCountValues,
-            GeometrySize = 10,
+            GeometrySize = 0,
             GeometryStroke = new SolidColorPaint(SKColors.DarkRed, 2),
             Stroke = new SolidColorPaint(SKColors.DarkRed, 2),
             Fill = null,
