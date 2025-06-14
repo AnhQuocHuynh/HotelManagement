@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc5.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
@@ -20,6 +21,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="OxyPlot.Core" Version="2.2.0" />
+    <PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,7 +30,6 @@
     <Folder Include="Resources\Images\" />
     <Folder Include="Resources\Fonts\" />
     <Folder Include="Resources\Icons\" />
-    <Folder Include="Services\Common\test\" />
   </ItemGroup>
 
   <ItemGroup>
