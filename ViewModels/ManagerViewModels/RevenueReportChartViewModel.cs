@@ -295,7 +295,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             };
 
             // khi update biểu đồ, nếu số label > 30 thì cuộn về cuối, default chỉ hiển thị 30 label trong window
-            int maxUnits = 30;
+            int maxUnits = 31;
             bool enableScrolling = labels.Count > maxUnits;
             double? minLimit = null;
             double? maxLimit = null;
