@@ -23,8 +23,6 @@ namespace HotelManager.Views
         public AdminView()
         {
             InitializeComponent();
-            //to be deleted later
-            //this.DataContext = new AdminViewModel();
         }
     }
 }
