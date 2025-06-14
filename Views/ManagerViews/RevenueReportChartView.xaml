@@ -27,13 +27,15 @@
                    FontWeight="DemiBold"
                    Grid.Row="0"
                    HorizontalAlignment="Left"
-                   VerticalAlignment="Top"/>
+                   VerticalAlignment="Top"
+                   Margin="10,0,0,0"/>
         <ComboBox Name="TimeUnit"
                   Width="100"
                   Height="25"
                   Grid.Row="0"
                   HorizontalAlignment="Left"
                   VerticalAlignment="Bottom"
+                  Margin="10,0,0,0"
                   ItemsSource="{Binding TimeUnits}"
                   SelectedItem="{Binding SelectedTimeUnit}"/>
 
@@ -43,14 +45,14 @@
                    Grid.Row="0"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
-                   Margin="110,0,0,0"/>
+                   Margin="120,0,0,0"/>
         <DatePicker x:Name="StartDatePicker"
                     Width="100"
                     Height="25"
                     Grid.Row="0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
-                    Margin="110,0,0,0"
+                    Margin="120,0,0,0"
                     SelectedDate="{Binding StartDate, Mode=TwoWay}"/>
 
         <TextBlock Text="End date"
@@ -59,14 +61,14 @@
                    Grid.Row="0"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
-                   Margin="220,0,0,0"/>
+                   Margin="230,0,0,0"/>
         <DatePicker x:Name="EndDatePicker"
                     Width="100"
                     Height="25"
                     Grid.Row="0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
-                    Margin="220,0,0,0"
+                    Margin="230,0,0,0"
                     SelectedDate="{Binding EndDate, Mode=TwoWay}"/>
 
         <TextBlock Text="Room type"
@@ -75,14 +77,14 @@
                    Grid.Row="0"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
-                   Margin="330,0,0,0"/>
+                   Margin="340,0,0,0"/>
         <ComboBox x:Name="RoomType"
                   Width="100"
                   Height="25"
                   Grid.Row="0"
                   HorizontalAlignment="Left"
                   VerticalAlignment="Bottom"
-                  Margin="330,0,0,0"
+                  Margin="340,0,0,0"
                   ItemsSource="{Binding RoomTypes}"
                   SelectedItem="{Binding SelectedRoomType}"/>
 
