@@ -1,5 +1,7 @@
-﻿using System;
+﻿using HotelManager.ViewModels.StaffViewModels;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,14 +26,22 @@ namespace HotelManager.Views.StaffViews
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            //InitializeDatabase();
+            try
+            {
+                Debug.WriteLine("ReceptionistView: UserControl_Loaded started");
+                if (DataContext is ReceptionistViewModel viewModel)
+                {
+                    await viewModel.LoadDataAsync();
+                    Debug.WriteLine("ReceptionistView: Data loaded successfully");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.WriteLine($"ReceptionistView: Load error - {ex.Message}");
+                MessageBox.Show($"Lỗi khi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
