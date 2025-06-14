@@ -1,15 +1,43 @@
 ﻿<UserControl x:Class="HotelManager.Views.StaffViews.ReceptionistView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:HotelManager.Views.StaffViews"
-        mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:HotelManager.Views.StaffViews"
+             xmlns:enums="clr-namespace:HotelManager.Models.Enums"
+             xmlns:vm="clr-namespace:HotelManager.ViewModels.StaffViewModels"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:ReceptionistViewModel, IsDesignTimeCreatable=True}"
+             d:DesignHeight="450" d:DesignWidth="800"
+             Loaded="UserControl_Loaded">
+    <UserControl.DataContext>
+        <vm:ReceptionistViewModel/>
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <!-- ObjectDataProvider cho BookingStatus -->
+        <ObjectDataProvider x:Key="BookingStatusEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:BookingStatus"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <!-- ObjectDataProvider cho CustomerType -->
+        <ObjectDataProvider x:Key="CustomerTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:CustomerType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <!-- ObjectDataProvider cho RoomType -->
+        <ObjectDataProvider x:Key="RoomTypeEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:RoomType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </UserControl.Resources>
     <Grid Background="{StaticResource AccentBrush}">
         <!-- Header with title and logout button -->
         <Border Background="{StaticResource PrimaryBrush}" Height="50" VerticalAlignment="Top">
-    <Grid>
+            <Grid>
                 <TextBlock Text="Receptionist Dashboard" 
                            FontSize="20" 
                            FontWeight="Bold" 
@@ -28,12 +56,169 @@
                         Foreground="White"/>
             </Grid>
         </Border>
-        
-        <!-- Main content area -->
-        <TextBlock Text="Welcome to Receptionist Dashboard!" 
-                   FontSize="24" 
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center"
-                   Foreground="White"/>
+
+        <!-- Input Controls -->
+        <Grid Margin="10,60,10,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Labels Row 1 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Inputs Row 1 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Labels Row 2 + Add Button -->
+                <RowDefinition Height="Auto"/>
+                <!-- Inputs Row 2 -->
+                <RowDefinition Height="Auto"/>
+                <!-- Empty Row -->
+                <RowDefinition Height="*"/>
+                <!-- DataGrid -->
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Labels Row 1 -->
+            <TextBlock Text="Full Name:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
+            <TextBlock Text="CCCD:" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
+            <TextBlock Text="Phone Number:" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
+            <TextBlock Text="Customer Type:" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
+            <TextBlock Text="Room Type:" Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
+
+            <!-- Inputs Row 1 -->
+            <TextBox x:Name="FullNameTextBox" Grid.Row="1" Grid.Column="0" Height="30" Margin="0,0,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding CustomerFullName, Mode=TwoWay}"/>
+            <TextBox x:Name="CCCDTextBox" Grid.Row="1" Grid.Column="1" Height="30" Margin="0,0,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding CustomerCCCD, Mode=TwoWay}"/>
+            <TextBox x:Name="PhoneNumberTextBox" Grid.Row="1" Grid.Column="2" Height="30" Margin="0,0,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding CustomerPhoneNumber, Mode=TwoWay}"/>
+            <ComboBox x:Name="CustomerTypeBox" Grid.Row="1" Grid.Column="3" Height="30" Margin="0,0,5,5" SelectedItem="{Binding SelectedCustomerType, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}">
+                <ComboBox.Items>
+                    <enums:CustomerType>Single</enums:CustomerType>
+                    <enums:CustomerType>Family</enums:CustomerType>
+                    <enums:CustomerType>Group</enums:CustomerType>
+                    <enums:CustomerType>TourGroup</enums:CustomerType>
+                    <enums:CustomerType>Business</enums:CustomerType>
+                    <enums:CustomerType>VIP</enums:CustomerType>
+                </ComboBox.Items>
+            </ComboBox>
+            <ComboBox x:Name="RoomTypeBox" Grid.Row="1" Grid.Column="4" Height="30" Margin="0,0,5,5" SelectedItem="{Binding SelectedRoomType, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}">
+                <ComboBox.Items>
+                    <enums:RoomType>Standard</enums:RoomType>
+                    <enums:RoomType>Deluxe</enums:RoomType>
+                    <enums:RoomType>Suite</enums:RoomType>
+                </ComboBox.Items>
+            </ComboBox>
+
+            <!-- Labels Row 2 + Add Button -->
+            <TextBlock Text="Room Number:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
+            <TextBlock Text="Check-In Date:" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
+            <TextBlock Text="Check-Out Date:" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
+            <TextBlock Text="Status:" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
+            <Button Content="Add New Booking"
+                    Command="{Binding AddNewBookingCommand}"
+                    Style="{StaticResource DefaultButtonStyle}"
+                    Width="150"
+                    Height="30"
+                    Grid.Row="2"
+                    Grid.Column="4"
+                    HorizontalAlignment="Right"
+                    Margin="0,5,5,5"/>
+
+            <!-- Inputs Row 2 -->
+            <ComboBox x:Name="RoomNumberBox" Grid.Row="3" Grid.Column="0" Height="30" Margin="0,0,5,5" ItemsSource="{Binding AvailableRooms}" SelectedItem="{Binding SelectedRoomNumber, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}"/>
+            <DatePicker x:Name="CheckInDatePicker" Grid.Row="3" Grid.Column="1" Height="30" Margin="0,0,5,5" SelectedDate="{Binding CheckInDate, Mode=TwoWay}"/>
+            <DatePicker x:Name="CheckOutDatePicker" Grid.Row="3" Grid.Column="2" Height="30" Margin="0,0,5,5" SelectedDate="{Binding CheckOutDate, Mode=TwoWay}"/>
+            <ComboBox x:Name="StatusBox" Grid.Row="3" Grid.Column="3" Height="30" Margin="0,0,5,5" SelectedItem="{Binding SelectedStatus, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}">
+                <ComboBox.Items>
+                    <enums:BookingStatus>Pending</enums:BookingStatus>
+                    <enums:BookingStatus>Confirmed</enums:BookingStatus>
+                    <enums:BookingStatus>CheckedIn</enums:BookingStatus>
+                    <enums:BookingStatus>CheckedOut</enums:BookingStatus>
+                    <enums:BookingStatus>Cancelled</enums:BookingStatus>
+                    <enums:BookingStatus>NoShow</enums:BookingStatus>
+                </ComboBox.Items>
+            </ComboBox>
+
+            <!-- Grid for displaying bookings -->
+            <DataGrid ItemsSource="{Binding Bookings}" 
+                      AutoGenerateColumns="False" 
+                      CanUserAddRows="False"               
+                      SelectionMode="Single"
+                      Grid.Row="5"
+                      Grid.ColumnSpan="5"
+                      Margin="0,5,0,0"
+                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                      CanUserResizeRows="False"
+                      CanUserResizeColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Customer Name" 
+                                        Binding="{Binding Customer.FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="CCCD" 
+                                        Binding="{Binding Customer.CCCD, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Phone" 
+                                        Binding="{Binding Customer.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                        Width="*"/>
+                    <DataGridComboBoxColumn Header="Customer Type" 
+                                            SelectedItemBinding="{Binding Customer.Type, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            ItemsSource="{Binding Source={StaticResource CustomerTypeEnum}}"
+                                            Width="*"/>
+                    <DataGridComboBoxColumn Header="Room Type" 
+                                            SelectedItemBinding="{Binding RoomType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            ItemsSource="{Binding Source={StaticResource RoomTypeEnum}}"
+                                            Width="*"/>
+                    <DataGridTextColumn Header="Room Number" 
+                                        Binding="{Binding RoomNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                        Width="*"/>
+                    <DataGridTemplateColumn Header="Check-In" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding CheckInDate, StringFormat=d}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <DatePicker SelectedDate="{Binding CheckInDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Check-Out" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding CheckOutDate, StringFormat=d}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <DatePicker SelectedDate="{Binding CheckOutDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridComboBoxColumn Header="Status" 
+                                            SelectedItemBinding="{Binding Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            ItemsSource="{Binding Source={StaticResource BookingStatusEnum}}"
+                                            Width="*"/>
+                    <DataGridTemplateColumn Header="Actions">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Edit" 
+                                            Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                            CommandParameter="{Binding}" 
+                                            Style="{StaticResource DefaultButtonStyle}"/>
+                                    <Button Content="Delete" 
+                                            Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                            CommandParameter="{Binding}" 
+                                            Margin="5,0,0,0" 
+                                            Style="{StaticResource DefaultButtonStyle}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
     </Grid>
 </UserControl>
