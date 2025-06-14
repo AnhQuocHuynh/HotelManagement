@@ -26,6 +26,8 @@ namespace HotelManager.Data
                 // Sử dụng connection string từ DatabaseConfig thay vì hardcoded default
                 var connectionString = _configuration?.GetConnectionString("DefaultConnection")
                     ?? Config.DatabaseConfig.GetConnectionString();
+                var connectionString = _configuration?.GetConnectionString("DefaultConnection") 
+                    ?? "Server=LAPTOP-HR42JU06\\SQLEXPRESS;Database=HotelManager;Trusted_Connection=True;TrustServerCertificate=True;";
                 optionsBuilder.UseSqlServer(connectionString);
             }
         }

@@ -35,5 +35,142 @@
                    HorizontalAlignment="Center" 
                    VerticalAlignment="Center"
                    Foreground="White"/>
+<UserControl x:Class="HotelManager.Views.StaffViews.ReceptionistView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:HotelManager.Views.StaffViews"
+             xmlns:enums="clr-namespace:HotelManager.Models.Enums"
+             xmlns:vm="clr-namespace:HotelManager.ViewModels.StaffViewModels"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d"
+             Height="640" Width="800">
+    <UserControl.DataContext>
+        <vm:ReceptionistViewModel/>
+    </UserControl.DataContext>
+
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- DataGrid -->
+        <DataGrid Grid.Column="0" Margin="0,0,20,0" AutoGenerateColumns="False" 
+                  ItemsSource="{Binding Bookings}" SelectedItem="{Binding SelectedBooking}" 
+                  IsReadOnly="True" CanUserAddRows="False" 
+                  HorizontalScrollBarVisibility="Auto">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Họ Tên" Binding="{Binding Customer.FullName}" Width="150" />
+                <DataGridTextColumn Header="CCCD" Binding="{Binding Customer.CCCD}" Width="120" />
+                <DataGridTextColumn Header="Loại Phòng" Binding="{Binding RoomType}" Width="100" />
+                <DataGridTextColumn Header="Số Phòng" Binding="{Binding RoomNumber}" Width="100" />
+                <DataGridTextColumn Header="Check-In" Binding="{Binding CheckInDate, StringFormat=d}" Width="100" />
+                <DataGridTextColumn Header="Check-Out" Binding="{Binding CheckOutDate, StringFormat=d}" Width="100" />
+                <DataGridTextColumn Header="Trạng Thái" Binding="{Binding Status}" Width="100" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Form nhập liệu -->
+        <StackPanel Grid.Column="2" Margin="20,0,0,0">
+            <TextBlock Text="Thông Tin Đặt Phòng" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
+
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="Họ Tên" />
+                <TextBox Text="{Binding SearchCriteria.Customer.FullName, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{StaticResource DefaultTextBoxStyle}" FontSize="16"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="CCCD" />
+                <TextBox Text="{Binding SearchCriteria.Customer.CCCD, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{StaticResource DefaultTextBoxStyle}" FontSize="16"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="Số Điện Thoại" />
+                <TextBox Text="{Binding SearchCriteria.Customer.PhoneNumber, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{StaticResource DefaultTextBoxStyle}" FontSize="16"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="Loại Khách Hàng" />
+                <ComboBox SelectedItem="{Binding SearchCriteria.Customer.Type}" FontSize="16">
+                    <ComboBox.Items>
+                        <enums:CustomerType>Single</enums:CustomerType>
+                        <enums:CustomerType>Family</enums:CustomerType>
+                        <enums:CustomerType>Group</enums:CustomerType>
+                        <enums:CustomerType>TourGroup</enums:CustomerType>
+                        <enums:CustomerType>Business</enums:CustomerType>
+                        <enums:CustomerType>VIP</enums:CustomerType>
+                    </ComboBox.Items>
+                </ComboBox>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="Loại Phòng" />
+                <ComboBox SelectedValue="{Binding RoomTypeFilter}" SelectedValuePath="Tag">
+    <ComboBoxItem Content="Tất cả loại phòng" Tag="{x:Null}" />
+    <ComboBoxItem Content="Standard" Tag="{x:Static enums:RoomType.Standard}" />
+    <ComboBoxItem Content="Deluxe" Tag="{x:Static enums:RoomType.Deluxe}" />
+    <ComboBoxItem Content="Suite" Tag="{x:Static enums:RoomType.Suite}" />
+</ComboBox>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="Số Phòng" />
+                <ComboBox ItemsSource="{Binding FilteredRooms}" 
+                          DisplayMemberPath="RoomNumber" 
+                          SelectedItem="{Binding SelectedRoom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                          
+                          FontSize="16"/>
+                
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="Check-In" />
+                <DatePicker SelectedDate="{Binding SearchCriteria.CheckInDate, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="Check-Out" />
+                <DatePicker SelectedDate="{Binding SearchCriteria.CheckOutDate, UpdateSourceTrigger=PropertyChanged}" FontSize="16"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="Trạng Thái" />
+                <ComboBox SelectedItem="{Binding SearchCriteria.Status}" FontSize="16">
+                    <ComboBox.Items>
+                        <enums:BookingStatus>Pending</enums:BookingStatus>
+                        <enums:BookingStatus>Confirmed</enums:BookingStatus>
+                        <enums:BookingStatus>CheckedIn</enums:BookingStatus>
+                        <enums:BookingStatus>CheckedOut</enums:BookingStatus>
+                        <enums:BookingStatus>Cancelled</enums:BookingStatus>
+                        <enums:BookingStatus>NoShow</enums:BookingStatus>
+                    </ComboBox.Items>
+                </ComboBox>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Nút chức năng -->
+        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" 
+                    Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+            <Button Content="Thêm Mới" Style="{StaticResource DefaultButtonStyle}" 
+                    Command="{Binding AddNewCommand}" Margin="5"/>
+            <Button Content="Lưu" Style="{StaticResource DefaultButtonStyle}" 
+                    Command="{Binding SaveCommand}" Margin="5"/>
+            <Button Content="Hủy" Style="{StaticResource DefaultButtonStyle}" 
+                    Command="{Binding CancelCommand}" Margin="5"/>
+            <Button Content="Xóa" Style="{StaticResource DefaultButtonStyle}" 
+                    Command="{Binding DeleteCommand}" Margin="5"/>
+        </StackPanel>
     </Grid>
+</UserControl>
 </UserControl>
