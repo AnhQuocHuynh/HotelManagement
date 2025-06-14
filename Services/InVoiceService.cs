@@ -39,15 +39,11 @@ namespace HotelManager.Services
 
             var result = new Dictionary<string, decimal>();
 
-            if (timeUnit == "Daily")
+            if (timeUnit == "Weekdays")
             {
-                var daysOfWeek = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
-
                 // Khởi tạo các giá trị ban đầu cho từng thứ
-                foreach (var day in daysOfWeek)
-                {
-                    result[day] = 0;
-                }
+                var days = Enum.GetNames(typeof(DayOfWeek));
+                foreach (var d in days) result[d] = 0;
 
                 // Cộng doanh thu theo thứ trong tuần
                 foreach (var invoice in invoices)
@@ -57,7 +53,26 @@ namespace HotelManager.Services
                         result[day] += invoice.TotalAmount;
                 }
             }
-            else if (timeUnit == "Monthly")
+            else if (timeUnit == "Every day")
+            {
+                // Khởi tạo tất cả các ngày từ startDate đến endDate với giá trị 0
+                for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+                {
+                    result[date.ToString("yyyy-MM-dd")] = 0;
+                }
+
+                // Cộng doanh thu theo từng ngày
+                foreach (var invoice in invoices)
+                {
+                    var dateKey = invoice.IssueDate.Date.ToString("yyyy-MM-dd");
+                    if (result.ContainsKey(dateKey))
+                    {
+                        result[dateKey] += invoice.TotalAmount;
+                    }
+                }
+            }
+
+            else if (timeUnit == "12 months")
             {
                 // Khởi tạo tháng 1–12
                 for (int month = 1; month <= 12; month++)
@@ -73,22 +88,30 @@ namespace HotelManager.Services
                         result[month] += invoice.TotalAmount;
                 }
             }
-            else if (timeUnit == "Seasonally")
+            else if (timeUnit == "Every month")
             {
-                // Khởi tạo 4 mùa
-                var seasons = new[] { "Spring", "Summer", "Fall", "Winter" };
-                foreach (var season in seasons)
+                // Khởi tạo các tháng từ startDate đến endDate
+                var current = new DateTime(startDate.Year, startDate.Month, 1);
+                var end = new DateTime(endDate.Year, endDate.Month, 1);
+
+                while (current <= end)
                 {
-                    result[season] = 0;
+                    var key = current.ToString("yyyy-MM"); // VD: "2025-06"
+                    result[key] = 0;
+                    current = current.AddMonths(1);
                 }
 
-                // Cộng doanh thu theo mùa
+                // Cộng doanh thu theo từng tháng
                 foreach (var invoice in invoices)
                 {
-                    string season = GetSeason(invoice.IssueDate.Month);
-                    result[season] += invoice.TotalAmount;
+                    var key = new DateTime(invoice.IssueDate.Year, invoice.IssueDate.Month, 1).ToString("yyyy-MM");
+                    if (result.ContainsKey(key))
+                    {
+                        result[key] += invoice.TotalAmount;
+                    }
                 }
             }
+
 
             return result;
         }
@@ -111,7 +134,7 @@ namespace HotelManager.Services
             var invoices = await query.ToListAsync();
             var result = new Dictionary<string, int>();
 
-            if (timeUnit == "Daily")
+            if (timeUnit == "Weekdays")
             {
                 var days = Enum.GetNames(typeof(DayOfWeek));
                 foreach (var d in days) result[d] = 0;
@@ -121,7 +144,21 @@ namespace HotelManager.Services
                     result[key]++;
                 }
             }
-            else if (timeUnit == "Monthly")
+            else if (timeUnit == "Every day")
+            {
+                for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+                {
+                    result[date.ToString("yyyy-MM-dd")] = 0;
+                }
+
+                foreach (var i in invoices)
+                {
+                    var key = i.IssueDate.Date.ToString("yyyy-MM-dd");
+                    if (result.ContainsKey(key))
+                        result[key]++;
+                }
+            }
+            else if (timeUnit == "12 months")
             {
                 for (int m = 1; m <= 12; m++) result[m.ToString("00")] = 0;
                 foreach (var i in invoices)
@@ -130,32 +167,27 @@ namespace HotelManager.Services
                     result[key]++;
                 }
             }
-            else if (timeUnit == "Seasonally")
+            else if (timeUnit == "Every month")
             {
-                var seasons = new[] { "Spring", "Summer", "Fall", "Winter" };
-                foreach (var s in seasons) result[s] = 0;
+                var current = new DateTime(startDate.Year, startDate.Month, 1);
+                var end = new DateTime(endDate.Year, endDate.Month, 1);
+
+                while (current <= end)
+                {
+                    var key = current.ToString("yyyy-MM");
+                    result[key] = 0;
+                    current = current.AddMonths(1);
+                }
+
                 foreach (var i in invoices)
                 {
-                    var s = GetSeason(i.IssueDate.Month);
-                    result[s]++;
+                    var key = new DateTime(i.IssueDate.Year, i.IssueDate.Month, 1).ToString("yyyy-MM");
+                    if (result.ContainsKey(key))
+                        result[key]++;
                 }
             }
 
             return result;
         }
-
-
-        private string GetSeason(int month)
-        {
-            return month switch
-            {
-                1 or 2 or 3 => "Spring",
-                4 or 5 or 6 => "Summer",
-                7 or 8 or 9 => "Fall",
-                10 or 11 or 12 => "Winter",
-                _ => "Unknown"
-            };
-        }
-
     }
 }

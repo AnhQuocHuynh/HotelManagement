@@ -15,6 +15,7 @@ using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 using HotelManager.Services;
 using HotelManager.Models.Enums;
+using System.Windows.Media;
 
 namespace HotelManager.ViewModels.ManagerViewModels
 {
@@ -22,6 +23,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
     {
         InVoiceService inVoiceService;
 
+// time units
         public ObservableCollection<string> TimeUnits { get; set; }
 
         private string _selectedTimeUnit;
@@ -39,6 +41,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             }
         }
 
+// start date
         private DateTime _startDate;
         public DateTime StartDate
         {
@@ -50,10 +53,12 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     _startDate = value;
                     OnPropertyChanged(nameof(StartDate));
                     _ = UpdateChartAsync();
+                    SetTimeBackground(false);
                 }
             }
         }
 
+// end date
         private DateTime _endDate;
         public DateTime EndDate
         {
@@ -65,10 +70,31 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     _endDate = value;
                     OnPropertyChanged(nameof(EndDate));
                     _ = UpdateChartAsync();
+                    SetTimeBackground(false);
                 }
             }
         }
 
+// time ranges
+        public ObservableCollection<string> TimeRanges { get; set; }
+
+        private string _selectedTimeRange;
+        public string SelectedTimeRange
+        {
+            get => _selectedTimeRange;
+            set
+            {
+                if (_selectedTimeRange != value)
+                {
+                    _selectedTimeRange = value;
+                    OnPropertyChanged(nameof(SelectedTimeRange));
+                    SetTimeRange();
+                    SetTimeBackground(true);
+                }
+            }
+        }
+
+// room types
         public ObservableCollection<object> RoomTypes { get; set; }
 
         private object _selectedRoomType;
@@ -86,18 +112,48 @@ namespace HotelManager.ViewModels.ManagerViewModels
             }
         }
 
+        // high light
+        private Brush _timeRangeBackground;
+        public Brush TimeRangeBackground
+        {
+            get => _timeRangeBackground;
+            set
+            {
+                if (_timeRangeBackground != value)
+                {
+                    _timeRangeBackground = value;
+                    OnPropertyChanged(nameof(TimeRangeBackground));
+                }
+            }
+        }
 
+        private Brush _dateBackground;
+        public Brush DateBackground
+        {
+            get => _dateBackground;
+            set
+            {
+                if (_dateBackground != value)
+                {
+                    _dateBackground = value;
+                    OnPropertyChanged(nameof(DateBackground));
+                }
+            }
+        }
+
+
+        // chart elements
         public ISeries[] Series { get; set; }
         public Axis[] XAxes { get; set; }
         public Axis[] YAxes { get; set; }
 
+// constructor
         public RevenueReportChartViewModel()
         {
             inVoiceService = new InVoiceService(new Data.HotelDbContext());
             TimeUnitInit();
+            TimeRangeInit();
             RoomTypeInit();
-            StartDate = DateTime.Now.AddMonths(-1);
-            EndDate = DateTime.Now;
             UpdateChartAsync();
         }
 
@@ -105,11 +161,26 @@ namespace HotelManager.ViewModels.ManagerViewModels
         {
             TimeUnits = new ObservableCollection<string>
             {
-                "Daily",
-                "Monthly",
-                "Seasonally",
+                "Weekdays",
+                "Every day",
+                "12 months",
+                "Every month",
             };
             SelectedTimeUnit = TimeUnits.FirstOrDefault();
+        }
+
+        void TimeRangeInit()
+        {
+            TimeRanges = new ObservableCollection<string>
+            {
+                "Last 7 days",
+                "Last 30 days",
+                "Last 90 days",
+                "Last 6 months",
+                "Last 12 months",
+                "Last 3 years",
+            };
+            SelectedTimeRange = TimeRanges.FirstOrDefault();
         }
 
         void RoomTypeInit()
@@ -124,6 +195,52 @@ namespace HotelManager.ViewModels.ManagerViewModels
             SelectedRoomType = RoomTypes.FirstOrDefault();
         }
 
+        void SetTimeRange()
+        {
+            switch (SelectedTimeRange)
+            {
+                case "Last 7 days":
+                    StartDate = DateTime.Now.AddDays(-7);
+                    EndDate = DateTime.Now;
+                    break;
+                case "Last 30 days":
+                    StartDate = DateTime.Now.AddDays(-30);
+                    EndDate = DateTime.Now;
+                    break;
+                case "Last 90 days":
+                    StartDate = DateTime.Now.AddDays(-90);
+                    EndDate = DateTime.Now;
+                    break;
+                case "Last 6 months":
+                    StartDate = DateTime.Now.AddMonths(-6);
+                    EndDate = DateTime.Now;
+                    break;
+                case "Last 12 months":
+                    StartDate = DateTime.Now.AddMonths(-12);
+                    EndDate = DateTime.Now;
+                    break;
+                case "Last 3 years":
+                    StartDate = DateTime.Now.AddYears(-3);
+                    EndDate = DateTime.Now;
+                    break;
+            }
+        }
+
+        void SetTimeBackground(bool isTimeRange)
+        {
+            if (isTimeRange)
+            {
+                TimeRangeBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8CCDEB"));
+                DateBackground = Brushes.White;
+            }
+            else
+            {
+                TimeRangeBackground = Brushes.White;
+                DateBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8CCDEB"));
+            }
+        }
+
+
         private async Task UpdateChartAsync()
         {
             if (SelectedTimeUnit == null) return;
@@ -134,13 +251,6 @@ namespace HotelManager.ViewModels.ManagerViewModels
             // lấy dữ liệu số lượng invoice
             var bookingCountData = await inVoiceService.GetInvoiceCountOnTimeRangeAsync(StartDate, EndDate, SelectedTimeUnit, SelectedRoomType?.ToString());
 
-            // xử lý thứ tự nếu là theo mùa
-            if (SelectedTimeUnit == "Seasonally")
-            {
-                var seasonOrder = new List<string> { "Spring", "Summer", "Fall", "Winter" };
-                revenueData = seasonOrder.ToDictionary(s => s, s => revenueData.ContainsKey(s) ? revenueData[s] : 0);
-                bookingCountData = seasonOrder.ToDictionary(s => s, s => bookingCountData.ContainsKey(s) ? bookingCountData[s] : 0);
-            }
             var labels = revenueData.Keys.Union(bookingCountData.Keys).Distinct().ToList();
             labels.Sort();
 

@@ -22,6 +22,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Unit -->
         <TextBlock Text="Unit"
                    FontSize="16"
                    FontWeight="DemiBold"
@@ -39,52 +40,87 @@
                   ItemsSource="{Binding TimeUnits}"
                   SelectedItem="{Binding SelectedTimeUnit}"/>
 
-        <TextBlock Text="Start date"
+        <!-- Time range -->
+        <Border Background="{Binding TimeRangeBackground}"
+                Height="50"
+                Width="100"
+                Grid.Row="0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="120,0,0,0"/>
+        <TextBlock Text="Time range"
                    FontSize="16"
                    FontWeight="DemiBold"
                    Grid.Row="0"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
                    Margin="120,0,0,0"/>
-        <DatePicker x:Name="StartDatePicker"
-                    Width="100"
-                    Height="25"
-                    Grid.Row="0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Bottom"
-                    Margin="120,0,0,0"
-                    SelectedDate="{Binding StartDate, Mode=TwoWay}"/>
+        <ComboBox Name="TimeRangeQuickselection"
+                  Width="100"
+                  Height="25"
+                  Grid.Row="0"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Bottom"
+                  Margin="120,0,0,0"
+                  ItemsSource="{Binding TimeRanges}"
+                  SelectedItem="{Binding SelectedTimeRange}"/>
 
-        <TextBlock Text="End date"
+        <Border Background="{Binding DateBackground}"
+                Height="50"
+                Width="210"
+                Grid.Row="0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="230,0,0,0"/>
+        <!-- Start date -->
+        <TextBlock Text="Start date"
                    FontSize="16"
                    FontWeight="DemiBold"
                    Grid.Row="0"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
                    Margin="230,0,0,0"/>
-        <DatePicker x:Name="EndDatePicker"
+        <DatePicker x:Name="StartDatePicker"
                     Width="100"
                     Height="25"
                     Grid.Row="0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
                     Margin="230,0,0,0"
-                    SelectedDate="{Binding EndDate, Mode=TwoWay}"/>
+                    SelectedDate="{Binding StartDate, Mode=TwoWay}"/>
 
-        <TextBlock Text="Room type"
+        <!-- End date -->    
+        <TextBlock Text="End date"
                    FontSize="16"
                    FontWeight="DemiBold"
                    Grid.Row="0"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
                    Margin="340,0,0,0"/>
+        <DatePicker x:Name="EndDatePicker"
+                    Width="100"
+                    Height="25"
+                    Grid.Row="0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom"
+                    Margin="340,0,0,0"
+                    SelectedDate="{Binding EndDate, Mode=TwoWay}"/>
+
+        <!-- Room type -->
+        <TextBlock Text="Room type"
+                   FontSize="16"
+                   FontWeight="DemiBold"
+                   Grid.Row="0"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Top"
+                   Margin="450,0,0,0"/>
         <ComboBox x:Name="RoomType"
                   Width="100"
                   Height="25"
                   Grid.Row="0"
                   HorizontalAlignment="Left"
                   VerticalAlignment="Bottom"
-                  Margin="340,0,0,0"
+                  Margin="450,0,0,0"
                   ItemsSource="{Binding RoomTypes}"
                   SelectedItem="{Binding SelectedRoomType}"/>
 
