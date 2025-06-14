@@ -263,47 +263,60 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
             Series = new ISeries[]
             {
-        // cột doanh thu
-        new ColumnSeries<ObservablePoint>
-        {
-            Values = revenueValues,
-            MaxBarWidth = 40,
-            Padding = 10,
-            Stroke = null,
-            DataLabelsSize = 12,
-            DataLabelsPaint = new SolidColorPaint(SKColors.Black),
-            DataLabelsFormatter = point =>
-            {
-                var y = (point.Model as ObservablePoint)?.Y ?? 0;
-                return y.ToString("N0") + " ₫";
-            },
-            Name = "Revenue"
-        },
+                // cột doanh thu
+                new ColumnSeries<ObservablePoint>
+                {
+                    Values = revenueValues,
+                    MaxBarWidth = 40,
+                    Padding = 10,
+                    Stroke = null,
+                    DataLabelsSize = 12,
+                    DataLabelsPaint = new SolidColorPaint(SKColors.Black),
+                    DataLabelsFormatter = point =>
+                    {
+                        var y = (point.Model as ObservablePoint)?.Y ?? 0;
+                        return y.ToString("N0") + " ₫";
+                    },
+                    Name = "Revenue"
+                },
 
-        // đường số lượng invoice
-        new LineSeries<ObservablePoint>
-        {
-            Values = bookingCountValues,
-            GeometrySize = 0,
-            GeometryStroke = new SolidColorPaint(SKColors.DarkRed, 2),
-            Stroke = new SolidColorPaint(SKColors.DarkRed, 2),
-            Fill = null,
-            Name = "Invoice Count",
-            ScalesYAt = 1,
-            LineSmoothness = 0
-
-        }
+                // đường số lượng invoice
+                new LineSeries<ObservablePoint>
+                {
+                    Values = bookingCountValues,
+                    GeometrySize = 0,
+                    GeometryStroke = new SolidColorPaint(SKColors.DarkRed, 2),
+                    Stroke = new SolidColorPaint(SKColors.DarkRed, 2),
+                    Fill = null,
+                    Name = "Invoice Count",
+                    ScalesYAt = 1,
+                    LineSmoothness = 0
+                }
             };
+
+            // khi update biểu đồ, nếu số label > 30 thì cuộn về cuối, default chỉ hiển thị 30 label trong window
+            int maxUnits = 30;
+            bool enableScrolling = labels.Count > maxUnits;
+            double? minLimit = null;
+            double? maxLimit = null;
+            if (enableScrolling)
+            {
+                minLimit = labels.Count - maxUnits;
+                maxLimit = labels.Count;
+            }
 
             XAxes = new Axis[]{
                 new Axis{
                     Labels = labels,
                     Name = "Time",
                     LabelsRotation = 0,
-                    UnitWidth = 1
+                    MinLimit = minLimit,
+                    MaxLimit = maxLimit
                 }
             };
 
+            double maxRevenue = revenueValues.Max(p => p.Y ?? 0);
+            double maxBooking = bookingCountValues.Max(p => p.Y ?? 0);
 
             YAxes = new Axis[]{
                 // trục Y bên trái: doanh thu
@@ -311,7 +324,9 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     Name = "Revenue (VNĐ)",
                     LabelsPaint = new SolidColorPaint(SKColors.Black),
                     TextSize = 12,
-                    Labeler = value => value.ToString("N0") + " ₫"
+                    Labeler = value => value.ToString("N0") + " ₫",
+                    MinLimit = 0,
+                    MaxLimit = maxRevenue * 1.1
                 },
 
                 // trục Y bên phải: lượt đặt
@@ -320,7 +335,9 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     Position = LiveChartsCore.Measure.AxisPosition.End,
                     LabelsPaint = new SolidColorPaint(SKColors.DarkRed),
                     TextSize = 12,
-                    Labeler = value => value.ToString("N0")
+                    Labeler = value => value.ToString("N0"),
+                    MinLimit = 0,
+                    MaxLimit = maxBooking * 1.1
                 }
             };
 
