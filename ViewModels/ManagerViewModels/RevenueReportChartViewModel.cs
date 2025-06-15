@@ -278,20 +278,28 @@ namespace HotelManager.ViewModels.ManagerViewModels
         {
             if (SelectedTimeUnit == null) return;
 
-            // lấy dữ liệu doanh thu
-            var revenueData = await inVoiceService.GetInvoicePaymentOnTimeRangeAsync(StartDate, EndDate, SelectedTimeUnit, SelectedRoomType?.ToString());
+            var statsData = await inVoiceService.GetInvoiceStatsGroupedAsync(
+                StartDate,
+                EndDate,
+                SelectedTimeUnit,
+                SelectedRoomType?.ToString()
+            );
 
-            // lấy dữ liệu số lượng invoice
-            var bookingCountData = await inVoiceService.GetInvoiceCountOnTimeRangeAsync(StartDate, EndDate, SelectedTimeUnit, SelectedRoomType?.ToString());
-
-            var labels = revenueData.Keys.Union(bookingCountData.Keys).Distinct().ToList();
+            var labels = statsData.Keys.ToList();
             labels.Sort();
 
             var revenueValues = labels.Select((label, index) =>
-                new ObservablePoint(index, revenueData.ContainsKey(label) ? (double)revenueData[label] : 0)).ToList();
+            {
+                var data = statsData.TryGetValue(label, out var value) ? value : (0m, 0);
+                return new ObservablePoint(index, (double)(value.revenue));
+            }).ToList();
 
-            var bookingCountValues = labels.Select((label, index) =>
-                new ObservablePoint(index, bookingCountData.ContainsKey(label) ? bookingCountData[label] : 0)).ToList();
+            var invoiceCountValues = labels.Select((label, index) =>
+            {
+                var data = statsData.TryGetValue(label, out var value) ? value : (0m, 0);
+                return new ObservablePoint(index, value.invoiceCount);
+            }).ToList();
+
 
 
             Series = new ISeries[]
@@ -317,7 +325,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
                 // đường số lượng invoice
                 new LineSeries<ObservablePoint>
                 {
-                    Values = bookingCountValues,
+                    Values = invoiceCountValues,
                     GeometrySize = 0,
                     Stroke = new SolidColorPaint(SKColors.DarkRed,2),
                     Fill = null,
@@ -349,7 +357,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             };
 
             double maxRevenue = revenueValues.Max(p => p.Y ?? 0);
-            double maxBooking = bookingCountValues.Max(p => p.Y ?? 0);
+            double maxInvoiceCount = invoiceCountValues.Max(p => p.Y ?? 0);
 
             YAxes = new Axis[]{
                 // trục Y bên trái: doanh thu
@@ -370,7 +378,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     TextSize = 12,
                     Labeler = value => value.ToString("N0"),
                     MinLimit = 0,
-                    MaxLimit = maxBooking * 1.1
+                    MaxLimit = maxInvoiceCount * 1.1
                 }
             };
 

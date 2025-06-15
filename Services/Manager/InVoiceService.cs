@@ -18,6 +18,7 @@ namespace HotelManager.Services.Manager
             _dbContext = dbContext;
         }
 
+        /// Lấy doanh thu theo khoảng thời gian và loại phòng
         public async Task<Dictionary<string, decimal>> GetInvoicePaymentOnTimeRangeAsync(DateTime startDate, DateTime endDate, string timeUnit, string roomType)
         {
             var query = _dbContext.Invoices
@@ -116,6 +117,7 @@ namespace HotelManager.Services.Manager
             return result;
         }
 
+        /// lấy số lượng hóa đơn theo khoảng thời gian và loại phòng
         public async Task<Dictionary<string, int>> GetInvoiceCountOnTimeRangeAsync(DateTime startDate, DateTime endDate, string timeUnit, string roomType)
         {
             var query = _dbContext.Invoices
@@ -189,5 +191,98 @@ namespace HotelManager.Services.Manager
 
             return result;
         }
+
+        /// Lấy thống kê doanh thu và số lượng hóa đơn theo khoảng thời gian, loại phòng và đơn vị thời gian
+        public async Task<Dictionary<string, (decimal revenue, int invoiceCount)>> GetInvoiceStatsGroupedAsync(DateTime startDate, DateTime endDate, string timeUnit, string roomType)
+        {
+            var query = _dbContext.Invoices
+                .Include(i => i.Booking)
+                    .ThenInclude(b => b.Room)
+                .Where(i => i.IssueDate >= startDate && i.IssueDate <= endDate);
+
+            if (!string.IsNullOrEmpty(roomType) && roomType != "All")
+            {
+                if (Enum.TryParse<RoomType>(roomType, out var parsedRoomType))
+                {
+                    query = query.Where(i => i.Booking.Room.RoomType == parsedRoomType);
+                }
+            }
+
+            var invoices = await query.ToListAsync();
+            var result = new Dictionary<string, (decimal revenue, int invoiceCount)>();
+
+            if (timeUnit == "Weekdays")
+            {
+                foreach (var day in Enum.GetNames(typeof(DayOfWeek)))
+                {
+                    result[day] = (0, 0);
+                }
+
+                foreach (var invoice in invoices)
+                {
+                    var key = invoice.IssueDate.DayOfWeek.ToString();
+                    var (rev, count) = result[key];
+                    result[key] = (rev + invoice.TotalAmount, count + 1);
+                }
+            }
+            else if (timeUnit == "Every day")
+            {
+                for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+                {
+                    var key = date.ToString("yyyy-MM-dd");
+                    result[key] = (0, 0);
+                }
+
+                foreach (var invoice in invoices)
+                {
+                    var key = invoice.IssueDate.Date.ToString("yyyy-MM-dd");
+                    if (result.ContainsKey(key))
+                    {
+                        var (rev, count) = result[key];
+                        result[key] = (rev + invoice.TotalAmount, count + 1);
+                    }
+                }
+            }
+            else if (timeUnit == "12 months")
+            {
+                for (int month = 1; month <= 12; month++)
+                {
+                    var key = month.ToString("00");
+                    result[key] = (0, 0);
+                }
+
+                foreach (var invoice in invoices)
+                {
+                    var key = invoice.IssueDate.Month.ToString("00");
+                    var (rev, count) = result[key];
+                    result[key] = (rev + invoice.TotalAmount, count + 1);
+                }
+            }
+            else if (timeUnit == "Every month")
+            {
+                var current = new DateTime(startDate.Year, startDate.Month, 1);
+                var end = new DateTime(endDate.Year, endDate.Month, 1);
+
+                while (current <= end)
+                {
+                    var key = current.ToString("yyyy-MM");
+                    result[key] = (0, 0);
+                    current = current.AddMonths(1);
+                }
+
+                foreach (var invoice in invoices)
+                {
+                    var key = new DateTime(invoice.IssueDate.Year, invoice.IssueDate.Month, 1).ToString("yyyy-MM");
+                    if (result.ContainsKey(key))
+                    {
+                        var (rev, count) = result[key];
+                        result[key] = (rev + invoice.TotalAmount, count + 1);
+                    }
+                }
+            }
+
+            return result;
+        }
+
     }
 }
