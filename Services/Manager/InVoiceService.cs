@@ -8,7 +8,7 @@ using HotelManager.Models;
 using Microsoft.EntityFrameworkCore;
 using HotelManager.Models.Enums;
 
-namespace HotelManager.Services
+namespace HotelManager.Services.Manager
 {
     public class InVoiceService
     {

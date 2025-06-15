@@ -13,9 +13,9 @@ using LiveChartsCore.Defaults;
 using LiveChartsCore.Measure;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
-using HotelManager.Services;
 using HotelManager.Models.Enums;
 using System.Windows.Media;
+using HotelManager.Services.Manager;
 
 namespace HotelManager.ViewModels.ManagerViewModels
 {
