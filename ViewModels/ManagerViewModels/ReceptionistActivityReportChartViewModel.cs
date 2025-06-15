@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.ComponentModel;
 
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
@@ -16,36 +14,20 @@ using SkiaSharp;
 using HotelManager.Services;
 using HotelManager.Models.Enums;
 using System.Windows.Media;
+using System.Collections.ObjectModel;
+using HotelManager.Services.Manager;
+using System.Diagnostics;
 
 namespace HotelManager.ViewModels.ManagerViewModels
 {
-    public class RevenueReportChartViewModel : BaseViewModel
+    internal class ReceptionistActivityReportChartViewModel : BaseViewModel
     {
-        InVoiceService inVoiceService;
+        ReceptionistService _receptionistService;
 
         private bool _isUpdatingRange = false;
         private bool _isManualDateChange = false;
-        private bool _isInitializing = false;
 
-        // time units
-        public ObservableCollection<string> TimeUnits { get; set; }
-
-        private string _selectedTimeUnit;
-        public string SelectedTimeUnit
-        {
-            get => _selectedTimeUnit;
-            set
-            {
-                if (_selectedTimeUnit != value)
-                {
-                    _selectedTimeUnit = value;
-                    OnPropertyChanged(nameof(SelectedTimeUnit));
-                    _ = UpdateChartAsync();
-                }
-            }
-        }
-
-// start date
+        // start date
         private DateTime _startDate;
         public DateTime StartDate
         {
@@ -56,6 +38,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
                 {
                     _startDate = value;
                     OnPropertyChanged(nameof(StartDate));
+
                     if (!_isUpdatingRange)
                     {
                         _isManualDateChange = true;
@@ -69,7 +52,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             }
         }
 
-// end date
+        // end date
         private DateTime _endDate;
         public DateTime EndDate
         {
@@ -85,7 +68,6 @@ namespace HotelManager.ViewModels.ManagerViewModels
                         _isManualDateChange = true;
                         SelectedTimeRange = "Custom";
                         _isManualDateChange = false;
-
                         _ = UpdateChartAsync();
                         SetTimeBackground(false);
                     }
@@ -93,7 +75,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             }
         }
 
-// time ranges
+        // time ranges
         public ObservableCollection<string> TimeRanges { get; set; }
 
         private string _selectedTimeRange;
@@ -116,25 +98,6 @@ namespace HotelManager.ViewModels.ManagerViewModels
             }
         }
 
-// room types
-        public ObservableCollection<object> RoomTypes { get; set; }
-
-        private object _selectedRoomType;
-        public object SelectedRoomType
-        {
-            get => _selectedRoomType;
-            set
-            {
-                if (_selectedRoomType != value)
-                {
-                    _selectedRoomType = value;
-                    OnPropertyChanged(nameof(SelectedRoomType));
-                    if (!_isInitializing)
-                        _ = UpdateChartAsync();
-                }
-            }
-        }
-
         // high light
         private Brush _timeRangeBackground;
         public Brush TimeRangeBackground
@@ -149,7 +112,6 @@ namespace HotelManager.ViewModels.ManagerViewModels
                 }
             }
         }
-
         private Brush _dateBackground;
         public Brush DateBackground
         {
@@ -164,36 +126,16 @@ namespace HotelManager.ViewModels.ManagerViewModels
             }
         }
 
-
-        // chart elements
         public ISeries[] Series { get; set; }
-        public Axis[] XAxes { get; set; }
         public Axis[] YAxes { get; set; }
+        public Axis[] XAxes { get; set; }
+        public string[] Labels { get; set; }
 
-// constructor
-        public RevenueReportChartViewModel()
+        // constructor
+        public ReceptionistActivityReportChartViewModel()
         {
-            _isInitializing = true;
-
-            inVoiceService = new InVoiceService(new Data.HotelDbContext());
-            TimeUnitInit();
+            _receptionistService = new ReceptionistService(new Data.HotelDbContext());
             TimeRangeInit();
-            RoomTypeInit();
-
-            _isInitializing = false;
-            _ = UpdateChartAsync();
-        }
-
-        void TimeUnitInit()
-        {
-            TimeUnits = new ObservableCollection<string>
-            {
-                "Weekdays",
-                "Every day",
-                "12 months",
-                "Every month",
-            };
-            SelectedTimeUnit = TimeUnits.FirstOrDefault();
         }
 
         void TimeRangeInit()
@@ -208,19 +150,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
                 "Last 3 years",
                 "Custom"
             };
-            SelectedTimeRange = TimeRanges.First();
-        }
-
-        void RoomTypeInit()
-        {
-            RoomTypes = new ObservableCollection<Object>
-            {
-                "All",
-                RoomType.Deluxe,
-                RoomType.Standard,
-                RoomType.Suite,
-            };
-            SelectedRoomType = RoomTypes.First();
+            SelectedTimeRange = TimeRanges.FirstOrDefault();
         }
 
         void SetTimeRange()
@@ -273,104 +203,77 @@ namespace HotelManager.ViewModels.ManagerViewModels
             }
         }
 
-
-        private async Task UpdateChartAsync()
+        public async Task UpdateChartAsync()
         {
-            if (SelectedTimeUnit == null) return;
+            var data = await _receptionistService.GetCheckInOutByReceptionistAsync(StartDate, EndDate);
+            
+            // kiem tra data tra ve
+            foreach (var entry in data)
+            {
+                var name = entry.Key;
+                var checkIn = entry.Value.CheckInCount;
+                var checkOut = entry.Value.CheckOutCount;
 
-            // lấy dữ liệu doanh thu
-            var revenueData = await inVoiceService.GetInvoicePaymentOnTimeRangeAsync(StartDate, EndDate, SelectedTimeUnit, SelectedRoomType?.ToString());
+                Debug.WriteLine($"{name} => CheckIn: {checkIn}, CheckOut: {checkOut}");
+                Console.WriteLine($"{name} => CheckIn: {checkIn}, CheckOut: {checkOut}");
+            }
 
-            // lấy dữ liệu số lượng invoice
-            var bookingCountData = await inVoiceService.GetInvoiceCountOnTimeRangeAsync(StartDate, EndDate, SelectedTimeUnit, SelectedRoomType?.ToString());
+            Labels = data.Select(x => x.Key).ToArray();
 
-            var labels = revenueData.Keys.Union(bookingCountData.Keys).Distinct().ToList();
-            labels.Sort();
+            var checkInValues = data.Select(x => x.Value.CheckInCount).ToArray();
+            var checkOutValues = data.Select(x => x.Value.CheckOutCount).ToArray();
 
-            var revenueValues = labels.Select((label, index) =>
-                new ObservablePoint(index, revenueData.ContainsKey(label) ? (double)revenueData[label] : 0)).ToList();
-
-            var bookingCountValues = labels.Select((label, index) =>
-                new ObservablePoint(index, bookingCountData.ContainsKey(label) ? bookingCountData[label] : 0)).ToList();
-
+            int maxValue = Math.Max(checkInValues.Max(), checkOutValues.Max());
 
             Series = new ISeries[]
             {
-                // cột doanh thu
-                new ColumnSeries<ObservablePoint>
+                new RowSeries<int>
                 {
-                    Values = revenueValues,
-                    MaxBarWidth = 40,
-                    Padding = 10,
+                    Name = "Check-In",
+                    Values = checkInValues,
                     Stroke = null,
-                    DataLabelsSize = 12,
+                    MaxBarWidth = 25,
                     DataLabelsPaint = new SolidColorPaint(SKColors.Black),
-                    DataLabelsFormatter = point =>
-                    {
-                        var y = (point.Model as ObservablePoint)?.Y ?? 0;
-                        return y.ToString("N0") + " ₫";
-                    },
-                    Name = "Revenue",
-                    Fill = new SolidColorPaint(SKColors.DeepSkyBlue),
+                    DataLabelsPosition = LiveChartsCore.Measure.DataLabelsPosition.End,
+                    DataLabelsFormatter = point => point.Model.ToString(),
+                    Fill = new SolidColorPaint(SKColors.SkyBlue),
                 },
-
-                // đường số lượng invoice
-                new LineSeries<ObservablePoint>
+                new RowSeries<int>
                 {
-                    Values = bookingCountValues,
-                    GeometrySize = 0,
-                    Stroke = new SolidColorPaint(SKColors.DarkRed,2),
-                    Fill = null,
-                    Name = "Invoice Count",
-                    ScalesYAt = 1,
-                    LineSmoothness = 0
+                    Name = "Check-Out",
+                    Values = checkOutValues,
+                    Stroke = null,
+                    MaxBarWidth = 25,
+                    DataLabelsPaint = new SolidColorPaint(SKColors.Black),
+                    DataLabelsPosition = LiveChartsCore.Measure.DataLabelsPosition.End,
+                    DataLabelsFormatter = point => point.Model.ToString(),
+                    Fill = new SolidColorPaint(SKColors.OrangeRed),
                 }
             };
 
-            // khi update biểu đồ, nếu số label > 30 thì cuộn về cuối, default chỉ hiển thị 30 label trong window
-            int maxUnits = 31;
-            bool enableScrolling = labels.Count > maxUnits;
-            double? minLimit = null;
-            double? maxLimit = null;
-            if (enableScrolling)
+            // Trục OX là số lần (Count)
+            XAxes = new Axis[]
             {
-                minLimit = labels.Count - maxUnits;
-                maxLimit = labels.Count;
-            }
-
-            XAxes = new Axis[]{
-                new Axis{
-                    Labels = labels,
-                    Name = "Time",
-                    LabelsRotation = 0,
-                    MinLimit = minLimit,
-                    MaxLimit = maxLimit
-                }
-            };
-
-            double maxRevenue = revenueValues.Max(p => p.Y ?? 0);
-            double maxBooking = bookingCountValues.Max(p => p.Y ?? 0);
-
-            YAxes = new Axis[]{
-                // trục Y bên trái: doanh thu
-                new Axis{
-                    Name = "Revenue (VNĐ)",
-                    LabelsPaint = new SolidColorPaint(SKColors.Black),
-                    TextSize = 12,
-                    Labeler = value => value.ToString("N0") + " ₫",
+                new Axis
+                {
+                    Name = "Count",
                     MinLimit = 0,
-                    MaxLimit = maxRevenue * 1.1
-                },
-
-                // trục Y bên phải: lượt đặt
-                new Axis{
-                    Name = "Invoice Count",
-                    Position = LiveChartsCore.Measure.AxisPosition.End,
-                    LabelsPaint = new SolidColorPaint(SKColors.DarkRed),
+                    MaxLimit = maxValue * 1.1, // thêm chút khoảng trắng
+                    NameTextSize = 14,
                     TextSize = 12,
                     Labeler = value => value.ToString("N0"),
-                    MinLimit = 0,
-                    MaxLimit = maxBooking * 1.1
+                    MinStep = 1
+                }
+            };
+
+            // Trục OY là tên nhân viên
+            YAxes = new Axis[]
+            {
+                new Axis
+                {
+                    Labels = Labels,
+                    LabelsRotation = 0,
+                    TextSize = 14
                 }
             };
 
@@ -378,6 +281,6 @@ namespace HotelManager.ViewModels.ManagerViewModels
             OnPropertyChanged(nameof(XAxes));
             OnPropertyChanged(nameof(YAxes));
         }
-    }
 
+    }
 }

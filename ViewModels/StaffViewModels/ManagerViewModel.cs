@@ -44,7 +44,8 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             Options = new ObservableCollection<string>
             {
-                "View report",
+                "View revenue report",
+                "View receptionist activity report"
             };
             // Set a default selected option
             SelectedOption = Options.FirstOrDefault();
@@ -54,8 +55,11 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             switch (option)
             {
-                case "View report":
+                case "View revenue report":
                     CurrentContent = new Views.ManagerViews.RevenueReportChartView();
+                    break;
+                case "View receptionist activity report":
+                    CurrentContent = new Views.ManagerViews.ReceptionistActivityReportChartView();
                     break;
                 default:
                     CurrentContent = new Views.ManagerViews.RevenueReportChartView();

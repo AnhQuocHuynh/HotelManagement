@@ -151,26 +151,39 @@ namespace HotelManager.Data
             // Receptionist Staff
             if (!context.UserAccounts.Any(u => u.Username == "receptionist1"))
             {
-                System.Diagnostics.Debug.WriteLine("Creating receptionist1 account...");
-                var receptionistEmp = new Employee
+                for (int i = 1; i <= 5; i++)
                 {
-                    FullName = "Receptionist User",
-                    Position = EmployeePosition.Receptionist,
-                    Email = "receptionist@hotelmanager.com",
-                    PhoneNumber = "0900000004",
-                    HireDate = DateTime.Now.AddMonths(-4)
-                };
-                context.Employees.Add(receptionistEmp);
+                    string username = $"receptionist{i}";
 
-                context.UserAccounts.Add(new UserAccount
-                {
-                    Username = "receptionist1",
-                    PasswordHash = HashHelper.HashPassword("receptionist1"), 
-                    Role = UserRole.Staff,
-                    Employee = receptionistEmp,
-                    CreatedAt = DateTime.Now,
-                    IsActive = true
-                });
+                    if (!context.UserAccounts.Any(u => u.Username == username))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Creating {username} account...");
+
+                        var receptionistEmp = new Employee
+                        {
+                            FullName = $"Receptionist User {i}",
+                            Position = EmployeePosition.Receptionist,
+                            Email = $"{username}@hotelmanager.com",
+                            PhoneNumber = $"090000000{i + 4}", // 0900000005 -> 0900000009
+                            HireDate = DateTime.Now.AddMonths(-i)
+                        };
+                        context.Employees.Add(receptionistEmp);
+
+                        context.UserAccounts.Add(new UserAccount
+                        {
+                            Username = username,
+                            PasswordHash = HashHelper.HashPassword(username),
+                            Role = UserRole.Staff,
+                            Employee = receptionistEmp,
+                            CreatedAt = DateTime.Now,
+                            IsActive = true
+                        });
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"{username} account already exists, skipping...");
+                    }
+                }
             }
             else
             {
@@ -189,43 +202,60 @@ namespace HotelManager.Data
 
             if (!context.Bookings.Any())
             {
-                var customer = context.Customers.First();
-                var room = context.Rooms.First();
+                var customers = context.Customers.ToList();
+                var rooms = context.Rooms.ToList();
+                var receptionists = context.Employees.Where(e => e.Position == EmployeePosition.Receptionist).ToList();
 
-                var booking = new Booking
-                {
-                    Customer = customer,
-                    Room = room,
-                    CheckInDate = DateTime.Today,
-                    CheckOutDate = DateTime.Today.AddDays(2)
-                };
-                context.Bookings.Add(booking);
-                context.SaveChanges();
+                var random = new Random();
 
-                var invoice = new Invoice
+                for (int i = 0; i < 10; i++)
                 {
-                    Booking = booking,
-                    IssueDate = DateTime.Today,
-                    TotalAmount = room.PricePerNight * 2
-                };
-                context.Invoices.Add(invoice);
-                context.SaveChanges();
+                    var customer = customers[i % customers.Count];
+                    var room = rooms[i % rooms.Count];
+                    var receptionist = receptionists[random.Next(receptionists.Count)];
+                    var otherReceptionist = receptionists[random.Next(receptionists.Count)];
 
-                context.InvoiceDetails.Add(new InvoiceDetail
-                {
-                    Invoice = invoice,
-                    Room = room,
-                    Quantity = 2,
-                    UnitPrice = room.PricePerNight
-                });
+                    var checkIn = DateTime.Today.AddDays(-i * 2); // Lùi dần theo thời gian
+                    var stayLength = random.Next(1, 4); // 1 - 3 ngày
+                    var checkOut = checkIn.AddDays(stayLength);
 
-                context.Payments.Add(new Payment
-                {
-                    Invoice = invoice,
-                    PaymentDate = DateTime.Today,
-                    Amount = invoice.TotalAmount,
-                    PaymentMethod = PaymentMethod.Cash 
-                });
+                    var booking = new Booking
+                    {
+                        Customer = customer,
+                        Room = room,
+                        CheckInDate = checkIn,
+                        CheckOutDate = checkOut,
+                        CheckInEmployeeID = receptionist.Id,
+                        CheckOutEmployeeID = otherReceptionist.Id
+                    };
+                    context.Bookings.Add(booking);
+                    context.SaveChanges();
+
+                    var invoice = new Invoice
+                    {
+                        Booking = booking,
+                        IssueDate = checkOut,
+                        TotalAmount = room.PricePerNight * stayLength
+                    };
+                    context.Invoices.Add(invoice);
+                    context.SaveChanges();
+
+                    context.InvoiceDetails.Add(new InvoiceDetail
+                    {
+                        Invoice = invoice,
+                        Room = room,
+                        Quantity = stayLength,
+                        UnitPrice = room.PricePerNight
+                    });
+
+                    context.Payments.Add(new Payment
+                    {
+                        Invoice = invoice,
+                        PaymentDate = checkOut,
+                        Amount = invoice.TotalAmount,
+                        PaymentMethod = PaymentMethod.Cash
+                    });
+                }
             }
 
             context.SaveChanges();

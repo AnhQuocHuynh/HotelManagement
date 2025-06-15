@@ -74,6 +74,16 @@ namespace HotelManager.Data
                 entity.HasOne(b => b.Room)
                       .WithMany(r => r.Bookings)
                       .HasForeignKey(b => b.RoomNumber);
+
+                entity.HasOne(b => b.CheckInEmployee)
+                      .WithMany()
+                      .HasForeignKey(b => b.CheckInEmployeeID)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(b => b.CheckOutEmployee)
+                      .WithMany()
+                      .HasForeignKey(b => b.CheckOutEmployeeID)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Invoice>(entity =>

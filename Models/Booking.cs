@@ -16,6 +16,12 @@ namespace HotelManager.Models
         public int CustomerId { get; set; }
         public Customer Customer { get; set; }
 
+        public int? CheckInEmployeeID { get; set; }
+        public Employee? CheckInEmployee { get; set; }
+
+        public int? CheckOutEmployeeID { get; set; }
+        public Employee? CheckOutEmployee { get; set; }
+
         public string RoomNumber { get; set; }
         public Room Room { get; set; }
         public ICollection<Invoice> Invoices { get; set; }

@@ -33,8 +33,14 @@ namespace HotelManager.Migrations
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("CheckInEmployeeID")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CheckOutDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("CheckOutEmployeeID")
+                        .HasColumnType("int");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -47,6 +53,10 @@ namespace HotelManager.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CheckInEmployeeID");
+
+                    b.HasIndex("CheckOutEmployeeID");
 
                     b.HasIndex("CustomerId");
 
@@ -294,6 +304,16 @@ namespace HotelManager.Migrations
 
             modelBuilder.Entity("HotelManager.Models.Booking", b =>
                 {
+                    b.HasOne("HotelManager.Models.Employee", "CheckInEmployee")
+                        .WithMany()
+                        .HasForeignKey("CheckInEmployeeID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HotelManager.Models.Employee", "CheckOutEmployee")
+                        .WithMany()
+                        .HasForeignKey("CheckOutEmployeeID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("HotelManager.Models.Customer", "Customer")
                         .WithMany("Bookings")
                         .HasForeignKey("CustomerId")
@@ -305,6 +325,10 @@ namespace HotelManager.Migrations
                         .HasForeignKey("RoomNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CheckInEmployee");
+
+                    b.Navigation("CheckOutEmployee");
 
                     b.Navigation("Customer");
 

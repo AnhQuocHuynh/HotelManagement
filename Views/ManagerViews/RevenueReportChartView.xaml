@@ -132,6 +132,7 @@
                             ZoomMode="X"
                             TooltipPosition="Top"
                             ZoomingSpeed="0.2"
-                            DrawMarginFrame="{x:Null}"/>
+                            DrawMarginFrame="{x:Null}"
+                            LegendPosition="Top"/>
     </Grid>
 </UserControl>
