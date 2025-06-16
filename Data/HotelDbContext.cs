@@ -64,6 +64,7 @@ namespace HotelManager.Data
             modelBuilder.Entity<Booking>(entity =>
             {
                 entity.HasKey(b => b.Id);
+                entity.Property(b => b.BookingDate).IsRequired();
                 entity.Property(b => b.CheckInDate).IsRequired();
                 entity.Property(b => b.CheckOutDate).IsRequired();
 
@@ -74,6 +75,11 @@ namespace HotelManager.Data
                 entity.HasOne(b => b.Room)
                       .WithMany(r => r.Bookings)
                       .HasForeignKey(b => b.RoomNumber);
+
+                entity.HasOne(b => b.BookingEmployee)
+                      .WithMany()
+                      .HasForeignKey(b => b.BookingEmployeeId)
+                      .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(b => b.CheckInEmployee)
                       .WithMany()

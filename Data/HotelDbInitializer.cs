@@ -151,7 +151,7 @@ namespace HotelManager.Data
             // Receptionist Staff
             if (!context.UserAccounts.Any(u => u.Username == "receptionist1"))
             {
-                for (int i = 1; i <= 5; i++)
+                for (int i = 1; i <= 7; i++)
                 {
                     string username = $"receptionist{i}";
 
@@ -164,7 +164,7 @@ namespace HotelManager.Data
                             FullName = $"Receptionist User {i}",
                             Position = EmployeePosition.Receptionist,
                             Email = $"{username}@hotelmanager.com",
-                            PhoneNumber = $"090000000{i + 4}", // 0900000005 -> 0900000009
+                            PhoneNumber = $"090000001{i}", // 0900000011 -> 0900000017
                             HireDate = DateTime.Now.AddMonths(-i)
                         };
                         context.Employees.Add(receptionistEmp);
@@ -187,7 +187,7 @@ namespace HotelManager.Data
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("receptionist1 account already exists, skipping...");
+                System.Diagnostics.Debug.WriteLine("receptionists' accounts already exist, skipping...");
             }
 
             context.SaveChanges();
@@ -208,32 +208,38 @@ namespace HotelManager.Data
 
                 var random = new Random();
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 30; i++)
                 {
                     var customer = customers[i % customers.Count];
                     var room = rooms[i % rooms.Count];
-                    var receptionist = receptionists[random.Next(receptionists.Count)];
-                    var otherReceptionist = receptionists[random.Next(receptionists.Count)];
+
+                    var bookingEmployee = receptionists[random.Next(receptionists.Count)];
+                    var checkInEmployee = receptionists[random.Next(receptionists.Count)];
+                    var checkOutEmployee = receptionists[random.Next(receptionists.Count)];
 
                     var checkIn = DateTime.Today.AddDays(-i * 2); // Lùi dần theo thời gian
                     var stayLength = random.Next(1, 4); // 1 - 3 ngày
                     var checkOut = checkIn.AddDays(stayLength);
+                    var bookingDate = checkIn.AddDays(-random.Next(1, 3));
 
                     var booking = new Booking
                     {
                         Customer = customer,
                         Room = room,
+                        BookingDate = bookingDate,
                         CheckInDate = checkIn,
                         CheckOutDate = checkOut,
-                        CheckInEmployeeID = receptionist.Id,
-                        CheckOutEmployeeID = otherReceptionist.Id
+                        BookingEmployeeId = bookingEmployee.Id,
+                        CheckInEmployeeID = checkInEmployee.Id,
+                        CheckOutEmployeeID = checkOutEmployee.Id,
+                        Status = BookingStatus.CheckedOut
                     };
                     context.Bookings.Add(booking);
                     context.SaveChanges();
 
                     var invoice = new Invoice
                     {
-                        Booking = booking,
+                        BookingId = booking.Id,
                         IssueDate = checkOut,
                         TotalAmount = room.PricePerNight * stayLength
                     };
@@ -242,15 +248,15 @@ namespace HotelManager.Data
 
                     context.InvoiceDetails.Add(new InvoiceDetail
                     {
-                        Invoice = invoice,
-                        Room = room,
+                        InvoiceId = invoice.Id,
+                        RoomNumber = room.RoomNumber,
                         Quantity = stayLength,
                         UnitPrice = room.PricePerNight
                     });
 
                     context.Payments.Add(new Payment
                     {
-                        Invoice = invoice,
+                        InvoiceId = invoice.Id,
                         PaymentDate = checkOut,
                         Amount = invoice.TotalAmount,
                         PaymentMethod = PaymentMethod.Cash

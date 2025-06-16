@@ -30,6 +30,12 @@ namespace HotelManager.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("BookingEmployeeId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("datetime2");
 
@@ -53,6 +59,8 @@ namespace HotelManager.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BookingEmployeeId");
 
                     b.HasIndex("CheckInEmployeeID");
 
@@ -304,6 +312,11 @@ namespace HotelManager.Migrations
 
             modelBuilder.Entity("HotelManager.Models.Booking", b =>
                 {
+                    b.HasOne("HotelManager.Models.Employee", "BookingEmployee")
+                        .WithMany()
+                        .HasForeignKey("BookingEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("HotelManager.Models.Employee", "CheckInEmployee")
                         .WithMany()
                         .HasForeignKey("CheckInEmployeeID")
@@ -325,6 +338,8 @@ namespace HotelManager.Migrations
                         .HasForeignKey("RoomNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BookingEmployee");
 
                     b.Navigation("CheckInEmployee");
 

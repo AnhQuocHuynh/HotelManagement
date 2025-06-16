@@ -40,7 +40,8 @@ namespace HotelManager.ViewModels.ManagerViewModels
                 {
                     _selectedTimeUnit = value;
                     OnPropertyChanged(nameof(SelectedTimeUnit));
-                    _ = UpdateChartAsync();
+                    if (!_isInitializing)
+                        _ = UpdateChartAsync();
                 }
             }
         }
@@ -56,7 +57,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
                 {
                     _startDate = value;
                     OnPropertyChanged(nameof(StartDate));
-                    if (!_isUpdatingRange)
+                    if (!_isUpdatingRange && !_isInitializing)
                     {
                         _isManualDateChange = true;
                         SelectedTimeRange = "Custom";
@@ -80,7 +81,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
                 {
                     _endDate = value;
                     OnPropertyChanged(nameof(EndDate));
-                    if (!_isUpdatingRange)
+                    if (!_isUpdatingRange && !_isInitializing)
                     {
                         _isManualDateChange = true;
                         SelectedTimeRange = "Custom";
@@ -110,7 +111,8 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     {
                         SetTimeRange();
                         SetTimeBackground(true);
-                        _ = UpdateChartAsync();
+                        if (!_isInitializing)
+                            _ = UpdateChartAsync();
                     }
                 }
             }
