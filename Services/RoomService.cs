@@ -41,7 +41,6 @@ namespace HotelManager.Services
         public async Task<IEnumerable<Room>> GetAllAsync()
         {
             return await _dbContext.Rooms
-                .Where(r => r.IsAvailable)
                 .OrderBy(r => r.RoomNumber)
                 .ToListAsync();
         }
@@ -66,13 +65,13 @@ namespace HotelManager.Services
         public async Task<bool> IsRoomAvailableAsync(string roomNumber)
         {
             var room = await _dbContext.Rooms.FirstOrDefaultAsync(r => r.RoomNumber == roomNumber);
-            return room != null && room.IsAvailable;
+            return room != null && room.RoomStatus == RoomStatus.Available;
         }
 
         public async Task<IEnumerable<Room>> GetAvailableRoomsByTypeAsync(RoomType roomType)
         {
             return await _dbContext.Rooms
-                .Where(r => r.IsAvailable && r.RoomType == roomType)
+                .Where(r => (r.RoomStatus == RoomStatus.Available) && (r.RoomType == roomType))
                 .OrderBy(r => r.RoomNumber)
                 .ToListAsync();
         }
@@ -80,7 +79,7 @@ namespace HotelManager.Services
         public async Task<List<Room>> GetAvailableRoomsAsync()
         {
             return await _dbContext.Rooms
-                .Where(r => r.IsAvailable)
+                .Where(r => r.RoomStatus == RoomStatus.Available)
                 .OrderBy(r => r.RoomNumber)
                 .ToListAsync();
         }

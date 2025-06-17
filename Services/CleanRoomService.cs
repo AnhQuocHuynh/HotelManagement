@@ -40,7 +40,7 @@ namespace HotelManager.Services
         }
         public async Task MarkRoomAsCleanedAsync(Room room)
         {
-            room.IsAvailable = true;
+            room.RoomStatus = RoomStatus.Available;
             var latestBooking = await _context.Bookings
             .Where(b => b.RoomNumber == room.RoomNumber)
             .OrderByDescending(b => b.CheckOutDate)

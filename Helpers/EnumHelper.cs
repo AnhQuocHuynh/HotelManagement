@@ -10,5 +10,6 @@ namespace HotelManager.Helpers
     public static class EnumHelper
     {
         public static IEnumerable<EmployeePosition> EmployeePositions => Enum.GetValues(typeof(EmployeePosition)).Cast<EmployeePosition>();
+        public static IEnumerable<RoomStatus> roomStatuses => Enum.GetValues(typeof(RoomStatus)).Cast<RoomStatus>();
     }
 }

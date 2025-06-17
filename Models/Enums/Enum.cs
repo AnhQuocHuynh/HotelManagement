@@ -51,6 +51,15 @@
         NoShow = 5
     }
 
+    public enum RoomStatus
+    {
+        Available = 0,
+        Occupied = 1,
+        UnderMaintenance = 2,
+        Reserved = 3,
+        OutOfService = 4
+    }
+
     public static class EnumExtensions
     {
         public static string ToDisplay(this RoomType type) => type.ToString();
@@ -59,5 +68,6 @@
         public static string ToDisplay(this UserRole role) => role.ToString();
         public static string ToDisplay(this CustomerType type) => type.ToString();
         public static string ToDisplay(this BookingStatus status) => status.ToString();
+        public static string ToDisplay(this RoomStatus status) => status.ToString();
     }
 }

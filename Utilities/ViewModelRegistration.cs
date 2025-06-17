@@ -16,6 +16,7 @@ namespace HotelManager.Utilities
             ViewModelLocator.Register<ViewModels.Common.LoginViewModel, Views.Common.LoginView>();
             ViewModelLocator.Register<AdminViewModel, AdminView>();
             ViewModelLocator.Register<EmployeeEditViewModel, EmployeeEditView>();
+            ViewModelLocator.Register<RoomViewModel, RoomView>();
         }
     }
 }

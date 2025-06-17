@@ -14,7 +14,7 @@ namespace HotelManager.Data
             if (!context.Rooms.Any())
             {
                 context.Rooms.AddRange( 
-                    new Room { RoomNumber = "101", RoomType = RoomType.Standard, PricePerNight = 500000m, IsAvailable = true },
+                    new Room { RoomNumber = "101", RoomType = RoomType.Standard, PricePerNight = 500000m, RoomStatus = RoomStatus.Available },
                     new Room { RoomNumber = "102", RoomType = RoomType.Deluxe, PricePerNight = 750000m },
                     new Room { RoomNumber = "103", RoomType = RoomType.Suite, PricePerNight = 1000000m }
                 );
