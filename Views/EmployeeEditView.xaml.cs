@@ -18,7 +18,7 @@ namespace HotelManager.Views
     /// <summary>
     /// Interaction logic for EmployeeEditView.xaml
     /// </summary>
-    public partial class EmployeeEditView : UserControl
+    public partial class EmployeeEditView : Window
     {
         public EmployeeEditView()
         {

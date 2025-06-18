@@ -43,7 +43,8 @@
                   Margin="0,120,0,0"
                   ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
                   CanUserResizeRows="False"
-                  CanUserResizeColumns="False">
+                  CanUserResizeColumns="False"
+                  IsReadOnly="True">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Họ và tên" Binding="{Binding FullName}" Width="*"/>
                     <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>

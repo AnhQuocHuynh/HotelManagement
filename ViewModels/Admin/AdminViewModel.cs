@@ -69,8 +69,8 @@ namespace HotelManager.ViewModels
             }
         }
 
-        private String _employeeFullName;
-        public String EmployeeFullName
+        private string _employeeFullName;
+        public string EmployeeFullName
         {
             get => _employeeFullName;
             set
@@ -79,8 +79,8 @@ namespace HotelManager.ViewModels
                 OnPropertyChanged(nameof(EmployeeFullName));
             }
         }
-        private String _employeeEmail;
-        public String EmployeeEmail
+        private string _employeeEmail;
+        public string EmployeeEmail
         {
             get => _employeeEmail;
             set
@@ -89,8 +89,8 @@ namespace HotelManager.ViewModels
                 OnPropertyChanged(nameof(EmployeeEmail));
             }
         }
-        private String _employeePhoneNumber;
-        public String EmployeePhoneNumber
+        private string _employeePhoneNumber;
+        public string EmployeePhoneNumber
         {
             get => _employeePhoneNumber;
             set
@@ -137,42 +137,42 @@ namespace HotelManager.ViewModels
         public async void LoadEmployees()
         {
             var employees = await _employeeService.GetAllAsync();
-            Employees.Clear(); 
+            Employees.Clear();
             foreach (var emp in employees)
                 Employees.Add(emp); //Trigger UI update
         }
 
-    //    private void SetDummyEmployees()
-    //    {
-    //        var dummyEmployees = new List<(string? Username, string FullName, string Email, string Phone, EmployeePosition Position)>
-    //{
-    //    ("user1", "Nguyen Test 1", "user1@example.com", "0901111111", EmployeePosition.Receptionist),
-    //    (null, "Nguyen Test 2", "user2@example.com", "0902222222", EmployeePosition.Technician),
-    //    ("user3", "Nguyen Test 3", "user3@example.com", "0903333333", EmployeePosition.Receptionist)
-    //};
+        //    private void SetDummyEmployees()
+        //    {
+        //        var dummyEmployees = new List<(string? Username, string FullName, string Email, string Phone, EmployeePosition Position)>
+        //{
+        //    ("user1", "Nguyen Test 1", "user1@example.com", "0901111111", EmployeePosition.Receptionist),
+        //    (null, "Nguyen Test 2", "user2@example.com", "0902222222", EmployeePosition.Technician),
+        //    ("user3", "Nguyen Test 3", "user3@example.com", "0903333333", EmployeePosition.Receptionist)
+        //};
 
-    //        foreach (var (username, fullName, email, phone, position) in dummyEmployees)
-    //        {
-    //            var employee = new Employee
-    //            {
-    //                FullName = fullName,
-    //                Email = email,
-    //                PhoneNumber = phone,
-    //                HireDate = DateTime.UtcNow,
-    //                Position = position,
-    //                UserAccount = username != null ? new UserAccount
-    //                {
-    //                    Username = username,
-    //                    PasswordHash = HashHelper.HashPassword(username),
-    //                    Role = UserRole.Staff,
-    //                    CreatedAt = DateTime.UtcNow,
-    //                    IsActive = true
-    //                } : null
-    //            };
+        //        foreach (var (username, fullName, email, phone, position) in dummyEmployees)
+        //        {
+        //            var employee = new Employee
+        //            {
+        //                FullName = fullName,
+        //                Email = email,
+        //                PhoneNumber = phone,
+        //                HireDate = DateTime.UtcNow,
+        //                Position = position,
+        //                UserAccount = username != null ? new UserAccount
+        //                {
+        //                    Username = username,
+        //                    PasswordHash = HashHelper.HashPassword(username),
+        //                    Role = UserRole.Staff,
+        //                    CreatedAt = DateTime.UtcNow,
+        //                    IsActive = true
+        //                } : null
+        //            };
 
-    //            Employees.Add(employee);
-    //        }
-    //    }
+        //            Employees.Add(employee);
+        //        }
+        //    }
         private async Task AddAsync(Employee employee)
         {
             var added = await _employeeService.CreateAsync(employee);
@@ -181,7 +181,7 @@ namespace HotelManager.ViewModels
 
         private void Update(Employee employee)
         {
-            if(employee == null)
+            if (employee == null)
             {
                 MessageBox.Show("Vui lòng chọn 1 nhân viên để chỉnh sửa!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -207,18 +207,18 @@ namespace HotelManager.ViewModels
             try
             {
                 //Validate employee details
-                if (String.IsNullOrEmpty(_employeeFullName) || String.IsNullOrEmpty(_employeeEmail)
-                    || String.IsNullOrEmpty(_employeePhoneNumber))
+                if (string.IsNullOrEmpty(_employeeFullName) || string.IsNullOrEmpty(_employeeEmail)
+                    || string.IsNullOrEmpty(_employeePhoneNumber))
                 {
                     throw new ArgumentException("Employee details cannot be empty.");
                 }
                 //Validate email
-                if (StringExtensions.IsValidEmail(_employeeEmail) == false)
+                if (_employeeEmail.IsValidEmail() == false)
                 {
                     throw new ArgumentException("Invalid email format.");
                 }
                 //Validate phone number
-                if (StringExtensions.IsValidPhoneNumber(_employeePhoneNumber) == false)
+                if (_employeePhoneNumber.IsValidPhoneNumber() == false)
                 {
                     throw new ArgumentException("Invalid phone number format.");
                 }
@@ -253,7 +253,7 @@ namespace HotelManager.ViewModels
                         Console.WriteLine("Employee added successfully.");
                     }
                 });
-            
+
             }
             catch (ArgumentException ex)
             {
@@ -269,7 +269,7 @@ namespace HotelManager.ViewModels
             }
 
         }
-        
+
     }
 
 }

@@ -19,20 +19,10 @@ namespace HotelManager.Services
             if (!ViewModelLocatorRegistered(viewModel.GetType()))
                 throw new InvalidOperationException($"ViewModel not registered: {viewModel.GetType().Name}");
 
-            var view = ViewModelLocator.GetView<TViewModel, FrameworkElement>();
+            var view = ViewModelLocator.GetView<TViewModel,Window>();
             view.DataContext = viewModel;
 
-            var window = new Window
-            {
-                Title = viewModel.GetType().Name,
-                Content = view,
-                SizeToContent = SizeToContent.WidthAndHeight,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                ResizeMode = ResizeMode.NoResize,
-                Owner = Application.Current.MainWindow,
-                WindowStyle = WindowStyle.SingleBorderWindow,
-                ShowInTaskbar = false
-            };
+            
 
             // Set CloseAction in VM if it exists
             var closeProp = typeof(TViewModel).GetProperty("CloseAction");
@@ -40,12 +30,12 @@ namespace HotelManager.Services
             {
                 closeProp.SetValue(viewModel, new Action(() =>
                 {
-                    window.DialogResult = (bool?)typeof(TViewModel).GetProperty("DialogResult")?.GetValue(viewModel);
-                    window.Close();
+                    view.DialogResult = (bool?)typeof(TViewModel).GetProperty("DialogResult")?.GetValue(viewModel);
+                    view.Close();
                 }));
             }
 
-            return window.ShowDialog();
+            return view.ShowDialog();
         }
 
         //Helper to check if a viewmodel is registered

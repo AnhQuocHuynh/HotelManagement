@@ -18,7 +18,7 @@ using HotelManager.Helpers;
 
 namespace HotelManager.ViewModels
 {
-    public class EmployeeEditViewModel : BaseViewModel
+    internal class EmployeeEditViewModel : BaseViewModel
     {
         private readonly EmployeeService _employeeService;
         public IEnumerable<EmployeePosition> Positions { get; } = EnumHelper.EmployeePositions;
@@ -62,7 +62,7 @@ namespace HotelManager.ViewModels
                 return;
             }
 
-            if (!StringExtensions.IsValidEmail(EditableEmployee.Email))
+            if (!EditableEmployee.Email.IsValidEmail())
             {
                 MessageBox.Show("Invalid email format.");
                 return;
