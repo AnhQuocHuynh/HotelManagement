@@ -60,5 +60,4 @@ appsettings.*.json
 *.bak
 *.swp
 *.DS_Store
-/Config/DatabaseConfig.cs
 /HotelManager.csproj
