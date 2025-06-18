@@ -48,12 +48,12 @@ namespace HotelManager.Services
                 {
                     if (booking.Status != BookingStatus.CheckedOut && booking.Status != BookingStatus.Cancelled)
                     {
-                        room.IsAvailable = false;
+                        room.RoomStatus = RoomStatus.Occupied;
                         Debug.WriteLine($"Room {room.RoomNumber} set IsAvailable = false");
                     }
                     else
                     {
-                        room.IsAvailable = true;
+                        room.RoomStatus = RoomStatus.Available;
                         Debug.WriteLine($"Room {room.RoomNumber} set IsAvailable = true");
                     }
                 }
@@ -118,19 +118,19 @@ namespace HotelManager.Services
                     Debug.WriteLine("No customer update required");
                 }
 
-                // Cập nhật IsAvailable của phòng
+                // Cập nhật RoomStatus của phòng
                 var room = await _dbContext.Rooms
                     .FirstOrDefaultAsync(r => r.RoomNumber == booking.RoomNumber && r.RoomType == booking.RoomType);
                 if (room != null)
                 {
                     if (booking.Status != BookingStatus.CheckedOut && booking.Status != BookingStatus.Cancelled)
                     {
-                        room.IsAvailable = false;
+                        room.RoomStatus = RoomStatus.Occupied;
                         Debug.WriteLine($"Room {room.RoomNumber} set IsAvailable = false");
                     }
                     else
                     {
-                        room.IsAvailable = true;
+                        room.RoomStatus = RoomStatus.Available;
                         Debug.WriteLine($"Room {room.RoomNumber} set IsAvailable = true");
                     }
                 }
@@ -167,7 +167,7 @@ namespace HotelManager.Services
                     .FirstOrDefaultAsync(r => r.RoomNumber == booking.RoomNumber && r.RoomType == booking.RoomType);
                 if (room != null)
                 {
-                    room.IsAvailable = true;
+                    room.RoomStatus = RoomStatus.Available;
                     Debug.WriteLine($"Room {room.RoomNumber} set IsAvailable = true");
                 }
 

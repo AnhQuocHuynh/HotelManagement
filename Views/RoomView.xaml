@@ -1,12 +1,63 @@
-﻿<Window x:Class="HotelManager.Views.RoomView"
+﻿<UserControl x:Class="HotelManager.Views.RoomView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HotelManager.Views.StaffViews"
+        xmlns:vm="clr-namespace:HotelManager.ViewModels"
         mc:Ignorable="d"
-        Title="PaymentView" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
-</Window>
+        d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.DataContext>
+        <vm:RoomViewModel/>
+    </UserControl.DataContext>
+    
+    <Border Background="White" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="2" CornerRadius="8">
+        <Grid Background="{StaticResource AccentBrush}">
+            <Border Background="{StaticResource PrimaryBrush}" Height="50" VerticalAlignment="Top">
+                <Grid>
+                    <TextBlock Text="Danh sách phòng" 
+                           FontSize="20" 
+                           FontWeight="Bold" 
+                           Foreground="White" 
+                           VerticalAlignment="Center" 
+                           HorizontalAlignment="Left" 
+                           Margin="20,0,0,0"/>
+                    <Button Content="Logout" 
+                        Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                        Width="80" 
+                        Height="30" 
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Center" 
+                        Margin="0,0,20,0"
+                        Background="DarkRed"
+                        Foreground="White"/>
+                </Grid>
+            </Border>
+            <Border Background="White" Margin="10,50,10,10" CornerRadius="8" BorderBrush="{StaticResource SecondaryBrush}" BorderThickness="1" VerticalAlignment="Top" Height="50">
+                <Grid>
+                    <TextBlock Text="Tìm kiếm phòng:" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                    <TextBox Text="{Binding RoomFilter, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,0" Background="Transparent" VerticalAlignment="Bottom" Height="30" BorderThickness="0"/>
+                </Grid>
+            </Border>
+            <DataGrid ItemsSource="{Binding Rooms}"
+                      AutoGenerateColumns="False" 
+                      CanUserAddRows="False"               
+                      SelectionMode="Single"
+                      SelectedItem="{Binding SelectedRoom}"
+                      Margin="2,100,2,50"
+                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                      CanUserResizeRows="False"
+                      CanUserResizeColumns="False"
+                      IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Số phòng" Binding="{Binding RoomNumber}" Width="*"/>
+                    <DataGridTextColumn Header="Trạng thái" Binding="{Binding RoomStatusDisplay}" Width="*"/>
+                    <DataGridTextColumn Header="Loại phòng" Binding="{Binding RoomType}" Width="*"/>
+                    <DataGridTextColumn Header="Giá mỗi đêm" Binding="{Binding PricePerNight, StringFormat='{}{0:#,##0} ₫'}" Width="*"/>
+                </DataGrid.Columns>
+                 
+            </DataGrid>
+            <Button Content="Chỉnh sửa" Command="{Binding UpdateCommand}" Style="{StaticResource DefaultButtonStyle}" Width="80" Height="30" Margin="0,0,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+        </Grid>
+    </Border>
+</UserControl>

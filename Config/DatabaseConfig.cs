@@ -4,13 +4,13 @@ namespace HotelManager.Config
 {
     public static class DatabaseConfig
     {
-        public const string ServerName = "LAPTOP-HR42JU06\\SQLEXPRESS"; //Điền ServerName trong SQL Server của mình thay cho "LAPTOP-CUA-QUOC\\SQLEXPRESS01"
+        public const string ServerName = @"(local)\SQLEXPRESS";
         public const string DatabaseName = "HotelManager";
         public const bool IntegratedSecurity = true;
 
         public static string GetConnectionString()
         {
-            return $"Server={ServerName};Database={DatabaseName};Trusted_Connection=True;TrustServerCertificate=True;";
+            return $"Server={ServerName};Database={DatabaseName};Trusted_Connection={IntegratedSecurity};TrustServerCertificate=True;";
         }
     }
-} 
+}
