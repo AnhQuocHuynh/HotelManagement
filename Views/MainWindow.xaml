@@ -12,6 +12,6 @@
     </Window.DataContext>
 
     <Grid Margin="10">
-        <staff:ReceptionistView />
+        <views:PaymentView />
     </Grid>
 </Window>
