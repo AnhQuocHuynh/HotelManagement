@@ -16,5 +16,7 @@ namespace HotelManager.Models
 
         public int InvoiceId { get; set; }
         public Invoice Invoice { get; set; }
+
+        public decimal RemainingAmount { get; set; }
     }
 }
