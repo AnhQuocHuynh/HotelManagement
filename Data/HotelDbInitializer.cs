@@ -14,7 +14,7 @@ namespace HotelManager.Data
             if (!context.Rooms.Any())
             {
                 context.Rooms.AddRange( 
-                    new Room { RoomNumber = "101", RoomType = RoomType.Standard, PricePerNight = 500000m },
+                    new Room { RoomNumber = "101", RoomType = RoomType.Standard, PricePerNight = 500000m, RoomStatus = RoomStatus.Available },
                     new Room { RoomNumber = "102", RoomType = RoomType.Deluxe, PricePerNight = 750000m },
                     new Room { RoomNumber = "103", RoomType = RoomType.Suite, PricePerNight = 1000000m }
                 );
@@ -23,9 +23,9 @@ namespace HotelManager.Data
             if (!context.Customers.Any())
             {
                 context.Customers.AddRange(
-                    new Customer { FullName = "Nguyen Van A", PhoneNumber = "0901234567" },
-                    new Customer { FullName = "Tran Thi B", PhoneNumber = "0912345678" },
-                    new Customer { FullName = "Le Van C", PhoneNumber = "0923456789" }
+                    new Customer { FullName = "Nguyen Van A", PhoneNumber = "0901234567" , CCCD = "89879123"},
+                    new Customer { FullName = "Tran Thi B", PhoneNumber = "0912345678", CCCD = "89875123" },
+                    new Customer { FullName = "Le Van C", PhoneNumber = "0923456789" , CCCD = "89879523" }
                 );
             }
 
@@ -265,6 +265,8 @@ namespace HotelManager.Data
             }
 
             context.SaveChanges();
+
+
         }
     }
 }

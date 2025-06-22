@@ -60,16 +60,4 @@ appsettings.*.json
 *.bak
 *.swp
 *.DS_Store
-
-# Database Configuration (Contains sensitive connection strings)
-Config/DatabaseConfig.cs
-
-# Entity Framework Migrations (Auto-generated)
-Migrations/
-
-# Project Documentation (Personal notes - not for public repo)
-README.md
-
-# Backup files
-*.bak
-*.backup
+/HotelManager.csproj

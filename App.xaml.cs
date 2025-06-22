@@ -2,6 +2,7 @@
 using System.Data;
 using System.Windows;
 using HotelManager.Data;
+using HotelManager.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelManager;
@@ -14,7 +15,9 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        
+
+        //register all ViewModel
+        ViewModelRegistration.RegisterAll();
         // Initialize database with seed data
         try
         {

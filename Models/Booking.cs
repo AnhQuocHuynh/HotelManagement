@@ -26,6 +26,7 @@ namespace HotelManager.Models
 
         public string RoomNumber { get; set; }
         public Room Room { get; set; }
+        public RoomType RoomType { get; set; } = RoomType.Standard;
         public ICollection<Invoice> Invoices { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using HotelManager.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManager.Migrations
 {
     [DbContext(typeof(HotelDbContext))]
-    partial class HotelDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250617114825_ChangeRoomStatusType")]
+    partial class ChangeRoomStatusType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,23 +33,11 @@ namespace HotelManager.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("BookingDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("BookingEmployeeId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("CheckInEmployeeID")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CheckOutDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("CheckOutEmployeeID")
-                        .HasColumnType("int");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -62,12 +53,6 @@ namespace HotelManager.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BookingEmployeeId");
-
-                    b.HasIndex("CheckInEmployeeID");
-
-                    b.HasIndex("CheckOutEmployeeID");
 
                     b.HasIndex("CustomerId");
 
@@ -315,21 +300,6 @@ namespace HotelManager.Migrations
 
             modelBuilder.Entity("HotelManager.Models.Booking", b =>
                 {
-                    b.HasOne("HotelManager.Models.Employee", "BookingEmployee")
-                        .WithMany()
-                        .HasForeignKey("BookingEmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("HotelManager.Models.Employee", "CheckInEmployee")
-                        .WithMany()
-                        .HasForeignKey("CheckInEmployeeID")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("HotelManager.Models.Employee", "CheckOutEmployee")
-                        .WithMany()
-                        .HasForeignKey("CheckOutEmployeeID")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("HotelManager.Models.Customer", "Customer")
                         .WithMany("Bookings")
                         .HasForeignKey("CustomerId")
@@ -341,12 +311,6 @@ namespace HotelManager.Migrations
                         .HasForeignKey("RoomNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("BookingEmployee");
-
-                    b.Navigation("CheckInEmployee");
-
-                    b.Navigation("CheckOutEmployee");
 
                     b.Navigation("Customer");
 

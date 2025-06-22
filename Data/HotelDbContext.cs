@@ -26,6 +26,7 @@ namespace HotelManager.Data
                 // Sử dụng connection string từ DatabaseConfig thay vì hardcoded default
                 var connectionString = _configuration?.GetConnectionString("DefaultConnection")
                     ?? Config.DatabaseConfig.GetConnectionString();
+              
                 optionsBuilder.UseSqlServer(connectionString);
             }
         }

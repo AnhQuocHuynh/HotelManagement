@@ -10,16 +10,17 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace HotelManager.Views
 {
     /// <summary>
-    /// Interaction logic for RoomView.xaml
+    /// Interaction logic for EmployeeEditView.xaml
     /// </summary>
-    public partial class RoomView : UserControl
+    public partial class EmployeeEditView : Window
     {
-        public RoomView()
+        public EmployeeEditView()
         {
             InitializeComponent();
         }

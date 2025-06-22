@@ -15,11 +15,11 @@ using System.Windows.Shapes;
 namespace HotelManager.Views
 {
     /// <summary>
-    /// Interaction logic for RoomView.xaml
+    /// Interaction logic for RoomInfoEditView.xaml
     /// </summary>
-    public partial class RoomView : UserControl
+    public partial class RoomInfoEditView : Window
     {
-        public RoomView()
+        public RoomInfoEditView()
         {
             InitializeComponent();
         }

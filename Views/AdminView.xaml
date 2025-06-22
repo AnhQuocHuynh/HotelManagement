@@ -6,22 +6,23 @@
         xmlns:local="clr-namespace:HotelManager.Views"
         xmlns:vm="clr-namespace:HotelManager.ViewModels"
         mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+        d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>
         <vm:AdminViewModel />
     </UserControl.DataContext>
-    <Grid Background="{StaticResource AccentBrush}">
-        <!-- Header with title and logout button -->
-        <Border Background="{StaticResource PrimaryBrush}" Height="50" VerticalAlignment="Top">
-            <Grid>
-                <TextBlock Text="Admin Dashboard" 
+    <Border Background="White" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="2" CornerRadius="8">
+        <Grid Background="{StaticResource AccentBrush}">
+            <!-- Header with title and logout button -->
+            <Border Background="{StaticResource PrimaryBrush}" Height="50" VerticalAlignment="Top">
+                <Grid>
+                    <TextBlock Text="Admin Dashboard" 
                            FontSize="20" 
                            FontWeight="Bold" 
                            Foreground="White" 
                            VerticalAlignment="Center" 
                            HorizontalAlignment="Left" 
                            Margin="20,0,0,0"/>
-                <Button Content="Logout" 
+                    <Button Content="Logout" 
                         Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                         Width="80" 
                         Height="30" 
@@ -30,11 +31,11 @@
                         Margin="0,0,20,0"
                         Background="DarkRed"
                         Foreground="White"/>
-            </Grid>
-        </Border>
-        
-        <!-- Grid for displaying accounts -->
-        <DataGrid ItemsSource="{Binding Employees}" 
+                </Grid>
+            </Border>
+
+            <!-- Grid for displaying accounts -->
+            <DataGrid ItemsSource="{Binding Employees}" 
                   AutoGenerateColumns="False" 
                   CanUserAddRows="False"               
                   SelectionMode="Single"
@@ -42,61 +43,62 @@
                   Margin="0,120,0,0"
                   ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
                   CanUserResizeRows="False"
-                  CanUserResizeColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Full Name" Binding="{Binding FullName}" Width="*"/>
-                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
-                <DataGridTextColumn Header="Phone" Binding="{Binding PhoneNumber}" />
-                <DataGridTextColumn Header="Hire Date" Binding="{Binding HireDate, StringFormat=d}" />
-                <DataGridTextColumn Header="Position" Binding="{Binding Position}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Username" Binding="{Binding UserAccount.Username}" Width="*"/>
+                  CanUserResizeColumns="False"
+                  IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Họ và tên" Binding="{Binding FullName}" Width="*"/>
+                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                    <DataGridTextColumn Header="Số điện thoại" Binding="{Binding PhoneNumber}" Width="*" />
+                    <DataGridTextColumn Header="Ngày vào" Binding="{Binding HireDate, StringFormat=d}" />
+                    <DataGridTextColumn Header="Vị trí" Binding="{Binding Position}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Tên tài khoản" Binding="{Binding UserAccount.Username}" Width="*"/>
 
-                <DataGridTemplateColumn Header="Actions">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="Edit" Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" CommandParameter="{Binding}" Style="{StaticResource DefaultButtonStyle}"/>
-                                <Button Content="Delete" Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" CommandParameter="{Binding}" Margin="5,0,0,0" Style="{StaticResource DefaultButtonStyle}"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+                    <DataGridTemplateColumn Header="Hành động" Width="90">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Edit" Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" CommandParameter="{Binding}" Style="{StaticResource DefaultButtonStyle}" Width="40"/>
+                                    <Button Content="Delete" Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" CommandParameter="{Binding}" Margin="5,0,0,0" Style="{StaticResource DefaultButtonStyle}" Width="40"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
 
-        <!-- Labels and TextBoxes -->
-        <Grid VerticalAlignment="Top" Margin="0,50,150,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
+            <!-- Labels and TextBoxes -->
+            <Grid VerticalAlignment="Top" Margin="0,50,150,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Labels -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Inputs -->
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
                 <!-- Labels -->
-                <RowDefinition Height="Auto"/>
-                <!-- Inputs -->
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+                <TextBlock Text="Full Name:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Background="Azure" Padding="5"/>
+                <TextBlock Text="Email:" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Background="Azure" Padding="5"/>
+                <TextBlock Text="Phone Number:" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Background="Azure" Padding="5"/>
+                <TextBlock Text="Position:" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Background="Azure" Padding="5"/>
+                <TextBlock Text="Hire Date:" Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" Background="Azure" Padding="5"/>
 
-            <!-- Labels -->
-            <TextBlock Text="Full Name:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Background="Azure" Padding="5"/>
-            <TextBlock Text="Email:" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Background="Azure" Padding="5"/>
-            <TextBlock Text="Phone Number:" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Background="Azure" Padding="5"/>
-            <TextBlock Text="Position:" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Background="Azure" Padding="5"/>
-            <TextBlock Text="Hire Date:" Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" Background="Azure" Padding="5"/>
+                <!-- Input Controls -->
+                <TextBox x:Name="FullnameTextBox" Grid.Row="1" Grid.Column="0" Height="30" Margin="0,5,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding EmployeeFullName, Mode=TwoWay}"/>
+                <TextBox x:Name="EmailTextBox" Grid.Row="1" Grid.Column="1" Height="30" Margin="0,5,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding EmployeeEmail, Mode=TwoWay}"/>
+                <TextBox x:Name="PhoneNumberTextBox" Grid.Row="1" Grid.Column="2" Height="30" Margin="0,5,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding EmployeePhoneNumber, Mode=TwoWay}"/>
+                <ComboBox x:Name="PositionBox" Grid.Row="1" Grid.Column="3" Height="30" Margin="0,5,5,5" ItemsSource="{Binding EmployeePositions}" SelectedItem="{Binding SelectedPosition, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}" />
+                <DatePicker x:Name="HireDateTextBox" Grid.Row="1" Grid.Column="4" Height="30" Margin="0,5,0,5" HorizontalAlignment="Left" Width="125" SelectedDate="{Binding EmployeeHireDate, Mode=TwoWay}"/>
+            </Grid>
 
-            <!-- Input Controls -->
-            <TextBox x:Name="FullnameTextBox" Grid.Row="1" Grid.Column="0" Height="30" Margin="0,5,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding EmployeeFullName, Mode=TwoWay}"/>
-            <TextBox x:Name="EmailTextBox" Grid.Row="1" Grid.Column="1" Height="30" Margin="0,5,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding EmployeeEmail, Mode=TwoWay}"/>
-            <TextBox x:Name="PhoneNumberTextBox" Grid.Row="1" Grid.Column="2" Height="30" Margin="0,5,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding EmployeePhoneNumber, Mode=TwoWay}"/>
-            <ComboBox x:Name="PositionBox" Grid.Row="1" Grid.Column="3" Height="30" Margin="0,5,5,5" ItemsSource="{Binding EmployeePositions}" SelectedItem="{Binding SelectedPosition, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}" />
-            <DatePicker x:Name="HireDateTextBox" Grid.Row="1" Grid.Column="4" Height="30" Margin="0,5,0,5" HorizontalAlignment="Left" Width="125" SelectedDate="{Binding EmployeeHireDate, Mode=TwoWay}"/>
-        </Grid>
-
-        <!-- Add Employee Button -->
-        <Button Content="Add New Employee"
+            <!-- Add Employee Button -->
+            <Button Content="Add New Employee"
             Command="{Binding AddNewEmployeeCommand}"
             Style="{StaticResource DefaultButtonStyle}"
             Width="150"
@@ -105,5 +107,6 @@
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Margin="0,83,0,0"/>
-    </Grid>
+        </Grid>
+    </Border>
 </UserControl>

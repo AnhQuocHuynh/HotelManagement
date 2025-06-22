@@ -20,6 +20,7 @@ namespace HotelManager.Views
         {
             InitializeComponent();
             DataContext = new MainViewModel();
+
         }
     }
 }
