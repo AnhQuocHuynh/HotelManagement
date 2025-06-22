@@ -25,6 +25,9 @@ namespace HotelManager.Services
         {
             return await _dbContext.Bookings
                 .Include(b => b.Customer)
+                .Include(b => b.BookingEmployee)
+                .Include(b => b.CheckInEmployee)
+                .Include(b => b.CheckOutEmployee)
                 .ToListAsync();
         }
 
@@ -181,5 +184,155 @@ namespace HotelManager.Services
                 throw new Exception($"Lỗi khi xóa booking: {ex.Message}", ex);
             }
         }
+
+        #region Manager Reporting Methods
+
+        /// <summary>
+        /// Lấy các booking đã checkout để tính doanh thu
+        /// </summary>
+        public async Task<List<Booking>> GetCheckedOutBookingsAsync()
+        {
+            return await _dbContext.Bookings
+                .Include(b => b.Customer)
+                .Include(b => b.BookingEmployee)
+                .Include(b => b.CheckInEmployee)
+                .Include(b => b.CheckOutEmployee)
+                .Include(b => b.Invoices)
+                .Where(b => b.Status == BookingStatus.CheckedOut)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Lấy booking đã checkout theo khoảng thời gian
+        /// </summary>
+        public async Task<List<Booking>> GetCheckedOutBookingsByDateRangeAsync(DateTime fromDate, DateTime toDate)
+        {
+            return await _dbContext.Bookings
+                .Include(b => b.Customer)
+                .Include(b => b.BookingEmployee)
+                .Include(b => b.CheckInEmployee)
+                .Include(b => b.CheckOutEmployee)
+                .Include(b => b.Invoices)
+                .Where(b => b.Status == BookingStatus.CheckedOut && 
+                           b.CheckOutDate >= fromDate && 
+                           b.CheckOutDate <= toDate)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Thống kê doanh số theo nhân viên (Booking Employee)
+        /// </summary>
+        public async Task<Dictionary<Employee, decimal>> GetRevenueByBookingEmployeeAsync(DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            var query = _dbContext.Bookings
+                .Include(b => b.BookingEmployee)
+                .Include(b => b.Invoices)
+                .Where(b => b.Status == BookingStatus.CheckedOut && 
+                           b.BookingEmployeeId != null);
+
+            if (fromDate.HasValue)
+                query = query.Where(b => b.CheckOutDate >= fromDate.Value);
+            
+            if (toDate.HasValue)
+                query = query.Where(b => b.CheckOutDate <= toDate.Value);
+
+            var bookings = await query.ToListAsync();
+
+            return bookings
+                .GroupBy(b => b.BookingEmployee)
+                .ToDictionary(
+                    g => g.Key!,
+                    g => g.SelectMany(b => b.Invoices).Sum(i => i.TotalAmount)
+                );
+        }
+
+        /// <summary>
+        /// Thống kê doanh số theo nhân viên CheckOut
+        /// </summary>
+        public async Task<Dictionary<Employee, decimal>> GetRevenueByCheckOutEmployeeAsync(DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            var query = _dbContext.Bookings
+                .Include(b => b.CheckOutEmployee)
+                .Include(b => b.Invoices)
+                .Where(b => b.Status == BookingStatus.CheckedOut && 
+                           b.CheckOutEmployeeID != null);
+
+            if (fromDate.HasValue)
+                query = query.Where(b => b.CheckOutDate >= fromDate.Value);
+            
+            if (toDate.HasValue)
+                query = query.Where(b => b.CheckOutDate <= toDate.Value);
+
+            var bookings = await query.ToListAsync();
+
+            return bookings
+                .GroupBy(b => b.CheckOutEmployee)
+                .ToDictionary(
+                    g => g.Key!,
+                    g => g.SelectMany(b => b.Invoices).Sum(i => i.TotalAmount)
+                );
+        }
+
+        /// <summary>
+        /// Thống kê số lượt đặt phòng theo thời gian
+        /// </summary>
+        public async Task<Dictionary<DateTime, int>> GetBookingCountByDateAsync(DateTime fromDate, DateTime toDate)
+        {
+            var bookings = await _dbContext.Bookings
+                .Where(b => b.BookingDate >= fromDate && b.BookingDate <= toDate)
+                .ToListAsync();
+
+            return bookings
+                .GroupBy(b => b.BookingDate.Date)
+                .ToDictionary(g => g.Key, g => g.Count());
+        }
+
+        /// <summary>
+        /// Thống kê doanh thu theo thời gian (daily/monthly)
+        /// </summary>
+        public async Task<Dictionary<DateTime, decimal>> GetRevenueByDateAsync(DateTime fromDate, DateTime toDate)
+        {
+            var bookings = await _dbContext.Bookings
+                .Include(b => b.Invoices)
+                .Where(b => b.Status == BookingStatus.CheckedOut &&
+                           b.CheckOutDate >= fromDate && 
+                           b.CheckOutDate <= toDate)
+                .ToListAsync();
+
+            return bookings
+                .GroupBy(b => b.CheckOutDate.Date)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.SelectMany(b => b.Invoices).Sum(i => i.TotalAmount)
+                );
+        }
+
+        /// <summary>
+        /// Lấy top employees theo doanh số
+        /// </summary>
+        public async Task<List<(Employee Employee, decimal Revenue, int BookingCount)>> GetTopEmployeesByRevenueAsync(int topCount = 10, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            var revenueByEmployee = await GetRevenueByBookingEmployeeAsync(fromDate, toDate);
+            
+            var bookingCounts = await _dbContext.Bookings
+                .Where(b => b.BookingEmployeeId != null && 
+                           b.Status == BookingStatus.CheckedOut &&
+                           (!fromDate.HasValue || b.CheckOutDate >= fromDate.Value) &&
+                           (!toDate.HasValue || b.CheckOutDate <= toDate.Value))
+                .GroupBy(b => b.BookingEmployeeId)
+                .ToDictionaryAsync(g => g.Key!.Value, g => g.Count());
+
+            return revenueByEmployee
+                .OrderByDescending(kvp => kvp.Value)
+                .Take(topCount)
+                .Select(kvp => (
+                    Employee: kvp.Key,
+                    Revenue: kvp.Value,
+                    BookingCount: bookingCounts.TryGetValue(kvp.Key.Id, out var count) ? count : 0
+                ))
+                .ToList();
+        }
+
+        #endregion
     }
 }
