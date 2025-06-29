@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:HotelManager.Views"
-             xmlns:enums="clr-namespace:HotelManager.Models.Enums"
+             xmlns:enums="clr-namespace:HotelManager.Models.Enums;assembly=HotelManager.Core"
              xmlns:vm="clr-namespace:HotelManager.ViewModels"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
@@ -92,13 +92,12 @@
             <!-- Inputs Row 1 -->
             <DatePicker x:Name="PaymentDatePicker" Grid.Row="1" Grid.Column="0" Height="30" Margin="0,0,5,5" SelectedDate="{Binding PaymentDate, Mode=TwoWay}"/>
             <TextBox x:Name="AmountTextBox" Grid.Row="1" Grid.Column="1" Height="30" Margin="0,0,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <ComboBox x:Name="PaymentMethodBox" Grid.Row="1" Grid.Column="2" Height="30" Margin="0,0,5,5" SelectedItem="{Binding PaymentMethod, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}">
-                <ComboBox.Items>
-                    <enums:PaymentMethod>Cash</enums:PaymentMethod>
-                    <enums:PaymentMethod>CreditCard</enums:PaymentMethod>
-                    <enums:PaymentMethod>BankTransfer</enums:PaymentMethod>
-                </ComboBox.Items>
-            </ComboBox>
+            <ComboBox x:Name="PaymentMethodBox"
+                      Grid.Row="1" Grid.Column="2"
+                      Height="30" Margin="0,0,5,5"
+                      SelectedItem="{Binding PaymentMethod, Mode=TwoWay}"
+                      ItemsSource="{Binding Source={StaticResource PaymentMethodValues}}"
+                      BorderBrush="{DynamicResource PrimaryBrush}" />
             <ComboBox x:Name="InvoiceBox" Grid.Row="1" Grid.Column="3" Height="30" Margin="0,0,5,5" ItemsSource="{Binding AvailableInvoices}" DisplayMemberPath="Id" SelectedValuePath="Id" SelectedValue="{Binding SelectedInvoiceId, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}"/>
             <TextBlock x:Name="RemainingTextBlock" Grid.Row="1" Grid.Column="4" Height="30" VerticalAlignment="Center" Margin="0,0,5,5" Text="{Binding RemainingAmount, StringFormat=c}" />
 

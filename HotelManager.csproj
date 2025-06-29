@@ -10,8 +10,10 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="FluentAssertions" Version="6.12.1" />
     <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc5.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -23,6 +25,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
+    <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
@@ -51,6 +54,16 @@
     <Resource Include="Resources\Images\**" />
     <Resource Include="Resources\Fonts\**" />
     <Resource Include="Resources\Icons\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="HotelManager.Core\HotelManager.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="HotelManager.Core\**\*.cs" />
+    <Compile Remove="HotelManager.Tests\**\*.cs" />
+    <Compile Remove="HotelManager.Tests\\obj\\**\\*.cs" />
   </ItemGroup>
 
 </Project>

@@ -9,6 +9,8 @@ using HotelManager.Services.Common.Implements;
 using HotelManager.Utilities;
 using HotelManager.Data.Common;
 using Microsoft.EntityFrameworkCore;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.ViewModels.Common
 {
@@ -54,7 +56,7 @@ namespace HotelManager.ViewModels.Common
         public LoginViewModel()
         {
             // coommand
-            LoginCommand = new RelayCommand(_ => Login());
+            LoginCommand = new RelayCommand(Login);
 
             PasswordVisibility = false;
         }
@@ -75,16 +77,17 @@ namespace HotelManager.ViewModels.Common
             try
             {
                 // Direct authentication without complex layers
-                using (var context = new Data.HotelDbContext())
+                using (var scope = App.ServiceProvider.CreateScope())
                 {
+                    var context = scope.ServiceProvider.GetRequiredService<Data.HotelDbContext>();
+
                     var hashedPassword = Helpers.HashHelper.HashPassword(Password);
-                    var user = context.UserAccounts
-                        .Include(u => u.Employee) // Include Employee data for role-based navigation
-                        .FirstOrDefault(u => u.Username == UserName && u.PasswordHash == hashedPassword);
-                    
+                    var user = await context.UserAccounts
+                        .Include(u => u.Employee)
+                        .FirstOrDefaultAsync(u => u.Username == UserName && u.PasswordHash == hashedPassword);
+
                     if (user != null)
                     {
-                        // Set current user session
                         Utilities.AppSession.SetCurrentUserAccount(user);
                         return true;
                     }

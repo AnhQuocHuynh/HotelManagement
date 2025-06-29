@@ -14,11 +14,11 @@ using HotelManager.Data;
 using HotelManager.Interfaces;
 using HotelManager.Models;
 using HotelManager.Services;
-using RelayCommand = HotelManager.Utilities.RelayCommand;
 using HotelManager.Helpers;
 using HotelManager.Models.Enums;
 using HotelManager.Extensions;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.ViewModels
 {
@@ -114,12 +114,16 @@ namespace HotelManager.ViewModels
         public AdminViewModel(EmployeeService employeeService)
         {
             _employeeService = employeeService;
-            AddCommand = new RelayCommand(async param => await AddAsync(SelectedEmployee));
-            UpdateCommand = new RelayCommand(async param => Update(SelectedEmployee));
-            DeleteCommand = new RelayCommand(async param => await DeleteAsync(SelectedEmployee));
-            AddNewEmployeeCommand = new RelayCommand(param => AddNewEmployee());
+            AddCommand = new AsyncRelayCommand(() => AddAsync(SelectedEmployee));
+            UpdateCommand = new RelayCommand(() => Update(SelectedEmployee));
+            DeleteCommand = new AsyncRelayCommand(() => DeleteAsync(SelectedEmployee));
+            AddNewEmployeeCommand = new RelayCommand(AddNewEmployee);
 
             LoadEmployees();
+        }
+
+        public AdminViewModel() : this(App.ServiceProvider?.GetRequiredService<EmployeeService>() ?? throw new InvalidOperationException("EmployeeService not registered"))
+        {
         }
 
         public async void LoadEmployees()

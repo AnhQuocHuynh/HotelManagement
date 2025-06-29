@@ -24,13 +24,24 @@ namespace HotelManager.Views.StaffViews
     /// </summary>
     public partial class CleanerView : UserControl
     {
+        private readonly IServiceScope _scope;
+
         public CleanerView()
         {
             InitializeComponent();
             if (App.ServiceProvider != null)
             {
-                DataContext = App.ServiceProvider.GetRequiredService<ViewModels.StaffViewModels.CleanerViewModel>();
+                _scope = App.ServiceProvider.CreateScope();
+                DataContext = _scope.ServiceProvider.GetRequiredService<ViewModels.StaffViewModels.CleanerViewModel>();
             }
+
+            // Dispose scope when the view is unloaded
+            this.Unloaded += OnViewUnloaded;
+        }
+
+        private void OnViewUnloaded(object sender, RoutedEventArgs e)
+        {
+            _scope?.Dispose();
         }
 
         private void OnViewImageClick(object sender, RoutedEventArgs e)

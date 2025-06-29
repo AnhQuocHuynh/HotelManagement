@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Collections.ObjectModel;
 using HotelManager.Services.Manager;
 using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.ViewModels.ManagerViewModels
 {

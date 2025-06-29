@@ -10,8 +10,8 @@ using HotelManager.Helpers;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
 using HotelManager.Services;
-using HotelManager.Utilities;
-using RelayCommand = HotelManager.Utilities.RelayCommand;
+using HotelManager.Interfaces;
+using CommunityToolkit.Mvvm.Input;
 
 namespace HotelManager.ViewModels
 {
@@ -43,8 +43,8 @@ namespace HotelManager.ViewModels
             };
 
             _roomService = roomService;
-            SaveCommand = new RelayCommand(async param => await Save());
-            CancelCommand = new RelayCommand(param => Cancel());
+            SaveCommand = new AsyncRelayCommand(Save);
+            CancelCommand = new RelayCommand(Cancel);
         }
 
         private void Cancel()

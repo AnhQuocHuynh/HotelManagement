@@ -1,37 +1,6 @@
 # 🏨 Hotel Manager - Architecture Analysis Report
 *Phân tích kiến trúc cập nhật sau Migration Merge - Tháng 6/2025*
 
-## �� **CẬP NHẬT SAU KHI REFACTOR DI CONTAINER & BOOKINGSERVICE (Tháng 6/2025)**
-
-### **Tóm tắt các thay đổi và tiến độ refactoring:**
-
-- **Dependency Injection**: Đã refactor toàn bộ DI container trong App.xaml.cs, đăng ký đầy đủ tất cả services, ViewModels, DbContext với đúng scope/lifetime. Đã chuyển từ manual DI sang proper DI container.
-- **BookingService Refactoring**: Đã refactor BookingService để inject DbContext trực tiếp thay vì sử dụng IRepository cho các complex queries. Cải thiện performance và maintainability.
-- **ViewModel Registration**: Đã đăng ký tất cả ViewModels trong DI container và cập nhật code-behind để get ViewModels từ DI thay vì tạo instance trực tiếp.
-- **Ongoing Fixes**: Đang trong quá trình fix ViewModel constructors để inject đúng dependencies, fix namespaces, và refactor các services khác tương tự như BookingService.
-- **Build Status**: Build đang gặp lỗi do ViewModel constructors chưa được fix hoàn toàn, nhưng architecture đã được cải thiện đáng kể.
-
-### **Các điểm đã hoàn thành trong refactoring:**
-- ✅ Đã refactor DI container trong App.xaml.cs với đầy đủ service registrations
-- ✅ Đã refactor BookingService để inject DbContext và sử dụng cho complex queries
-- ✅ Đã đăng ký tất cả ViewModels trong DI container
-- ✅ Đã cập nhật code-behind để sử dụng DI thay vì manual instantiation
-- ✅ Đã fix một số ViewModel constructors và namespace issues
-
-### **Các vấn đề đang được xử lý:**
-- 🔄 ViewModel constructors cần inject đúng dependencies (đang fix stepwise)
-- 🔄 Namespace issues trong một số ViewModels (đang fix)
-- 🔄 Repository usage trong các services khác cần refactor tương tự BookingService
-- 🔄 Nullability warnings cần được address
-
-### **Trạng thái hệ thống hiện tại:**
-- **Architecture đã được cải thiện đáng kể với proper DI container**
-- **BookingService đã được refactor thành công**
-- **Đang trong quá trình fix ViewModel constructors và dependencies**
-- **Build errors đang được resolve stepwise**
-
----
-
 ## 🟢 **ĐÁNH GIÁ TỔNG THỂ SAU KHI REFACTOR**
 - **DI container đã được implement đúng chuẩn, thay thế hoàn toàn manual DI**
 - **BookingService refactoring thành công, cải thiện performance và maintainability**

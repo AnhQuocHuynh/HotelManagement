@@ -6,6 +6,8 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using HotelManager.Interfaces;
 using HotelManager.Models;
+using HotelManager.Models.Enums;
+using HotelManager.Services;
 using Microsoft.Win32;
 
 namespace HotelManager.ViewModels.StaffViewModels

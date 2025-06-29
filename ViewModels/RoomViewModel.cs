@@ -13,7 +13,6 @@ using HotelManager.Interfaces;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
 using HotelManager.Services;
-using RelayCommand = HotelManager.Utilities.RelayCommand;
 
 namespace HotelManager.ViewModels
 {
@@ -131,9 +130,9 @@ namespace HotelManager.ViewModels
 
         private void InitializeViewModel()
         {
-            UpdateCommand = new RelayCommand(param => UpdateRoom(_selectedRoom));
-            DeleteCommand = new RelayCommand(param => DeleteRoom(_selectedRoom));
-            AddCommand = new RelayCommand(async param => await AddRoom());
+            UpdateCommand = new RelayCommand<object>(_ => UpdateRoom(_selectedRoom));
+            DeleteCommand = new RelayCommand<object>(_ => DeleteRoom(_selectedRoom));
+            AddCommand = new AsyncRelayCommand(AddRoom);
             LoadRooms();
         }
 

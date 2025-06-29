@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using HotelManager.Models;
+using HotelManager.Models.Enums;
 using HotelManager.Services;
 using System;
 using System.Collections.ObjectModel;
@@ -10,11 +11,11 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows;
 using HotelManager.Data;
-using HotelManager.Models.Enums;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.ViewModels
 {
-    public class PaymentViewModel : INotifyPropertyChanged
+    public class PaymentViewModel : BaseViewModel
     {
         private readonly PaymentService _paymentService;
         private readonly InvoiceService _invoiceService;
@@ -107,6 +108,11 @@ namespace HotelManager.ViewModels
         public ICommand SavePaymentCommand { get; set; }
         public ICommand DeletePaymentCommand { get; set; }
 
+        public PaymentViewModel() : this(App.ServiceProvider?.GetRequiredService<PaymentService>() ?? throw new InvalidOperationException("PaymentService not registered"),
+                                         App.ServiceProvider?.GetRequiredService<InvoiceService>() ?? throw new InvalidOperationException("InvoiceService not registered"))
+        {
+        }
+
         public PaymentViewModel(PaymentService paymentService, InvoiceService invoiceService)
         {
             _paymentService = paymentService;
@@ -133,6 +139,7 @@ namespace HotelManager.ViewModels
         {
             try
             {
+                LogInformation("Loading payment data");
                 Debug.WriteLine("PaymentViewModel: LoadDataAsync started");
                 var invoices = await _invoiceService.GetAllAsync();
                 var payments = await _paymentService.GetAllAsync();
@@ -150,20 +157,18 @@ namespace HotelManager.ViewModels
                 Payments.Clear();
                 foreach (var payment in payments)
                 {
-                    var invoice = AvailableInvoices.FirstOrDefault(i => i.Id == payment.InvoiceId);
-                    if (invoice != null)
-                    {
-                        var totalPaid = Payments.Where(p => p.InvoiceId == payment.InvoiceId).Sum(p => p.Amount);
-                        payment.RemainingAmount = invoice.TotalAmount - totalPaid;
-                    }
                     Payments.Add(payment);
                 }
-                UpdateRemainingAmount();
-                Debug.WriteLine($"LoadDataAsync completed: Payments count={Payments.Count}, AvailableInvoices count={AvailableInvoices.Count}");
+
+                LogInformation("Successfully loaded {InvoiceCount} invoices and {PaymentCount} payments", 
+                    AvailableInvoices.Count, Payments.Count);
+                Debug.WriteLine($"PaymentViewModel: LoadDataAsync completed - {AvailableInvoices.Count} invoices, {Payments.Count} payments");
             }
             catch (Exception ex)
             {
+                LogError(ex, "Failed to load payment data");
                 Debug.WriteLine($"PaymentViewModel: LoadDataAsync error - {ex.Message}");
+                throw;
             }
         }
 
@@ -171,7 +176,10 @@ namespace HotelManager.ViewModels
         {
             try
             {
+                LogInformation("Adding new payment: Amount {Amount:C}, Method {PaymentMethod}, InvoiceId {InvoiceId}", 
+                    Amount, PaymentMethod, SelectedInvoiceId);
                 Debug.WriteLine("PaymentViewModel: AddPaymentAsync started");
+                
                 var payment = new Payment
                 {
                     PaymentDate = PaymentDate,
@@ -179,15 +187,23 @@ namespace HotelManager.ViewModels
                     PaymentMethod = PaymentMethod,
                     InvoiceId = SelectedInvoiceId
                 };
+                
                 await _paymentService.CreateAsync(payment);
                 Payments.Add(payment);
                 await UpdateDataAfterChange(SelectedInvoiceId);
                 ClearInputFields();
+                
+                // Log user activity for audit
+                await LogUserActivityAsync("CREATE", "Payment", payment.Id.ToString(), 
+                    $"Added payment: {payment.Amount:C} via {payment.PaymentMethod}");
+                
+                LogInformation("Payment added successfully with ID {PaymentId}", payment.Id);
                 MessageBox.Show("Payment added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 Debug.WriteLine("PaymentViewModel: Payment added successfully");
             }
             catch (Exception ex)
             {
+                LogError(ex, "Failed to add payment");
                 Debug.WriteLine($"PaymentViewModel: AddPaymentAsync error - {ex.Message}");
                 MessageBox.Show($"Failed to add payment: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -200,6 +216,8 @@ namespace HotelManager.ViewModels
             {
                 if (payment != null && SelectedPayment != null)
                 {
+                    LogInformation("Updating payment with ID {PaymentId}", SelectedPayment.Id);
+                    
                     SelectedPayment.PaymentDate = payment.PaymentDate;
                     SelectedPayment.Amount = payment.Amount;
                     SelectedPayment.PaymentMethod = payment.PaymentMethod;
@@ -207,6 +225,12 @@ namespace HotelManager.ViewModels
                     Debug.WriteLine($"Saving: SelectedPayment - ID={SelectedPayment.Id}, Amount={SelectedPayment.Amount}");
                     await _paymentService.UpdateAsync(SelectedPayment);
                     await UpdateDataAfterChange(SelectedPayment.InvoiceId);
+                    
+                    // Log user activity for audit
+                    await LogUserActivityAsync("UPDATE", "Payment", SelectedPayment.Id.ToString(),
+                        $"Updated payment: {SelectedPayment.Amount:C} via {SelectedPayment.PaymentMethod}");
+                    
+                    LogInformation("Payment updated successfully with ID {PaymentId}", SelectedPayment.Id);
                     Application.Current.Dispatcher.Invoke(() =>
                         MessageBox.Show("Payment saved successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information)
                     );
@@ -214,6 +238,7 @@ namespace HotelManager.ViewModels
                 }
                 else
                 {
+                    LogWarning("Attempted to save null payment or no payment selected");
                     Debug.WriteLine("SavePaymentAsync: payment or SelectedPayment is null");
                     Application.Current.Dispatcher.Invoke(() =>
                         MessageBox.Show("Please select a payment to save.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning)
@@ -222,6 +247,7 @@ namespace HotelManager.ViewModels
             }
             catch (Exception ex)
             {
+                LogError(ex, "Failed to save payment");
                 Debug.WriteLine($"SavePaymentAsync error: {ex.Message}");
                 Application.Current.Dispatcher.Invoke(() =>
                     MessageBox.Show($"Failed to save payment: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error)
@@ -233,7 +259,9 @@ namespace HotelManager.ViewModels
         {
             try
             {
+                LogInformation("Deleting payment with ID {PaymentId}", payment?.Id);
                 Debug.WriteLine("PaymentViewModel: DeletePaymentAsync started");
+                
                 if (payment != null)
                 {
                     await _paymentService.DeleteAsync(payment.Id);
@@ -241,12 +269,19 @@ namespace HotelManager.ViewModels
                     await UpdateDataAfterChange(payment.InvoiceId);
                     ClearInputFields();
                     SelectedPayment = null;
+                    
+                    // Log user activity for audit
+                    await LogUserActivityAsync("DELETE", "Payment", payment.Id.ToString(),
+                        $"Deleted payment: {payment.Amount:C} via {payment.PaymentMethod}");
+                    
+                    LogInformation("Payment deleted successfully with ID {PaymentId}", payment.Id);
                     MessageBox.Show("Payment deleted successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                     Debug.WriteLine("PaymentViewModel: Payment deleted successfully");
                 }
             }
             catch (Exception ex)
             {
+                LogError(ex, "Failed to delete payment");
                 Debug.WriteLine($"PaymentViewModel: DeletePaymentAsync error - {ex.Message}");
                 MessageBox.Show($"Failed to delete payment: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -359,10 +394,6 @@ namespace HotelManager.ViewModels
             if (DeletePaymentCommand is RelayCommand<Payment> command3) command3.NotifyCanExecuteChanged();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+
     }
 }

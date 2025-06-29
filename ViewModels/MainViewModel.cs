@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using HotelManager.Utilities;
+using CommunityToolkit.Mvvm.Input;
 
 namespace HotelManager.ViewModels
 {
@@ -30,14 +31,14 @@ namespace HotelManager.ViewModels
 
         public MainViewModel()
         {
-            ShowLoginCommand = new RelayCommand(_ => CurrentView = new Views.Common.LoginView());
-            ShowHomeCommand = new RelayCommand(_ => CurrentView = new Views.HomeView());
-            ShowAdminCommand = new RelayCommand(_ => CurrentView = new Views.AdminView());
-            ShowCleanerCommand = new RelayCommand(_ => CurrentView = new Views.StaffViews.CleanerView());
-            ShowTechnicianCommand = new RelayCommand(_ => CurrentView = new Views.StaffViews.TechnicianView());
-            ShowReceptionistCommand = new RelayCommand(_ => CurrentView = new Views.StaffViews.ReceptionistView());
-            ShowManagerCommand = new RelayCommand(_ => CurrentView = new Views.StaffViews.ManagerView());
-            LogoutCommand = new RelayCommand(_ => Logout());
+            ShowLoginCommand = new RelayCommand(() => CurrentView = new Views.Common.LoginView());
+            ShowHomeCommand = new RelayCommand(() => CurrentView = new Views.HomeView());
+            ShowAdminCommand = new RelayCommand(() => CurrentView = new Views.AdminView());
+            ShowCleanerCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.CleanerView());
+            ShowTechnicianCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.TechnicianView());
+            ShowReceptionistCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.ReceptionistView());
+            ShowManagerCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.ManagerView());
+            LogoutCommand = new RelayCommand(Logout);
 
             // Subscribe to login success event
             ViewModels.Common.LoginViewModel.OnLoginSuccess += NavigateBasedOnUserRole;

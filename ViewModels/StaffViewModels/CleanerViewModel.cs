@@ -9,6 +9,7 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using HotelManager.Interfaces;
 using HotelManager.Models;
+using HotelManager.Models.Enums;
 using HotelManager.Services;
 
 namespace HotelManager.ViewModels.StaffViewModels
@@ -56,7 +57,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand SelectImageCommand { get; }
         public ICommand SendDamageReportCommand { get; }
         public ICommand RemoveImageCommand { get; }
-        public ICommand LoadDamageReportHistoryCommand { get; }
+        public ICommand RefreshDamageReportHistoryCommand { get; }
 
         public CleanerViewModel(ICleanRoomService cleanroomService)
         {
@@ -67,11 +68,19 @@ namespace HotelManager.ViewModels.StaffViewModels
             SelectImageCommand = new RelayCommand(SelectImage);
             SendDamageReportCommand = new RelayCommand(SendDamageReport);
             RemoveImageCommand = new RelayCommand<string>(RemoveImage);
-            LoadDamageReportHistoryCommand = new RelayCommand(LoadDamageReportHistory);
-            LoadRoomsToClean();
-            LoadDamageReportHistory();
+            RefreshDamageReportHistoryCommand = new RelayCommand(async () => await LoadDamageReportHistoryAsync());
+
+            // sequential async initialization to avoid concurrent DbContext operations
+            _ = InitializeAsync();
         }
-        private async Task LoadRoomsToClean()
+
+        private async Task InitializeAsync()
+        {
+            await LoadRoomsToCleanAsync();
+            await LoadDamageReportHistoryAsync();
+        }
+
+        private async Task LoadRoomsToCleanAsync()
         {
             try
             {
@@ -83,6 +92,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 MessageBox.Show("Lỗi khi tải danh sách phòng cần dọn: " + ex.Message);
             }
         }
+
         private async void MarkRoomAsCleaned(Room room)
         {
             if (room == null) return;
@@ -94,7 +104,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 await _cleanroomService.MarkRoomAsCleanedAsync(room);
                 RoomsToClean.Remove(room);
                 MessageBox.Show($"Phòng {room.RoomNumber} đã được đánh dấu là đã dọn.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-                LoadDamageReportHistory(); // Cập nhật lịch sử
+                await LoadDamageReportHistoryAsync(); // Cập nhật lịch sử
             }
             catch (Exception ex)
             {
@@ -134,6 +144,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 OnPropertyChanged(nameof(ImagePaths));
             }
         }
+
         private void RemoveImage(string imagePath)
         {
             if (ImagePaths.Contains(imagePath))
@@ -142,6 +153,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 OnPropertyChanged(nameof(ImagePaths));
             }
         }
+
         private async void SendDamageReport()
         {
             try
@@ -165,14 +177,15 @@ namespace HotelManager.ViewModels.StaffViewModels
                 ImagePaths = new List<string>();
                 OnPropertyChanged(nameof(ImagePaths));
                 IsReportExpanded = false;
-                LoadDamageReportHistory();
+                await LoadDamageReportHistoryAsync();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Gửi báo cáo thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        private async void LoadDamageReportHistory()
+
+        private async Task LoadDamageReportHistoryAsync()
         {
             try
             {

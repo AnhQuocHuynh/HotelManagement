@@ -23,13 +23,24 @@ namespace HotelManager.Views.StaffViews
     /// </summary>
     public partial class TechnicianView : UserControl
     {
+        private readonly IServiceScope _scope;
+
         public TechnicianView()
         {
             InitializeComponent();
             if (App.ServiceProvider != null)
             {
-                DataContext = App.ServiceProvider.GetRequiredService<ViewModels.StaffViewModels.TechnicianViewModel>();
+                _scope = App.ServiceProvider.CreateScope();
+                DataContext = _scope.ServiceProvider.GetRequiredService<ViewModels.StaffViewModels.TechnicianViewModel>();
             }
+
+            // Dispose the DI scope when the view is unloaded
+            this.Unloaded += OnViewUnloaded;
+        }
+
+        private void OnViewUnloaded(object? sender, RoutedEventArgs e)
+        {
+            _scope?.Dispose();
         }
     }
 }

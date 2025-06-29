@@ -13,7 +13,6 @@ using System.Windows;
 using CommunityToolkit.Mvvm.Input;
 using HotelManager.Data;
 using HotelManager.Services;
-using RelayCommand = HotelManager.Utilities.RelayCommand;
 using HotelManager.Helpers;
 
 namespace HotelManager.ViewModels
@@ -46,8 +45,8 @@ namespace HotelManager.ViewModels
             };
 
             _employeeService = employeeService;
-            SaveCommand = new RelayCommand(async _ => await SaveAsync());
-            CancelCommand = new RelayCommand(param => Cancel());
+            SaveCommand = new AsyncRelayCommand(SaveAsync);
+            CancelCommand = new RelayCommand(Cancel);
         }
 
         private async Task SaveAsync()

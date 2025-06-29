@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:HotelManager.Views.StaffViews"
-             xmlns:enums="clr-namespace:HotelManager.Models.Enums"
+             xmlns:enums="clr-namespace:HotelManager.Models.Enums;assembly=HotelManager.Core"
              xmlns:vm="clr-namespace:HotelManager.ViewModels.StaffViewModels"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              
@@ -93,23 +93,14 @@
             <TextBox x:Name="FullNameTextBox" Grid.Row="1" Grid.Column="0" Height="30" Margin="0,0,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding CustomerFullName, Mode=TwoWay}"/>
             <TextBox x:Name="CCCDTextBox" Grid.Row="1" Grid.Column="1" Height="30" Margin="0,0,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding CustomerCCCD, Mode=TwoWay}"/>
             <TextBox x:Name="PhoneNumberTextBox" Grid.Row="1" Grid.Column="2" Height="30" Margin="0,0,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding CustomerPhoneNumber, Mode=TwoWay}"/>
-            <ComboBox x:Name="CustomerTypeBox" Grid.Row="1" Grid.Column="3" Height="30" Margin="0,0,5,5" SelectedItem="{Binding SelectedCustomerType, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}">
-                <ComboBox.Items>
-                    <enums:CustomerType>Single</enums:CustomerType>
-                    <enums:CustomerType>Family</enums:CustomerType>
-                    <enums:CustomerType>Group</enums:CustomerType>
-                    <enums:CustomerType>TourGroup</enums:CustomerType>
-                    <enums:CustomerType>Business</enums:CustomerType>
-                    <enums:CustomerType>VIP</enums:CustomerType>
-                </ComboBox.Items>
-            </ComboBox>
-            <ComboBox x:Name="RoomTypeBox" Grid.Row="1" Grid.Column="4" Height="30" Margin="0,0,5,5" SelectedItem="{Binding SelectedRoomType, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}">
-                <ComboBox.Items>
-                    <enums:RoomType>Standard</enums:RoomType>
-                    <enums:RoomType>Deluxe</enums:RoomType>
-                    <enums:RoomType>Suite</enums:RoomType>
-                </ComboBox.Items>
-            </ComboBox>
+            <ComboBox x:Name="CustomerTypeBox" Grid.Row="1" Grid.Column="3" Height="30" Margin="0,0,5,5"
+                      SelectedItem="{Binding SelectedCustomerType, Mode=TwoWay}"
+                      ItemsSource="{Binding Source={StaticResource CustomerTypeEnum}}"
+                      BorderBrush="{DynamicResource PrimaryBrush}" />
+            <ComboBox x:Name="RoomTypeBox" Grid.Row="1" Grid.Column="4" Height="30" Margin="0,0,5,5"
+                      SelectedItem="{Binding SelectedRoomType, Mode=TwoWay}"
+                      ItemsSource="{Binding Source={StaticResource RoomTypeEnum}}"
+                      BorderBrush="{DynamicResource PrimaryBrush}" />
 
             <!-- Labels Row 2 + Add Button -->
             <TextBlock Text="Room Number:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
@@ -130,16 +121,10 @@
             <ComboBox x:Name="RoomNumberBox" Grid.Row="3" Grid.Column="0" Height="30" Margin="0,0,5,5" ItemsSource="{Binding AvailableRooms}" SelectedItem="{Binding SelectedRoomNumber, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}"/>
             <DatePicker x:Name="CheckInDatePicker" Grid.Row="3" Grid.Column="1" Height="30" Margin="0,0,5,5" SelectedDate="{Binding CheckInDate, Mode=TwoWay}"/>
             <DatePicker x:Name="CheckOutDatePicker" Grid.Row="3" Grid.Column="2" Height="30" Margin="0,0,5,5" SelectedDate="{Binding CheckOutDate, Mode=TwoWay}"/>
-            <ComboBox x:Name="StatusBox" Grid.Row="3" Grid.Column="3" Height="30" Margin="0,0,5,5" SelectedItem="{Binding SelectedStatus, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}">
-                <ComboBox.Items>
-                    <enums:BookingStatus>Pending</enums:BookingStatus>
-                    <enums:BookingStatus>Confirmed</enums:BookingStatus>
-                    <enums:BookingStatus>CheckedIn</enums:BookingStatus>
-                    <enums:BookingStatus>CheckedOut</enums:BookingStatus>
-                    <enums:BookingStatus>Cancelled</enums:BookingStatus>
-                    <enums:BookingStatus>NoShow</enums:BookingStatus>
-                </ComboBox.Items>
-            </ComboBox>
+            <ComboBox x:Name="StatusBox" Grid.Row="3" Grid.Column="3" Height="30" Margin="0,0,5,5"
+                      SelectedItem="{Binding SelectedStatus, Mode=TwoWay}"
+                      ItemsSource="{Binding Source={StaticResource BookingStatusEnum}}"
+                      BorderBrush="{DynamicResource PrimaryBrush}" />
 
             <!-- Grid for displaying bookings -->
             <DataGrid ItemsSource="{Binding Bookings}" 

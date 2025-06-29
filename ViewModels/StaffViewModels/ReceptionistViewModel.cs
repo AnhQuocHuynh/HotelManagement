@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.Input;
-using HotelManager.Data;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
 using HotelManager.Services;
+using HotelManager.Interfaces;
 using HotelManager.Exceptions;
 using Microsoft.Extensions.Logging;
 using System;
@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -112,7 +113,14 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand UpdateCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
 
-        // Constructor với DI
+        // Constructor cho XAML (không tham số) – tự resolve qua DI
+        public ReceptionistViewModel() : this(
+            App.ServiceProvider.GetRequiredService<BookingService>(),
+            App.ServiceProvider.GetRequiredService<RoomService>(),
+            App.ServiceProvider.GetRequiredService<ILogger<ReceptionistViewModel>>())
+        { }
+
+        // Constructor với DI (được dùng trong unit test hoặc DI container)
         public ReceptionistViewModel(BookingService bookingService, RoomService roomService, ILogger<ReceptionistViewModel> logger)
         {
             _bookingService = bookingService;

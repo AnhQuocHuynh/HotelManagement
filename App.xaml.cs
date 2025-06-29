@@ -8,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Microsoft.Extensions.Logging;
+using System.IO;
+using HotelManager.Interfaces;
 
 namespace HotelManager;
 
@@ -23,28 +25,69 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        // Khởi tạo Serilog logger
+        // 📋 Enhanced Serilog configuration với multiple sinks và structured logging
+        var logDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+        Directory.CreateDirectory(logDirectory); // Ensure Logs directory exists
+
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+            .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Information) // Reduce Microsoft noise
+            .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning) // Reduce EF noise
+            .Enrich.FromLogContext()
+            .Enrich.WithProperty("Application", "HotelManager")
+            .Enrich.WithProperty("Version", "1.0.0")
+            .WriteTo.Console(
+                outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
+            .WriteTo.Debug(
+                outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
+            .WriteTo.File(
+                path: Path.Combine(logDirectory, "hotel-manager-.log"),
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 30, // Keep 30 days of logs
+                fileSizeLimitBytes: 50 * 1024 * 1024, // 50MB per file
+                rollOnFileSizeLimit: true,
+                outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {SourceContext}: {Message:lj} {Properties:j}{NewLine}{Exception}")
+            .WriteTo.File(
+                path: Path.Combine(logDirectory, "hotel-manager-errors-.log"),
+                restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning,
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 90, // Keep errors for 3 months
+                outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {SourceContext}: {Message:lj} {Properties:j}{NewLine}{Exception}")
             .CreateLogger();
 
-        // Khởi tạo DI container với Serilog
+        // 🚨 Global exception handling
+        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
+
+        Log.Information("🏨 Hotel Manager Application Starting...");
+        Log.Information("📂 Log Directory: {LogDirectory}", logDirectory);
+
+        // Khởi tạo DI container với enhanced Serilog
         _host = Host.CreateDefaultBuilder()
             .UseSerilog() // Tích hợp Serilog vào HostBuilder
             .ConfigureServices((context, services) =>
             {
+                Log.Information("🔧 Configuring Dependency Injection Services...");
+
                 // Đăng ký DbContext
                 services.AddDbContext<HotelDbContext>(options =>
                     options.UseSqlServer(Config.DatabaseConfig.GetConnectionString()));
 
-                // Đăng ký logger factory
-                services.AddSingleton<ILoggerFactory>(sp => new Serilog.Extensions.Logging.SerilogLoggerFactory());
-                services.AddLogging();
+                // 📊 Enhanced logging services
+                services.AddLogging(builder =>
+                {
+                    builder.ClearProviders();
+                    builder.AddSerilog(dispose: true);
+                });
 
-                // Đăng ký các service, repository, unit of work, viewmodel ...
+                // 🏗️ Repository và Unit of Work
                 services.AddScoped<HotelManager.Interfaces.IUnitOfWork, HotelManager.Repositories.UnitOfWork>();
                 services.AddScoped(typeof(HotelManager.Interfaces.IRepository<>), typeof(HotelManager.Repositories.Repository<>));
+                
+                // 🔍 Monitoring & Audit Services
+                services.AddScoped<HotelManager.Interfaces.IAuditService, HotelManager.Services.AuditService>();
+
+                // 🛎️ Business Services with enhanced audit support
                 services.AddScoped<HotelManager.Services.BookingService>();
                 services.AddScoped<HotelManager.Services.RoomService>();
                 services.AddScoped<HotelManager.Services.CustomerService>();
@@ -52,8 +95,15 @@ public partial class App : Application
                 services.AddScoped<HotelManager.Services.InvoiceService>();
                 services.AddScoped<HotelManager.Services.CleanRoomService>();
                 services.AddScoped<HotelManager.Services.MaintenanceService>();
-                // ... các service khác nếu cần
-                // ViewModel
+                services.AddScoped<HotelManager.Services.EmployeeService>();
+                services.AddScoped<HotelManager.Services.UserAccountService>();
+                services.AddScoped<HotelManager.Services.DialogService>();
+                
+                // 📈 Manager Services
+                services.AddScoped<HotelManager.Services.Manager.ReceptionistService>();
+                services.AddScoped<HotelManager.Services.Manager.InVoiceService>();
+
+                // 🖥️ ViewModels
                 services.AddTransient<HotelManager.ViewModels.BookingViewModel>();
                 services.AddTransient<HotelManager.ViewModels.MainViewModel>();
                 services.AddTransient<HotelManager.ViewModels.PaymentViewModel>();
@@ -65,7 +115,17 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.AdminViewModel>();
                 services.AddTransient<HotelManager.ViewModels.EmployeeEditViewModel>();
                 services.AddTransient<HotelManager.ViewModels.RoomInfoEditViewModel>();
-                // ... các ViewModel khác nếu cần
+                services.AddTransient<HotelManager.ViewModels.Common.LoginViewModel>();
+                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.RevenueReportChartViewModel>();
+                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.ReceptionistActivityReportChartViewModel>();
+
+                services.AddSingleton<ICurrentUserProvider, WpfCurrentUserProvider>();
+
+                // Interface mappings for staff services
+                services.AddScoped<HotelManager.Interfaces.ICleanRoomService, HotelManager.Services.CleanRoomService>();
+                services.AddScoped<HotelManager.Interfaces.IMaintenanceService, HotelManager.Services.MaintenanceService>();
+
+                Log.Information("✅ Dependency Injection Services Configured Successfully");
             })
             .Build();
 
@@ -73,25 +133,99 @@ public partial class App : Application
 
         //register all ViewModel
         ViewModelRegistration.RegisterAll();
+        
         // Initialize database with seed data
+        InitializeDatabaseAsync();
+
+        Log.Information("🚀 Hotel Manager Application Started Successfully");
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        Log.Information("🛑 Hotel Manager Application Shutting Down...");
+        
         try
         {
-            using (var context = new HotelDbContext())
+            _host?.Dispose();
+            Log.Information("✅ Application Shutdown Completed Successfully");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "❌ Error during application shutdown");
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+            base.OnExit(e);
+        }
+    }
+
+    private void InitializeDatabaseAsync()
+    {
+        try
+        {
+            Log.Information("🗄️ Initializing Database...");
+            
+            using (var scope = _host.Services.CreateScope())
             {
+                var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
                 HotelDbInitializer.Seed(context);
                 var accounts = context.UserAccounts.Include(u => u.Employee).ToList();
+                
+                Log.Information("✅ Database initialized with {AccountCount} accounts", accounts.Count);
+                
                 string accountInfo = $"Database initialized with {accounts.Count} accounts:\n";
                 foreach (var account in accounts)
                 {
                     accountInfo += $"- {account.Username} ({account.Role}, {account.Employee?.Position})\n";
+                    Log.Debug("👤 Account: {Username} ({Role}, {Position})", 
+                        account.Username, account.Role, account.Employee?.Position);
                 }
+                
                 MessageBox.Show(accountInfo, "Database Status", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
         catch (Exception ex)
         {
+            Log.Error(ex, "❌ Database initialization error");
             MessageBox.Show($"Database initialization error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            Log.Error(ex, "Database initialization error");
+        }
+    }
+
+    private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        var exception = e.ExceptionObject as Exception;
+        Log.Fatal(exception, "🚨 FATAL: Unhandled Exception in AppDomain. IsTerminating: {IsTerminating}", e.IsTerminating);
+        
+        if (!e.IsTerminating)
+        {
+            MessageBox.Show(
+                $"Unexpected error occurred: {exception?.Message}\n\nThe error has been logged.",
+                "Critical Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+    }
+
+    private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+    {
+        Log.Error(e.Exception, "🚨 Unhandled Dispatcher Exception");
+        
+        MessageBox.Show(
+            $"UI Error occurred: {e.Exception.Message}\n\nThe error has been logged. You can continue using the application.",
+            "UI Error",
+            MessageBoxButton.OK,
+            MessageBoxImage.Warning);
+        
+        e.Handled = true; // Allow application to continue
+    }
+
+    public class WpfCurrentUserProvider : ICurrentUserProvider
+    {
+        public string? GetCurrentUsername()
+        {
+            var user = AppSession.GetCurrentUserAccount();
+            return user?.Username;
         }
     }
 }
