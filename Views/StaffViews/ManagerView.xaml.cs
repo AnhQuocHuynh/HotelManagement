@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.Views.StaffViews
 {
@@ -22,7 +23,10 @@ namespace HotelManager.Views.StaffViews
         public ManagerView()
         {
             InitializeComponent();
-            DataContext = new ViewModels.StaffViewModels.ManagerViewModel();
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<ViewModels.StaffViewModels.ManagerViewModel>();
+            }
         }
     }
 }

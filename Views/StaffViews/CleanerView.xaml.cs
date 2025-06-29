@@ -14,6 +14,8 @@ using System.Windows.Shapes;
 using HotelManager.Data;
 using HotelManager.Services;
 using HotelManager.ViewModels.StaffViewModels;
+using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.Views.StaffViews
 {
@@ -25,9 +27,40 @@ namespace HotelManager.Views.StaffViews
         public CleanerView()
         {
             InitializeComponent();
-            var context = new HotelDbContext(); // hoặc DI context nếu bạn dùng
-            var service = new CleanRoomService(context);
-            DataContext = new CleanerViewModel(service);
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<ViewModels.StaffViewModels.CleanerViewModel>();
+            }
+        }
+
+        private void OnViewImageClick(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string path && !string.IsNullOrWhiteSpace(path))
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                }
+                catch
+                {
+                    MessageBox.Show($"Không thể mở ảnh: {path}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void OnViewHistoryImageClick(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is string path && !string.IsNullOrWhiteSpace(path))
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                }
+                catch
+                {
+                    MessageBox.Show($"Không thể mở ảnh: {path}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
     }
 }

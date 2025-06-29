@@ -4,6 +4,7 @@
         xmlns:vm="clr-namespace:HotelManager.ViewModels"
         xmlns:views="clr-namespace:HotelManager.Views"
         xmlns:staff="clr-namespace:HotelManager.Views.StaffViews"
+        xmlns:utilities="clr-namespace:HotelManager.Utilities"
         Title="Hotel Manager" Height="450" Width="800">
     
     <Window.DataContext>

@@ -103,16 +103,20 @@ namespace HotelManager.ViewModels
             }
         }
 
-        public ICommand AddPaymentCommand { get; }
-        public ICommand SavePaymentCommand { get; }
-        public ICommand DeletePaymentCommand { get; }
+        public ICommand AddPaymentCommand { get; set; }
+        public ICommand SavePaymentCommand { get; set; }
+        public ICommand DeletePaymentCommand { get; set; }
 
-        public PaymentViewModel()
+        public PaymentViewModel(PaymentService paymentService, InvoiceService invoiceService)
         {
-            var dbContext = new HotelDbContext();
-            _paymentService = new PaymentService(dbContext);
-            _invoiceService = new InvoiceService(dbContext);
+            _paymentService = paymentService;
+            _invoiceService = invoiceService;
+            
+            InitializeViewModel();
+        }
 
+        private void InitializeViewModel()
+        {
             Payments = new ObservableCollection<Payment>();
             AvailableInvoices = new ObservableCollection<Invoice>();
             PaymentDate = DateTime.Now;

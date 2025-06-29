@@ -31,7 +31,7 @@ namespace HotelManager.ViewModels
         public bool? DialogResult { get;  set; }
         public Action? CloseAction { get; set; } // Action to close the dialog if needed
 
-        public RoomInfoEditViewModel(Room room)
+        public RoomInfoEditViewModel(Room room, RoomService roomService)
         {
             _originalRoom = room;
             EditableRoom = new Room
@@ -42,7 +42,7 @@ namespace HotelManager.ViewModels
                 PricePerNight = room.PricePerNight
             };
 
-            _roomService = new RoomService(new HotelDbContext());
+            _roomService = roomService;
             SaveCommand = new RelayCommand(async param => await Save());
             CancelCommand = new RelayCommand(param => Cancel());
         }

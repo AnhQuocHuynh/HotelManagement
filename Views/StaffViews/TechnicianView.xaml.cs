@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using HotelManager.Data;
 using HotelManager.Services;
 using HotelManager.ViewModels.StaffViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.Views.StaffViews
 {
@@ -25,9 +26,10 @@ namespace HotelManager.Views.StaffViews
         public TechnicianView()
         {
             InitializeComponent();
-            var context = new HotelDbContext(); // hoặc DI context nếu bạn dùng
-            var service = new MaintenanceService(context);
-            DataContext = new TechnicianViewModel(service);
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<ViewModels.StaffViewModels.TechnicianViewModel>();
+            }
         }
     }
 }

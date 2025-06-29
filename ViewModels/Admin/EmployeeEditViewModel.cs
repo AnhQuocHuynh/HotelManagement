@@ -31,10 +31,9 @@ namespace HotelManager.ViewModels
         public Action CloseAction { get; set; } // Action to close the dialog if needed
         public bool? DialogResult { get; set; } // To indicate if the dialog was accepted or canceled
 
-        public EmployeeEditViewModel(Employee employee)
+        public EmployeeEditViewModel(Employee employee, EmployeeService employeeService)
         {
             _originalEmp = employee;
-            // Clone or assign the original employee (optional deep copy to avoid immediate changes)
             EditableEmployee = new Employee
             {
                 Id = employee.Id,
@@ -46,10 +45,9 @@ namespace HotelManager.ViewModels
                 UserAccount = employee.UserAccount
             };
 
-            _employeeService = new EmployeeService(new HotelDbContext());
+            _employeeService = employeeService;
             SaveCommand = new RelayCommand(async _ => await SaveAsync());
             CancelCommand = new RelayCommand(param => Cancel());
-
         }
 
         private async Task SaveAsync()

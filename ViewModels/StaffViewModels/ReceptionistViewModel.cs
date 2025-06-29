@@ -3,6 +3,8 @@ using HotelManager.Data;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
 using HotelManager.Services;
+using HotelManager.Exceptions;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,6 +22,7 @@ namespace HotelManager.ViewModels.StaffViewModels
     {
         private readonly BookingService _bookingService;
         private readonly RoomService _roomService;
+        private readonly ILogger<ReceptionistViewModel> _logger;
 
         private string _customerFullName;
         private string _customerCCCD;
@@ -64,8 +67,8 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 _selectedRoomType = value;
                 OnPropertyChanged(nameof(SelectedRoomType));
-                // Gọi trực tiếp để đảm bảo chạy trên thread UI
-                UpdateAvailableRoomsAsync().ConfigureAwait(false);
+                // Gọi trực tiếp để đảm bảo chạy trên thread UI (fire-and-forget)
+                _ = UpdateAvailableRoomsAsync();
             }
         }
 
@@ -105,29 +108,43 @@ namespace HotelManager.ViewModels.StaffViewModels
             set { _availableRooms = value; OnPropertyChanged(nameof(AvailableRooms)); }
         }
 
-        public ICommand AddNewBookingCommand { get; }
-        public ICommand UpdateCommand { get; }
-        public ICommand DeleteCommand { get; }
+        public ICommand AddNewBookingCommand { get; private set; }
+        public ICommand UpdateCommand { get; private set; }
+        public ICommand DeleteCommand { get; private set; }
 
-        public ReceptionistViewModel()
+        // Constructor với DI
+        public ReceptionistViewModel(BookingService bookingService, RoomService roomService, ILogger<ReceptionistViewModel> logger)
         {
-            var dbContext = new HotelDbContext();
-            _bookingService = new BookingService(dbContext, new CustomerService(dbContext));
-            _roomService = new RoomService(dbContext);
+            _bookingService = bookingService;
+            _roomService = roomService;
+            _logger = logger;
 
+            InitializeViewModel();
+        }
+
+        private void InitializeViewModel()
+        {
             Bookings = new ObservableCollection<Booking>();
             AvailableRooms = new ObservableCollection<string>();
 
-            AddNewBookingCommand = new RelayCommand(async () => await AddNewBookingAsync());
-            UpdateCommand = new RelayCommand<Booking>(async booking => await UpdateAsync(booking));
-            DeleteCommand = new RelayCommand<Booking>(async booking => await DeleteAsync(booking));
+            AddNewBookingCommand = new AsyncRelayCommand(
+                execute: () => AddNewBookingAsync(),
+                canExecute: () => true);
+
+            UpdateCommand = new AsyncRelayCommand<Booking?>(
+                execute: b => UpdateAsync(b!),
+                canExecute: b => b != null);
+
+            DeleteCommand = new AsyncRelayCommand<Booking?>(
+                execute: b => DeleteAsync(b!),
+                canExecute: b => b != null);
         }
 
         public async Task LoadDataAsync()
         {
             try
             {
-                Debug.WriteLine("ReceptionistViewModel: LoadDataAsync started");
+                _logger?.LogInformation("Loading receptionist data");
                 var bookings = await _bookingService.GetAllAsync();
                 Bookings.Clear();
                 foreach (var booking in bookings)
@@ -136,12 +153,17 @@ namespace HotelManager.ViewModels.StaffViewModels
                 }
 
                 await UpdateAvailableRoomsAsync();
-                Debug.WriteLine("ReceptionistViewModel: LoadDataAsync completed");
+                _logger?.LogInformation("Successfully loaded {BookingCount} bookings", bookings.Count);
+            }
+            catch (BusinessException ex)
+            {
+                _logger?.LogWarning(ex, "Business error loading data");
+                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ReceptionistViewModel: LoadDataAsync error - {ex.Message}");
-                MessageBox.Show($"Lỗi khi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _logger?.LogError(ex, "Unexpected error loading data");
+                MessageBox.Show("Lỗi khi tải dữ liệu. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -149,7 +171,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             try
             {
-                Debug.WriteLine("ReceptionistViewModel: AddNewBookingAsync started");
+                _logger?.LogInformation("Adding new booking");
                 if (string.IsNullOrWhiteSpace(CustomerFullName) ||
                     string.IsNullOrWhiteSpace(CustomerCCCD) ||
                     string.IsNullOrWhiteSpace(CustomerPhoneNumber) ||
@@ -188,20 +210,30 @@ namespace HotelManager.ViewModels.StaffViewModels
 
                 ClearInputFields();
                 MessageBox.Show("Đã thêm booking thành công!", "Thành công", MessageBoxButton.OK);
-                Debug.WriteLine("ReceptionistViewModel: AddNewBookingAsync completed");
+                _logger?.LogInformation("Successfully created booking for customer {CustomerName} in room {RoomNumber}", customer.FullName, booking.RoomNumber);
+            }
+            catch (DuplicateEntityException ex)
+            {
+                _logger?.LogWarning(ex, "Duplicate entity detected");
+                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (BusinessException ex)
+            {
+                _logger?.LogWarning(ex, "Business error creating booking");
+                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ReceptionistViewModel: AddNewBookingAsync error - {ex.Message}");
-                MessageBox.Show($"Lỗi khi thêm booking: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _logger?.LogError(ex, "Unexpected error creating booking");
+                MessageBox.Show("Lỗi khi thêm booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private async Task UpdateAsync(Booking booking)
+        private async Task UpdateAsync(Booking? booking)
         {
             try
             {
-                Debug.WriteLine("ReceptionistViewModel: UpdateAsync started");
+                _logger?.LogInformation("Updating booking {BookingId}", booking?.Id);
                 if (booking == null)
                 {
                     MessageBox.Show("Vui lòng chọn một booking để cập nhật.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -211,20 +243,30 @@ namespace HotelManager.ViewModels.StaffViewModels
                 await _bookingService.UpdateAsync(booking);
                 await UpdateAvailableRoomsAsync();
                 MessageBox.Show("Cập nhật booking thành công!", "Thành công", MessageBoxButton.OK);
-                Debug.WriteLine("ReceptionistViewModel: UpdateAsync completed");
+                _logger?.LogInformation("Successfully updated booking {BookingId}", booking.Id);
+            }
+            catch (EntityNotFoundException ex)
+            {
+                _logger?.LogWarning(ex, "Entity not found");
+                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (BusinessException ex)
+            {
+                _logger?.LogWarning(ex, "Business error updating booking");
+                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ReceptionistViewModel: UpdateAsync error - {ex.Message}");
-                MessageBox.Show($"Lỗi khi cập nhật booking: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _logger?.LogError(ex, "Unexpected error updating booking");
+                MessageBox.Show("Lỗi khi cập nhật booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private async Task DeleteAsync(Booking booking)
+        private async Task DeleteAsync(Booking? booking)
         {
             try
             {
-                Debug.WriteLine("ReceptionistViewModel: DeleteAsync started");
+                _logger?.LogInformation("Deleting booking {BookingId}", booking?.Id);
                 if (booking == null)
                 {
                     MessageBox.Show("Vui lòng chọn một booking để xóa.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -238,13 +280,23 @@ namespace HotelManager.ViewModels.StaffViewModels
                     Bookings.Remove(booking);
                     await UpdateAvailableRoomsAsync();
                     MessageBox.Show("Xóa booking thành công!", "Thành công", MessageBoxButton.OK);
-                    Debug.WriteLine("ReceptionistViewModel: DeleteAsync completed");
+                    _logger?.LogInformation("Successfully deleted booking {BookingId}", booking.Id);
                 }
+            }
+            catch (EntityNotFoundException ex)
+            {
+                _logger?.LogWarning(ex, "Entity not found");
+                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (BusinessException ex)
+            {
+                _logger?.LogWarning(ex, "Business error deleting booking");
+                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ReceptionistViewModel: UpdateAsync error - {ex.Message}");
-                MessageBox.Show($"Lỗi khi xóa booking: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _logger?.LogError(ex, "Unexpected error deleting booking");
+                MessageBox.Show("Lỗi khi xóa booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -252,25 +304,24 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             try
             {
-                Debug.WriteLine("ReceptionistViewModel: UpdateAvailableRoomsAsync started");
+                _logger?.LogDebug("Updating available rooms for type {RoomType}", SelectedRoomType);
                 if (SelectedRoomType != default)
                 {
                     var rooms = await _roomService.GetAvailableRoomsByTypeAsync(SelectedRoomType);
-                    // Sử dụng Dispatcher để đảm bảo thay đổi trên thread UI
-                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    var roomNumbers = rooms.Select(r => r.RoomNumber).ToList();
+                    var roomCount = roomNumbers.Count;
+
+                    Application.Current.Dispatcher.Invoke((Action)(() =>
                     {
-                        AvailableRooms.Clear();
-                        foreach (var room in rooms)
-                        {
-                            AvailableRooms.Add(room.RoomNumber);
-                        }
-                    });
+                        AvailableRooms = new ObservableCollection<string>(roomNumbers);
+                    }));
+
+                    _logger?.LogDebug("Found {RoomCount} available rooms", roomCount);
                 }
-                Debug.WriteLine("ReceptionistViewModel: UpdateAvailableRoomsAsync completed");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ReceptionistViewModel: UpdateAvailableRoomsAsync error - {ex.Message}");
+                _logger?.LogError(ex, "Error updating available rooms");
                 MessageBox.Show($"Lỗi khi cập nhật danh sách phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

@@ -23,6 +23,9 @@ namespace HotelManager.ViewModels.StaffViewModels
             set { _roomsToClean = value; OnPropertyChanged(); }
         }
 
+        // Lịch sử báo cáo hư hỏng/phòng đã dọn
+        public ObservableCollection<MaintenanceReport> DamageReportHistory { get; set; } = new();
+
         private bool _isReportExpanded;
         public bool IsReportExpanded
         {
@@ -44,28 +47,29 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
         }
 
-
-
-
-
-        //public DamageReportModel DamageReport { get; set; }
+        // Cho phép upload nhiều ảnh cho một báo cáo
+        public List<string> ImagePaths { get; set; } = new();
 
         // Commands
         public ICommand MarkAsCleanedCommand { get; }
         public ICommand ReportIssueCommand { get; }
         public ICommand SelectImageCommand { get; }
         public ICommand SendDamageReportCommand { get; }
+        public ICommand RemoveImageCommand { get; }
+        public ICommand LoadDamageReportHistoryCommand { get; }
 
         public CleanerViewModel(ICleanRoomService cleanroomService)
         {
             _cleanroomService = cleanroomService;
             RoomsToClean = new ObservableCollection<Room>();
-            // Initialize commands
             MarkAsCleanedCommand = new RelayCommand<Room>(MarkRoomAsCleaned);
             ReportIssueCommand = new RelayCommand<Room>(ReportIssue);
             SelectImageCommand = new RelayCommand(SelectImage);
             SendDamageReportCommand = new RelayCommand(SendDamageReport);
+            RemoveImageCommand = new RelayCommand<string>(RemoveImage);
+            LoadDamageReportHistoryCommand = new RelayCommand(LoadDamageReportHistory);
             LoadRoomsToClean();
+            LoadDamageReportHistory();
         }
         private async Task LoadRoomsToClean()
         {
@@ -82,15 +86,15 @@ namespace HotelManager.ViewModels.StaffViewModels
         private async void MarkRoomAsCleaned(Room room)
         {
             if (room == null) return;
-
+            // Thêm xác nhận trước khi đánh dấu
+            var result = MessageBox.Show($"Bạn có chắc chắn muốn đánh dấu phòng {room.RoomNumber} là đã dọn xong?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes) return;
             try
             {
                 await _cleanroomService.MarkRoomAsCleanedAsync(room);
-
-                // Sau khi cập nhật DB thành công, loại khỏi danh sách
                 RoomsToClean.Remove(room);
-
                 MessageBox.Show($"Phòng {room.RoomNumber} đã được đánh dấu là đã dọn.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                LoadDamageReportHistory(); // Cập nhật lịch sử
             }
             catch (Exception ex)
             {
@@ -107,6 +111,8 @@ namespace HotelManager.ViewModels.StaffViewModels
                 {
                     RoomNumber = room.RoomNumber
                 };
+                ImagePaths = new List<string>();
+                OnPropertyChanged(nameof(ImagePaths));
             }
         }
 
@@ -115,59 +121,70 @@ namespace HotelManager.ViewModels.StaffViewModels
             var openFileDialog = new Microsoft.Win32.OpenFileDialog
             {
                 Title = "Chọn ảnh báo cáo",
-                Filter = "Ảnh (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png|Tất cả các tệp (*.*)|*.*"
+                Filter = "Ảnh (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png|Tất cả các tệp (*.*)|*.*",
+                Multiselect = true
             };
-
             if (openFileDialog.ShowDialog() == true)
             {
-                DamageReport.ImagePath = openFileDialog.FileName;
-                OnPropertyChanged(nameof(DamageReport)); // Nếu bạn binding nguyên DamageReport
-                                                         // hoặc OnPropertyChanged("DamageReport.ImagePath"); nếu binding riêng trường này
+                foreach (var file in openFileDialog.FileNames)
+                {
+                    if (!ImagePaths.Contains(file))
+                        ImagePaths.Add(file);
+                }
+                OnPropertyChanged(nameof(ImagePaths));
             }
         }
-
+        private void RemoveImage(string imagePath)
+        {
+            if (ImagePaths.Contains(imagePath))
+            {
+                ImagePaths.Remove(imagePath);
+                OnPropertyChanged(nameof(ImagePaths));
+            }
+        }
         private async void SendDamageReport()
         {
             try
             {
-                // Debug information
-                System.Diagnostics.Debug.WriteLine($"Attempting to send damage report:");
-                System.Diagnostics.Debug.WriteLine($"RoomNumber: '{DamageReport.RoomNumber}'");
-                System.Diagnostics.Debug.WriteLine($"Description: '{DamageReport.Description}'");
-                System.Diagnostics.Debug.WriteLine($"ImagePath: '{DamageReport.ImagePath}'");
-
-                // Validate required fields
                 if (string.IsNullOrWhiteSpace(DamageReport.RoomNumber))
                 {
                     MessageBox.Show("Vui lòng nhập số phòng!", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-
                 if (string.IsNullOrWhiteSpace(DamageReport.Description))
                 {
                     MessageBox.Show("Vui lòng nhập mô tả hư hỏng!", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-
-                System.Diagnostics.Debug.WriteLine("Validation passed, calling service...");
-                
+                // Lưu nhiều ảnh vào trường ImagePath (dạng chuỗi phân tách hoặc json nếu DB hỗ trợ)
+                DamageReport.ImagePath = string.Join(";", ImagePaths);
                 DamageReport.ReportedDate = DateTime.Now;
                 await _cleanroomService.SendDamageReportAsync(DamageReport);
-                
-                System.Diagnostics.Debug.WriteLine("Service call completed successfully");
-                
                 MessageBox.Show("Gửi báo cáo thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                DamageReport = new MaintenanceReport(); // Reset form
-                IsReportExpanded = false; // Collapse the report section
+                DamageReport = new MaintenanceReport();
+                ImagePaths = new List<string>();
+                OnPropertyChanged(nameof(ImagePaths));
+                IsReportExpanded = false;
+                LoadDamageReportHistory();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error in SendDamageReport: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 MessageBox.Show($"Gửi báo cáo thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
+        private async void LoadDamageReportHistory()
+        {
+            try
+            {
+                // Giả sử service có method lấy lịch sử báo cáo cho cleaner hiện tại
+                var reports = await _cleanroomService.GetDamageReportsAsync();
+                DamageReportHistory = new ObservableCollection<MaintenanceReport>(reports);
+                OnPropertyChanged(nameof(DamageReportHistory));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi tải lịch sử báo cáo: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }

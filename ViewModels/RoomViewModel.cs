@@ -122,18 +122,15 @@ namespace HotelManager.ViewModels
 
         
 
-        public RoomViewModel()
+        public RoomViewModel(RoomService roomService, DialogService dialogService)
         {
-            this.roomService = new RoomService(new HotelDbContext());
-            UpdateCommand = new RelayCommand(param => UpdateRoom(_selectedRoom));
-            DeleteCommand = new RelayCommand(param => DeleteRoom(_selectedRoom));
-            AddCommand = new RelayCommand(async param => AddRoom());
-            LoadRooms();
+            this.roomService = roomService;
+            this._dialogService = dialogService;
+            InitializeViewModel();
         }
 
-        public RoomViewModel(IService<Room> roomService)
+        private void InitializeViewModel()
         {
-            this.roomService = (RoomService)roomService;
             UpdateCommand = new RelayCommand(param => UpdateRoom(_selectedRoom));
             DeleteCommand = new RelayCommand(param => DeleteRoom(_selectedRoom));
             AddCommand = new RelayCommand(async param => await AddRoom());
@@ -157,12 +154,120 @@ namespace HotelManager.ViewModels
 
         private async Task AddRoom()
         {
-            throw new NotImplementedException();
+            try
+            {
+                // Validate input
+                if (string.IsNullOrWhiteSpace(RoomNumber))
+                {
+                    MessageBox.Show("Vui lòng nhập số phòng!", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (PricePerNight <= 0)
+                {
+                    MessageBox.Show("Giá phòng phải lớn hơn 0!", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Check if room number already exists
+                var existingRoom = await roomService.GetByRoomNumberAsync(RoomNumber);
+                if (existingRoom != null)
+                {
+                    MessageBox.Show($"Phòng số {RoomNumber} đã tồn tại!", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Create new room
+                var newRoom = new Room
+                {
+                    RoomNumber = RoomNumber,
+                    RoomStatus = RoomStatus,
+                    RoomType = RoomType,
+                    PricePerNight = PricePerNight,
+                    Bookings = new List<Booking>(),
+                    InvoiceDetails = new List<InvoiceDetail>(),
+                    MaintenanceReports = new List<MaintenanceReport>()
+                };
+
+                var result = await roomService.CreateAsync(newRoom);
+                
+                if (result != null)
+                {
+                    // Refresh the room list
+                    LoadRooms();
+                    
+                    // Clear form
+                    ClearForm();
+                    
+                    MessageBox.Show($"Thêm phòng {RoomNumber} thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Lỗi khi thêm phòng!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi thêm phòng: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        private void DeleteRoom(Room? selectedRoom)
+        private async void DeleteRoom(Room? selectedRoom)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (selectedRoom == null)
+                {
+                    MessageBox.Show("Vui lòng chọn phòng cần xóa!", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Check if room has active bookings
+                var hasActiveBookings = selectedRoom.Bookings?.Any(b => 
+                    b.Status == BookingStatus.Confirmed || 
+                    b.Status == BookingStatus.CheckedIn) ?? false;
+
+                if (hasActiveBookings)
+                {
+                    MessageBox.Show($"Không thể xóa phòng {selectedRoom.RoomNumber} vì đang có booking hoạt động!", 
+                        "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Confirm deletion
+                var result = MessageBox.Show(
+                    $"Bạn có chắc chắn muốn xóa phòng {selectedRoom.RoomNumber}?\n\nLưu ý: Thao tác này không thể hoàn tác!",
+                    "Xác nhận xóa",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    var success = await roomService.DeleteAsync(selectedRoom.RoomNumber);
+                    
+                    if (success)
+                    {
+                        // Remove from local collection
+                        _allRooms.Remove(selectedRoom);
+                        FilterRooms();
+                        
+                        // Clear selection
+                        SelectedRoom = null;
+                        
+                        MessageBox.Show($"Xóa phòng {selectedRoom.RoomNumber} thành công!", 
+                            "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Lỗi khi xóa phòng {selectedRoom.RoomNumber}!", 
+                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xóa phòng: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void UpdateRoom(Room selectedRoom)
@@ -173,7 +278,7 @@ namespace HotelManager.ViewModels
                 MessageBox.Show("Vui lòng chọn một phòng để cập nhật.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            var editVM = new RoomInfoEditViewModel(selectedRoom);
+            var editVM = new RoomInfoEditViewModel(selectedRoom, roomService);
             var dialog = _dialogService.ShowDialog(editVM);
             if (dialog == true)
             {
@@ -195,6 +300,15 @@ namespace HotelManager.ViewModels
                 : _allRooms.Where(r => r.RoomNumber.Contains(RoomFilter, StringComparison.OrdinalIgnoreCase));
 
             Rooms = new ObservableCollection<Room>(filtered);
+        }
+
+        private void ClearForm()
+        {
+            RoomNumber = string.Empty;
+            RoomStatus = RoomStatus.Available;
+            RoomType = RoomType.Standard;
+            PricePerNight = 0m;
+            SelectedRoom = null;
         }
     }
 }
