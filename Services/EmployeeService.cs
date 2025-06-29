@@ -7,55 +7,49 @@ using HotelManager.Data;
 using HotelManager.Interfaces;
 using HotelManager.Models;
 using Microsoft.EntityFrameworkCore;
+using HotelManager.Exceptions;
 
 namespace HotelManager.Services
 {
     internal class EmployeeService : IService<Employee>
     {
-        private readonly HotelDbContext _dbContext;
-        public EmployeeService(HotelDbContext dbContext)
+        private readonly IUnitOfWork _unitOfWork;
+        public EmployeeService(IUnitOfWork unitOfWork)
         {
-            _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
             //HotelDbInitializer.Seed(_dbContext);
         }
         public async Task<bool> DeleteAsync(int id)
         {
-            var entity = await _dbContext.Employees.FindAsync(id);
-            if (entity == null)
-            {
-                return false;
-            }
-            _dbContext.Employees.Remove(entity);
-            await _dbContext.SaveChangesAsync();
-            return true;
+            var result = await _unitOfWork.Employees.DeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
+            return result;
         }
         public async Task<Employee> CreateAsync(Employee entity)
         {
-            _dbContext.Employees.Add(entity);
-            await _dbContext.SaveChangesAsync();
+            await _unitOfWork.Employees.AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
             return entity;
         }
 
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
-            return await _dbContext.Employees.Include(e => e.UserAccount).ToListAsync();
+            return await _unitOfWork.Employees.GetAllAsync();
         }
 
         public async Task<Employee> GetByIdAsync(int id)
         {
-            var entity = await _dbContext.Employees.FindAsync(id);
+            var entity = await _unitOfWork.Employees.GetByIdAsync(id);
             if (entity == null)
-            {
-                throw new KeyNotFoundException($"Employee with ID {id} not found.");
-            }
+                throw new EntityNotFoundException("Employee", id);
             return entity;
         }
 
         public async Task<Employee> UpdateAsync(Employee entity)
         {
-            _dbContext.Employees.Update(entity);
-            await _dbContext.SaveChangesAsync();
+            await _unitOfWork.Employees.UpdateAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
             return entity;
         }
     }

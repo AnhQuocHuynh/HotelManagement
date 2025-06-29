@@ -7,71 +7,55 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using HotelManager.Exceptions;
+using HotelManager.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace HotelManager.Services
 {
     public class BookingService
     {
-        private readonly HotelDbContext _dbContext;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly CustomerService _customerService;
+        private readonly HotelDbContext _dbContext;
+        private readonly ILogger<BookingService> _logger;
 
-        public BookingService(HotelDbContext dbContext, CustomerService customerService)
+        public BookingService(IUnitOfWork unitOfWork, CustomerService customerService, HotelDbContext dbContext, ILogger<BookingService> logger)
         {
-            _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
             _customerService = customerService;
+            _dbContext = dbContext;
+            _logger = logger;
         }
 
         public async Task<List<Booking>> GetAllAsync()
         {
-            return await _dbContext.Bookings
-                .Include(b => b.Customer)
-                .Include(b => b.BookingEmployee)
-                .Include(b => b.CheckInEmployee)
-                .Include(b => b.CheckOutEmployee)
-                .ToListAsync();
+            return (await _unitOfWork.Bookings.GetAllAsync()).ToList();
         }
 
         public async Task CreateAsync(Booking booking)
         {
             try
             {
-                Debug.WriteLine("BookingService: CreateAsync started");
+                _logger.LogInformation("Creating booking for customer: {CustomerName}, Room: {RoomNumber}", booking.Customer?.FullName, booking.RoomNumber);
                 if (booking.Customer != null)
                 {
-                    Debug.WriteLine($"Creating customer with CCCD: {booking.Customer.CCCD}");
                     await _customerService.CreateAsync(booking.Customer);
                     booking.CustomerId = booking.Customer.Id;
                 }
-
-                _dbContext.Bookings.Add(booking);
-
-                var room = await _dbContext.Rooms
-                    .FirstOrDefaultAsync(r => r.RoomNumber == booking.RoomNumber && r.RoomType == booking.RoomType);
-                if (room != null)
-                {
-                    if (booking.Status != BookingStatus.CheckedOut && booking.Status != BookingStatus.Cancelled)
-                    {
-                        room.RoomStatus = RoomStatus.Occupied;
-                        Debug.WriteLine($"Room {room.RoomNumber} set IsAvailable = false");
-                    }
-                    else
-                    {
-                        room.RoomStatus = RoomStatus.Available;
-                        Debug.WriteLine($"Room {room.RoomNumber} set IsAvailable = true");
-                    }
-                }
-                else
-                {
-                    throw new Exception($"Phòng {booking.RoomNumber} không tồn tại.");
-                }
-
-                await _dbContext.SaveChangesAsync();
-                Debug.WriteLine("BookingService: CreateAsync completed");
+                await _unitOfWork.Bookings.AddAsync(booking);
+                await _unitOfWork.SaveChangesAsync();
+                _logger.LogInformation("Booking created successfully. BookingId: {BookingId}", booking.Id);
+            }
+            catch (BusinessException ex)
+            {
+                _logger.LogWarning(ex, "Business exception when creating booking: {Message}", ex.Message);
+                throw;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"BookingService: CreateAsync error - {ex.Message}");
-                throw new Exception($"Lỗi khi tạo booking: {ex.Message}", ex);
+                _logger.LogError(ex, "Error when creating booking: {Message}", ex.Message);
+                throw new BusinessException($"Lỗi khi tạo booking: {ex.Message}", ex, "Lỗi khi tạo booking.", "BOOKING_CREATE_ERROR");
             }
         }
 
@@ -79,77 +63,33 @@ namespace HotelManager.Services
         {
             try
             {
-                Debug.WriteLine($"BookingService: UpdateAsync started for Booking ID: {booking.Id}");
-                var existingBooking = await _dbContext.Bookings
-                    .Include(b => b.Customer)
-                    .FirstOrDefaultAsync(b => b.Id == booking.Id);
+                _logger.LogInformation("Updating booking. BookingId: {BookingId}", booking.Id);
+                var existingBooking = await _unitOfWork.Bookings.GetByIdAsync(booking.Id);
                 if (existingBooking == null)
                 {
-                    Debug.WriteLine("Booking not found");
-                    throw new Exception("Booking không tồn tại.");
+                    _logger.LogWarning("Booking not found for update. BookingId: {BookingId}", booking.Id);
+                    throw new EntityNotFoundException("Booking", booking.Id);
                 }
-
-                // Cập nhật thông tin booking
-                Debug.WriteLine($"Updating booking: RoomType={booking.RoomType}, RoomNumber={booking.RoomNumber}, CheckIn={booking.CheckInDate}, CheckOut={booking.CheckOutDate}, Status={booking.Status}");
-                existingBooking.RoomType = booking.RoomType;
+                // Update properties
                 existingBooking.RoomNumber = booking.RoomNumber;
+                existingBooking.RoomType = booking.RoomType;
+                existingBooking.Status = booking.Status;
                 existingBooking.CheckInDate = booking.CheckInDate;
                 existingBooking.CheckOutDate = booking.CheckOutDate;
-                existingBooking.Status = booking.Status;
-
-                // Cập nhật khách hàng
-                if (booking.Customer != null && existingBooking.Customer != null)
-                {
-                    Debug.WriteLine($"Updating customer: ID={existingBooking.Customer.Id}, CCCD={booking.Customer.CCCD}, FullName={booking.Customer.FullName}, Phone={booking.Customer.PhoneNumber}, Type={booking.Customer.Type}");
-                    if (existingBooking.Customer.Id > 0)
-                    {
-                        existingBooking.Customer.FullName = booking.Customer.FullName;
-                        existingBooking.Customer.CCCD = booking.Customer.CCCD;
-                        existingBooking.Customer.PhoneNumber = booking.Customer.PhoneNumber;
-                        existingBooking.Customer.Type = booking.Customer.Type;
-                        await _customerService.UpdateAsync(existingBooking.Customer);
-                    }
-                    else
-                    {
-                        Debug.WriteLine("Creating new customer for existing booking");
-                        await _customerService.CreateAsync(booking.Customer);
-                        existingBooking.CustomerId = booking.Customer.Id;
-                    }
-                }
-                else
-                {
-                    Debug.WriteLine("No customer update required");
-                }
-
-                // Cập nhật RoomStatus của phòng
-                var room = await _dbContext.Rooms
-                    .FirstOrDefaultAsync(r => r.RoomNumber == booking.RoomNumber && r.RoomType == booking.RoomType);
-                if (room != null)
-                {
-                    if (booking.Status != BookingStatus.CheckedOut && booking.Status != BookingStatus.Cancelled)
-                    {
-                        room.RoomStatus = RoomStatus.Occupied;
-                        Debug.WriteLine($"Room {room.RoomNumber} set IsAvailable = false");
-                    }
-                    else
-                    {
-                        room.RoomStatus = RoomStatus.Available;
-                        Debug.WriteLine($"Room {room.RoomNumber} set IsAvailable = true");
-                    }
-                }
-                else
-                {
-                    Debug.WriteLine($"Room {booking.RoomNumber} not found");
-                    throw new Exception($"Phòng {booking.RoomNumber} không tồn tại.");
-                }
-
-                await _dbContext.SaveChangesAsync();
-                Debug.WriteLine("BookingService: UpdateAsync completed");
+                // ... update các trường khác nếu cần
+                await _unitOfWork.Bookings.UpdateAsync(existingBooking);
+                await _unitOfWork.SaveChangesAsync();
+                _logger.LogInformation("Booking updated successfully. BookingId: {BookingId}", booking.Id);
+            }
+            catch (BusinessException ex)
+            {
+                _logger.LogWarning(ex, "Business exception when updating booking: {Message}", ex.Message);
+                throw;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"BookingService: UpdateAsync error - {ex.Message}");
-                throw new Exception($"Lỗi khi cập nhật booking: {ex.Message}", ex);
+                _logger.LogError(ex, "Error when updating booking: {Message}", ex.Message);
+                throw new BusinessException($"Lỗi khi cập nhật booking: {ex.Message}", ex, "Lỗi khi cập nhật booking.", "BOOKING_UPDATE_ERROR");
             }
         }
 
@@ -157,31 +97,26 @@ namespace HotelManager.Services
         {
             try
             {
-                Debug.WriteLine($"BookingService: DeleteAsync started for Booking ID: {bookingId}");
-                var booking = await _dbContext.Bookings
-                    .FirstOrDefaultAsync(b => b.Id == bookingId);
+                _logger.LogInformation("Deleting booking. BookingId: {BookingId}", bookingId);
+                var booking = await _unitOfWork.Bookings.GetByIdAsync(bookingId);
                 if (booking == null)
                 {
-                    Debug.WriteLine("Booking not found");
-                    throw new Exception("Booking không tồn tại.");
+                    _logger.LogWarning("Booking not found for delete. BookingId: {BookingId}", bookingId);
+                    throw new EntityNotFoundException("Booking", bookingId);
                 }
-
-                var room = await _dbContext.Rooms
-                    .FirstOrDefaultAsync(r => r.RoomNumber == booking.RoomNumber && r.RoomType == booking.RoomType);
-                if (room != null)
-                {
-                    room.RoomStatus = RoomStatus.Available;
-                    Debug.WriteLine($"Room {room.RoomNumber} set IsAvailable = true");
-                }
-
-                _dbContext.Bookings.Remove(booking);
-                await _dbContext.SaveChangesAsync();
-                Debug.WriteLine("BookingService: DeleteAsync completed");
+                await _unitOfWork.Bookings.DeleteAsync(bookingId);
+                await _unitOfWork.SaveChangesAsync();
+                _logger.LogInformation("Booking deleted successfully. BookingId: {BookingId}", bookingId);
+            }
+            catch (BusinessException ex)
+            {
+                _logger.LogWarning(ex, "Business exception when deleting booking: {Message}", ex.Message);
+                throw;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"BookingService: DeleteAsync error - {ex.Message}");
-                throw new Exception($"Lỗi khi xóa booking: {ex.Message}", ex);
+                _logger.LogError(ex, "Error when deleting booking: {Message}", ex.Message);
+                throw new BusinessException($"Lỗi khi xóa booking: {ex.Message}", ex, "Lỗi khi xóa booking.", "BOOKING_DELETE_ERROR");
             }
         }
 

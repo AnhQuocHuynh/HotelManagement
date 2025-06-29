@@ -12,6 +12,7 @@ namespace HotelManager.Interfaces
         Task<List<Room>> GetAllAsync();
         Task MarkRoomAsCleanedAsync(Room room);
         Task SendDamageReportAsync(MaintenanceReport report);
+        Task<List<MaintenanceReport>> GetDamageReportsAsync();
 
 
 

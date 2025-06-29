@@ -7,53 +7,46 @@ using HotelManager.Data;
 using HotelManager.Interfaces;
 using HotelManager.Models;
 using Microsoft.EntityFrameworkCore;
+using HotelManager.Exceptions;
 
 namespace HotelManager.Services
 {
     internal class UserAccountService : IService<UserAccount>
     {
-        private readonly HotelDbContext _dbContext;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserAccountService(HotelDbContext dbContext)
+        public UserAccountService(IUnitOfWork unitOfWork)
         {
-            _dbContext = dbContext;
-            HotelDbInitializer.Seed(_dbContext);
+            _unitOfWork = unitOfWork;
         }
         public async Task<bool> DeleteAsync(int id)
         {
-            var entity = await _dbContext.UserAccounts.FindAsync(id);
-            if (entity == null)
-            {
-                return false;
-            }
-            _dbContext.UserAccounts.Remove(entity);
-            await _dbContext.SaveChangesAsync();
-            return true;
+            var result = await _unitOfWork.UserAccounts.DeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
+            return result;
         }
-        public Task<UserAccount> CreateAsync(UserAccount entity)
+        public async Task<UserAccount> CreateAsync(UserAccount entity)
         {
-            _dbContext.UserAccounts.Add(entity);
-            _dbContext.SaveChangesAsync();
-            return Task.FromResult(entity);
+            await _unitOfWork.UserAccounts.AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
+            return entity;
         }
         public async Task<IEnumerable<UserAccount>> GetAllAsync()
         {
-            return await _dbContext.UserAccounts.Include(u => u.Employee).ToListAsync();
+            return await _unitOfWork.UserAccounts.GetAllAsync();
         }
         public async Task<UserAccount> GetByIdAsync(int id)
         {
-            var entity = await _dbContext.UserAccounts.FindAsync(id);
+            var entity = await _unitOfWork.UserAccounts.GetByIdAsync(id);
             if (entity == null)
-            {
-                throw new KeyNotFoundException($"UserAccount with ID {id} not found.");
-            }
+                throw new EntityNotFoundException("UserAccount", id);
             return entity;
         }
-        public Task<UserAccount> UpdateAsync(UserAccount entity)
+        public async Task<UserAccount> UpdateAsync(UserAccount entity)
         {
-            _dbContext.UserAccounts.Update(entity);
-            _dbContext.SaveChanges();
-            return Task.FromResult(entity);
+            await _unitOfWork.UserAccounts.UpdateAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
+            return entity;
         }
     }
 }

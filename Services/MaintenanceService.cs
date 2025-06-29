@@ -5,61 +5,58 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
+using HotelManager.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace HotelManager.Services
 {
     public class MaintenanceService : IMaintenanceService
     {
-        private readonly HotelDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<MaintenanceService> _logger;
 
-        public MaintenanceService(HotelDbContext context)
+        public MaintenanceService(IUnitOfWork unitOfWork, ILogger<MaintenanceService> logger)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<List<MaintenanceReport>> GetAllReportsAsync()
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("MaintenanceService: Starting GetAllReportsAsync...");
-                
-                // Lấy tất cả báo cáo (cả resolved và unresolved) theo yêu cầu mới
-                var reportsWithRoom = await _context.MaintenanceReports
-                    .Include(r => r.Room)
-                    .OrderByDescending(r => r.ReportedDate) // Báo cáo mới nhất trước
-                    .ThenBy(r => r.IsResolved) // Báo cáo chưa sửa lên trước
-                    .ToListAsync();
-                
-                System.Diagnostics.Debug.WriteLine($"MaintenanceService: Found {reportsWithRoom.Count} reports with Room data");
-                
-                return reportsWithRoom;
+                _logger.LogInformation("Getting all maintenance reports");
+                var reports = await _unitOfWork.MaintenanceReports.GetAllAsync();
+                var result = reports.OrderByDescending(r => r.ReportedDate).ThenBy(r => r.IsResolved).ToList();
+                _logger.LogInformation("Retrieved {Count} maintenance reports", result.Count);
+                return result;
+            }
+            catch (BusinessException ex)
+            {
+                _logger.LogWarning(ex, "Business exception when getting maintenance reports: {Message}", ex.Message);
+                throw;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"MaintenanceService Error: {ex.Message}");
-                
-                // Fallback: thử query đơn giản không Include
-                try
-                {
-                    System.Diagnostics.Debug.WriteLine("MaintenanceService: Trying fallback query without Include...");
-                    return await _context.MaintenanceReports
-                        .OrderByDescending(r => r.ReportedDate)
-                        .ThenBy(r => r.IsResolved)
-                        .ToListAsync();
-                }
-                catch (Exception fallbackEx)
-                {
-                    System.Diagnostics.Debug.WriteLine($"MaintenanceService Fallback Error: {fallbackEx.Message}");
-                    throw; // Re-throw the original exception
-                }
+                _logger.LogError(ex, "Error when getting maintenance reports: {Message}", ex.Message);
+                throw new BusinessException($"Lỗi khi lấy danh sách báo cáo bảo trì: {ex.Message}", ex, "Lỗi khi lấy danh sách báo cáo bảo trì.", "MAINTENANCE_GETALL_ERROR");
             }
         }
 
         public async Task UpdateReportAsync(MaintenanceReport report)
         {
-            report.IsResolved = true; // Đánh dấu đã sửa
-            _context.MaintenanceReports.Update(report);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _logger.LogInformation("Updating maintenance report. ReportId: {ReportId}", report.Id);
+                await _unitOfWork.MaintenanceReports.UpdateAsync(report);
+                await _unitOfWork.SaveChangesAsync();
+                _logger.LogInformation("Maintenance report updated successfully. ReportId: {ReportId}", report.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error when updating maintenance report: {Message}", ex.Message);
+                throw;
+            }
         }
     }
 }

@@ -3,13 +3,24 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using HotelManager.ViewModels;
+using HotelManager.ViewModels.Common;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.Utilities
 {
     public class ViewModelLocator
     {
+        // ✅ Singleton instance for XAML binding
+        public static ViewModelLocator Instance { get; } = new ViewModelLocator();
+
         private static readonly Dictionary<Type, Type> _viewModelToViewMap = new Dictionary<Type, Type>();
         private static readonly Dictionary<Type, object> _viewModelInstances = new Dictionary<Type, object>();
+
+        // ✅ Properties for XAML binding - using public types only
+        public MainViewModel MainViewModel => GetViewModel<MainViewModel>();
+        public PaymentViewModel PaymentViewModel => GetViewModel<PaymentViewModel>();
+        // Note: LoginViewModel, RoomViewModel, AdminViewModel, BookingViewModel are internal - can't expose directly
+        // Will handle these through GetViewModel<T>() method instead
 
         public static void Register<TViewModel, TView>() 
             where TViewModel : class
@@ -32,6 +43,41 @@ namespace HotelManager.Utilities
         }
 
         public static TViewModel GetViewModel<TViewModel>() where TViewModel : class
+        {
+            if (App.ServiceProvider != null)
+            {
+                try
+                {
+                    return App.ServiceProvider.GetService<TViewModel>() ?? CreateManualViewModel<TViewModel>();
+                }
+                catch
+                {
+                    return CreateManualViewModel<TViewModel>();
+                }
+            }
+            
+            return CreateManualViewModel<TViewModel>();
+        }
+
+        public static TViewModel CreateViewModel<TViewModel>() where TViewModel : class
+        {
+            if (App.ServiceProvider != null)
+            {
+                try
+                {
+                    return App.ServiceProvider.GetService<TViewModel>() ?? 
+                           (TViewModel)Activator.CreateInstance<TViewModel>();
+                }
+                catch
+                {
+                    return (TViewModel)Activator.CreateInstance<TViewModel>();
+                }
+            }
+            
+            return (TViewModel)Activator.CreateInstance<TViewModel>();
+        }
+
+        private static TViewModel CreateManualViewModel<TViewModel>() where TViewModel : class
         {
             if (!_viewModelInstances.ContainsKey(typeof(TViewModel)))
             {
