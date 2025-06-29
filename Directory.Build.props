@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <NoWarn>xUnit1013</NoWarn>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+  </PropertyGroup>
+</Project> 
