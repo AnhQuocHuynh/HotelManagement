@@ -9,7 +9,8 @@ namespace HotelManager.Data
     {
         public static void Seed(HotelDbContext context)
         {
-            // context.Database.Migrate(); // Chỉ gọi ở main project nếu cần migration
+            // Đảm bảo schema luôn khớp với Model trước khi seed dữ liệu
+            context.Database.Migrate();
 
             if (!context.Rooms.Any())
             {
@@ -41,7 +42,8 @@ namespace HotelManager.Data
                     Position = EmployeePosition.Manager, 
                     Email = "admin@hotelmanager.com",
                     PhoneNumber = "0900000000",
-                    HireDate = DateTime.Now.AddYears(-2)
+                    HireDate = DateTime.Now.AddYears(-2),
+                    CCCD = "000000001"
                 };
                 context.Employees.Add(adminEmp);
 
@@ -71,7 +73,8 @@ namespace HotelManager.Data
                     Position = EmployeePosition.Manager,
                     Email = "manager@hotelmanager.com", 
                     PhoneNumber = "0900000001",
-                    HireDate = DateTime.Now.AddYears(-1)
+                    HireDate = DateTime.Now.AddYears(-1),
+                    CCCD = "000000002"
                 };
                 context.Employees.Add(managerEmp);
 
@@ -100,7 +103,8 @@ namespace HotelManager.Data
                     Position = EmployeePosition.Cleaner,
                     Email = "cleaner@hotelmanager.com",
                     PhoneNumber = "0900000002", 
-                    HireDate = DateTime.Now.AddMonths(-6)
+                    HireDate = DateTime.Now.AddMonths(-6),
+                    CCCD = "000000003"
                 };
                 context.Employees.Add(cleanerEmp);
 
@@ -129,7 +133,8 @@ namespace HotelManager.Data
                     Position = EmployeePosition.Technician,
                     Email = "technician@hotelmanager.com",
                     PhoneNumber = "0900000003",
-                    HireDate = DateTime.Now.AddMonths(-8)
+                    HireDate = DateTime.Now.AddMonths(-8),
+                    CCCD = "000000004"
                 };
                 context.Employees.Add(technicianEmp);
 
@@ -165,7 +170,8 @@ namespace HotelManager.Data
                             Position = EmployeePosition.Receptionist,
                             Email = $"{username}@hotelmanager.com",
                             PhoneNumber = $"090000001{i}", // 0900000011 -> 0900000017
-                            HireDate = DateTime.Now.AddMonths(-i)
+                            HireDate = DateTime.Now.AddMonths(-i),
+                            CCCD = $"00000000{i+4}"
                         };
                         context.Employees.Add(receptionistEmp);
 

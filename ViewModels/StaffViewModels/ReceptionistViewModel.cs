@@ -19,7 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
-    public class ReceptionistViewModel : INotifyPropertyChanged
+    public class ReceptionistViewModel : BaseViewModel
     {
         private readonly BookingService _bookingService;
         private readonly RoomService _roomService;
@@ -114,15 +114,21 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand DeleteCommand { get; private set; }
 
         // Constructor cho XAML (không tham số) – tự resolve qua DI
-        public ReceptionistViewModel() : this(
-            App.ServiceProvider.GetRequiredService<BookingService>(),
-            App.ServiceProvider.GetRequiredService<RoomService>(),
-            App.ServiceProvider.GetRequiredService<ILogger<ReceptionistViewModel>>())
-        { }
-
-        // Constructor với DI (được dùng trong unit test hoặc DI container)
-        public ReceptionistViewModel(BookingService bookingService, RoomService roomService, ILogger<ReceptionistViewModel> logger)
+        public ReceptionistViewModel() : base()
         {
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            {
+                // Design-time: khởi tạo dữ liệu mẫu hoặc để trống
+                Bookings = new ObservableCollection<Booking>();
+                AvailableRooms = new ObservableCollection<string>();
+                InitializeViewModel();
+                return;
+            }
+
+            // Runtime: resolve qua DI
+            var bookingService = App.ServiceProvider.GetRequiredService<BookingService>();
+            var roomService = App.ServiceProvider.GetRequiredService<RoomService>();
+            var logger = App.ServiceProvider.GetRequiredService<ILogger<ReceptionistViewModel>>();
             _bookingService = bookingService;
             _roomService = roomService;
             _logger = logger;
@@ -146,6 +152,11 @@ namespace HotelManager.ViewModels.StaffViewModels
             DeleteCommand = new AsyncRelayCommand<Booking?>(
                 execute: b => DeleteAsync(b!),
                 canExecute: b => b != null);
+        }
+
+        protected override async Task OnLoadedAsync()
+        {
+            await LoadDataAsync();
         }
 
         public async Task LoadDataAsync()
@@ -345,12 +356,6 @@ namespace HotelManager.ViewModels.StaffViewModels
             CheckInDate = null;
             CheckOutDate = null;
             SelectedStatus = default;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -5,130 +5,331 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:HotelManager.ViewModels.Common"
              xmlns:helpers="clr-namespace:HotelManager.Helpers"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
+             d:DesignHeight="900" d:DesignWidth="1400"
              d:Background="Transparent">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+        
+        <!-- Gradient Background -->
+        <LinearGradientBrush x:Key="LoginBackgroundGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#667eea" Offset="0"/>
+            <GradientStop Color="#764ba2" Offset="1"/>
+        </LinearGradientBrush>
+        
+        <!-- Glassmorphism Card Style -->
+        <Style x:Key="GlassmorphismCard" TargetType="Border">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="White" Opacity="0.15"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush">
+                <Setter.Value>
+                    <SolidColorBrush Color="White" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="25" ShadowDepth="0" Opacity="0.3" Color="#000000"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Login Animation -->
+        <Storyboard x:Key="LoginEntryAnimation">
+            <DoubleAnimation Storyboard.TargetName="LoginCard" 
+                           Storyboard.TargetProperty="Opacity" 
+                           From="0" To="1" Duration="0:0:0.6"/>
+            <DoubleAnimation Storyboard.TargetName="LoginCard" 
+                           Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" 
+                           From="0.8" To="1" Duration="0:0:0.6">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="LoginCard" 
+                           Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" 
+                           From="0.8" To="1" Duration="0:0:0.6">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
     </UserControl.Resources>
 
     <UserControl.DataContext>
         <vm:LoginViewModel />
     </UserControl.DataContext>
 
-    <Grid>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="UserControl.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource LoginEntryAnimation}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
 
-        <Border Width="450" Height="300"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Center"
-                CornerRadius="10"
-                BorderBrush="Transparent"
-                Background="White">
-            <Grid>
+    <!-- Main Container with Gradient Background -->
+    <Grid Background="{StaticResource LoginBackgroundGradient}">
+        
+        <!-- Animated Background Elements -->
+        <Canvas ClipToBounds="True" Margin="-421,-117,421,117">
+            <!-- Floating Circles Animation -->
+            <Ellipse Width="200" Height="200" Fill="White" Opacity="0.1" Canvas.Left="100" Canvas.Top="150">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="Circle1Transform"/>
+                </Ellipse.RenderTransform>
+                <Ellipse.Triggers>
+                    <EventTrigger RoutedEvent="Ellipse.Loaded">
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="Forever">
+                                <DoubleAnimation Storyboard.TargetName="Circle1Transform" 
+                                               Storyboard.TargetProperty="X" 
+                                               From="0" To="100" Duration="0:0:8" AutoReverse="True"/>
+                                <DoubleAnimation Storyboard.TargetName="Circle1Transform" 
+                                               Storyboard.TargetProperty="Y" 
+                                               From="0" To="-50" Duration="0:0:6" AutoReverse="True"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Ellipse.Triggers>
+            </Ellipse>
+            
+            <Ellipse Width="150" Height="150" Fill="White" Opacity="0.08" Canvas.Right="200" Canvas.Bottom="200">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="Circle2Transform"/>
+                </Ellipse.RenderTransform>
+                <Ellipse.Triggers>
+                    <EventTrigger RoutedEvent="Ellipse.Loaded">
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="Forever">
+                                <DoubleAnimation Storyboard.TargetName="Circle2Transform" 
+                                               Storyboard.TargetProperty="X" 
+                                               From="0" To="-80" Duration="0:0:10" AutoReverse="True"/>
+                                <DoubleAnimation Storyboard.TargetName="Circle2Transform" 
+                                               Storyboard.TargetProperty="Y" 
+                                               From="0" To="60" Duration="0:0:7" AutoReverse="True"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Ellipse.Triggers>
+            </Ellipse>
+        </Canvas>
+
+        <!-- Main Login Card -->
+        <Border x:Name="LoginCard" 
+                Style="{StaticResource GlassmorphismCard}"
+                Width="480" 
+                Height="Auto"
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center">
+            <Border.RenderTransform>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+            </Border.RenderTransform>
+            
+            <Grid Margin="32">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- "Sign In" -->
-                <TextBlock Text="HOTEL MANAGEMENT"
-                           Foreground="#0D47A1"
-                           FontSize="25"
-                           FontWeight="Bold"
-                           Grid.Row="0"
-                           HorizontalAlignment="Center" 
-                           Margin="0,15,0,0"></TextBlock>
+                <!-- Logo and Title Section -->
+                <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,40">
+                    <!-- Hotel Icon -->
+                    <Border Background="White" 
+                            CornerRadius="35" 
+                            Width="70" 
+                            Height="70" 
+                            Margin="0,0,0,20">
+                        <materialDesign:PackIcon Kind="Hotel" 
+                                                 Foreground="{StaticResource PrimaryBrush}" 
+                                                 Width="40" 
+                                                 Height="40"
+                                                 HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center"/>
+                    </Border>
+                    
+                    <!-- Title -->
+                    <TextBlock Text="Hotel Management" 
+                               Style="{StaticResource HeadlineLarge}"
+                               Foreground="White" 
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center" 
+                               Margin="0,0,0,8"/>
+                    
+                    <!-- Subtitle -->
+                    <TextBlock Text="Log in to continue" 
+                               Style="{StaticResource BodyLarge}"
+                               Foreground="White" 
+                               Opacity="0.8"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
 
-                <!-- input border -->
-                <Border Grid.Row="1"
-                        Background="{StaticResource SecondaryBrush}"
-                        CornerRadius="0,0,10,10">
-                    <Grid>
-
-                        <!-- user name -->
-                        <TextBlock Text="User Name:"
-                                   FontSize="20"
-                                   Foreground="#EEEEEE"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Top"
-                                   Margin="80,20,0,0"></TextBlock>
+                <!-- Login Form -->
+                <StackPanel Grid.Row="2" Margin="0,20,0,0">
+                    
+                    <!-- Username Field -->
+                    <TextBlock Text="Username" 
+                               Style="{StaticResource LabelLarge}"
+                               Foreground="White" 
+                               Margin="0,0,0,8"/>
+                    
+                    <materialDesign:Card Effect="{StaticResource Elevation1}" 
+                                         Margin="0,0,0,24">
                         <TextBox x:Name="UserName_tb"
-                                 Style="{StaticResource DefaultTextBoxStyle}"
-                                 FontWeight="Bold"
-                                 Height="30"
-                                 Width="300"
-                                 Margin="0,0,0,110"
-                                 Text="{Binding UserName}"></TextBox>
+                                 Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}"
+                                 materialDesign:HintAssist.Hint="Enter username"
+                                 materialDesign:HintAssist.IsFloating="False"
+                                 BorderThickness="0"
+                                 Background="White"
+                                 FontSize="16"
+                                 Padding="16,12"
+                                 VerticalAlignment="Center">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
+                    </materialDesign:Card>
 
-                        <!-- password -->
-                        <TextBlock Text="Password:"
-                                   FontSize="20"
-                                   Foreground="#EEEEEE"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Top"
-                                   Margin="80,100,0,0"></TextBlock>
-
-                        <PasswordBox x:Name="Password_PasswordBox"
-                                     helpers:PasswordBoxAssistant.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     Height="30"
-                                     Width="300"
-                                     Margin="0,50,0,0"
-                                     Padding="8,6"
+                    <!-- Password Field -->
+                    <TextBlock Text="Password" 
+                               Style="{StaticResource LabelLarge}"
+                               Foreground="White" 
+                               Margin="0,0,0,8"/>
+                    
+                    <materialDesign:Card Effect="{StaticResource Elevation1}" 
+                                         Margin="0,0,0,16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Normal Password Box -->
+                            <PasswordBox x:Name="Password_PasswordBox"
+                                         helpers:PasswordBoxAssistant.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         materialDesign:HintAssist.Hint="Enter password"
+                                         materialDesign:HintAssist.IsFloating="False"
+                                         BorderThickness="0"
+                                         Background="White"
+                                         FontSize="16"
+                                         Padding="16,12,50,12"
+                                         VerticalAlignment="Center"
+                                         Grid.Column="0">
+                                <PasswordBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
+                                </PasswordBox.InputBindings>
+                                <PasswordBox.Style>
+                                    <Style TargetType="PasswordBox">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding PasswordVisibility}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </PasswordBox.Style>
+                            </PasswordBox>
+                            
+                            <!-- Visible Password TextBox -->
+                            <TextBox x:Name="Password_tb"
+                                     Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"
+                                     materialDesign:HintAssist.Hint="Enter password"
+                                     materialDesign:HintAssist.IsFloating="False"
+                                     BorderThickness="0"
                                      Background="White"
-                                     BorderBrush="Gray"
-                                     BorderThickness="1">
-                            <PasswordBox.Template>
-                                <ControlTemplate TargetType="PasswordBox">
-                                    <Border Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="4">
-                                        <ScrollViewer x:Name="PART_ContentHost"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </PasswordBox.Template>
-                        </PasswordBox>
-                        <TextBox x:Name="Password_tb"
-                                 Text="{Binding Password}"
-                                 Visibility="{Binding PasswordVisibility, Converter={StaticResource BoolToVisConverter}}"
-                                 Style="{StaticResource DefaultTextBoxStyle}"
-                                 FontWeight="Bold"
-                                 Height="30"
-                                 Width="300"
-                                 Margin="0,50,0,0"></TextBox>
-                        <!-- show password -->
-                        <CheckBox x:Name="showPassword_CheckBos"
-                                  IsChecked="{Binding PasswordVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                  HorizontalAlignment="Right"
-                                  VerticalAlignment="Bottom"
-                                  Margin="0,0,50,90">
-                        </CheckBox>
-                        <!-- login button -->
-                        <Button x:Name="Login_btn"
-                                Content="Login"
-                                Height="30"
-                                Width="100"
-                                Margin="0,150,0,20"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Bottom"
-                                Command="{Binding LoginCommand}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#2196F3"/>
-                                            <Setter Property="Cursor" Value="Hand"/>
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter Property="Background" Value="#0D47A1"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
+                                     FontSize="16"
+                                     Padding="16,12,50,12"
+                                     VerticalAlignment="Center"
+                                     Focusable="True"
+                                     Grid.Column="0">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
+                                </TextBox.InputBindings>
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding PasswordVisibility}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                            
+                            <!-- Show/Hide Password Toggle -->
+                            <ToggleButton IsChecked="{Binding PasswordVisibility, Mode=TwoWay}"
+                                          Style="{StaticResource MaterialDesignActionToggleButton}"
+                                          Width="24" Height="24"
+                                          HorizontalAlignment="Right"
+                                          VerticalAlignment="Center"
+                                          Margin="12,0,0,0"
+                                          Grid.Column="1"
+                                          ToolTip="Show/Hide password">
+                                <ToggleButton.Content>
+                                    <materialDesign:PackIcon Kind="Eye" Width="20" Height="20"/>
+                                </ToggleButton.Content>
+                                <materialDesign:ToggleButtonAssist.OnContent>
+                                    <materialDesign:PackIcon Kind="EyeOff" Width="20" Height="20"/>
+                                </materialDesign:ToggleButtonAssist.OnContent>
+                            </ToggleButton>
+                        </Grid>
+                    </materialDesign:Card>
+
+                    <!-- Remember Me & Forgot Password -->
+                    <Grid Margin="0,0,0,32">
+                        <CheckBox Content="Remember me" 
+                                  Foreground="White" 
+                                  HorizontalAlignment="Left"
+                                  Style="{StaticResource MaterialDesignCheckBox}"/>
                     </Grid>
-                </Border>
+
+                    <!-- Login Button -->
+                    <Button Content="LOG IN" 
+                            Command="{Binding LoginCommand}"
+                            Style="{StaticResource ContainedButton}"
+                            Height="50"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Background="White"
+                            Foreground="{StaticResource PrimaryBrush}"
+                            Effect="{StaticResource Elevation2}"
+                            Margin="0,0,0,24">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="25"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
+                    <!-- Additional Options -->
+                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Text="Don't have an account?" 
+                                   Style="{StaticResource BodyMedium}"
+                                   Foreground="White" 
+                                   Opacity="0.8"
+                                   VerticalAlignment="Center"/>
+                        <Button Content="Contact Admin" 
+                                Style="{StaticResource TextButton}"
+                                Foreground="White" 
+                                FontWeight="Bold"
+                                Margin="8,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Footer -->
+                <StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,20,0,0">
+                    <TextBlock Text="© 2024 Hotel Management System" 
+                               Style="{StaticResource BodySmall}"
+                               Foreground="White" 
+                               Opacity="0.6"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
             </Grid>
         </Border>
     </Grid>

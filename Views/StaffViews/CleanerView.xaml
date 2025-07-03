@@ -4,165 +4,363 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:HotelManager.Converters"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
-             d:DesignHeight="650" d:DesignWidth="900" 
-             Background="#F4F4F4" FontSize="16">
+             d:DesignHeight="800" d:DesignWidth="1200" 
+             Background="{StaticResource SurfaceBrush}">
+    
     <UserControl.Resources>
-        <!-- Style cho nút hiện đại -->
-        <Style x:Key="ModernButtonStyle" TargetType="Button">
-            <Setter Property="Margin" Value="5" />
-            <Setter Property="Margin" Value="10,5" />
-            <Setter Property="MinWidth" Value="130" />
-            <Setter Property="Background" Value="#007ACC" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <!-- Header cho DataGrid -->
-        <Style x:Key="DataGridHeaderStyle" TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#007ACC" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="FontWeight" Value="Bold" />
-        </Style>
-        <!-- CheckBox trong DataGrid: khi phòng đã dọn (IsCleaned=True) thì vô hiệu hóa -->
-        <Style x:Key="CheckBoxCellStyle" TargetType="CheckBox">
-            <Setter Property="IsEnabled" Value="True" />
+        <local:SplitImagePathConverter x:Key="SplitImagePathConverter" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+        
+        <!-- Custom Status Indicator Style -->
+        <Style x:Key="StatusIndicatorStyle" TargetType="Ellipse">
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsCleaned}" Value="True">
-                    <Setter Property="IsEnabled" Value="False" />
+                    <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsCleaned}" Value="False">
+                    <Setter Property="Fill" Value="{StaticResource WarningBrush}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-        <local:SplitImagePathConverter x:Key="SplitImagePathConverter" />
     </UserControl.Resources>
 
+    <materialDesign:Card Effect="{StaticResource Elevation3}">
     <Grid>
         <Grid.RowDefinitions>
-            <!-- Header with title and logout button -->
-            <RowDefinition Height="Auto" />
-            <!-- Content area -->
-            <RowDefinition Height="*" />
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header with title and logout button -->
-        <Border Background="#007ACC" Height="50" Grid.Row="0">
-            <Grid>
+            <!-- Header Section -->
+            <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" Height="80">
+                <Grid Margin="24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Cleaner Title and Info -->
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
                 <TextBlock Text="Cleaner Dashboard" 
-                           FontSize="20" 
-                           FontWeight="Bold" 
+                                   Style="{StaticResource HeadlineLarge}" 
+                                   Foreground="White"/>
+                        <TextBlock Text="Manage room cleaning and maintenance reports" 
+                                   Style="{StaticResource BodyMedium}" 
+                                   Foreground="{StaticResource OnPrimary200Brush}" 
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Logout Button -->
+                    <Button Grid.Column="1" 
+                            Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                            Style="{StaticResource TextButton}"
+                            Background="{StaticResource ErrorBrush}"
                            Foreground="White" 
-                           VerticalAlignment="Center" 
-                           HorizontalAlignment="Left" 
-                           Margin="20,0,0,0"/>
-                <Button Content="Logout" 
-                        Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                        Width="80" 
-                        Height="30" 
-                        HorizontalAlignment="Right" 
-                        VerticalAlignment="Center" 
-                        Margin="0,0,20,0"
-                        Background="DarkRed"
-                        Foreground="White"/>
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Logout" 
+                                                   Width="20" Height="20" 
+                                                   Margin="0,0,8,0"/>
+                            <TextBlock Text="Logout" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Button>
             </Grid>
         </Border>
 
         <!-- Content Area -->
-        <Grid Grid.Row="1" Margin="10">
-            <Grid.RowDefinitions>
-                <!-- Notification Banner -->
-                <RowDefinition Height="Auto" />
-                <!-- Danh sách phòng cần dọn -->
-                <RowDefinition Height="*" />
-                <!-- Phần báo cáo hư hỏng -->
-                <RowDefinition Height="Auto" />
-                <!-- Lịch sử báo cáo hư hỏng/phòng đã dọn -->
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="24">
+                    
+                    <!-- Status Banner -->
+                    <materialDesign:Card x:Name="NotificationBanner" 
+                                        Background="{StaticResource Primary100Brush}" 
+                                        Margin="0,24,0,16"
+                                        Effect="{StaticResource Elevation1}">
+                        <Grid Margin="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <materialDesign:PackIcon Grid.Column="0" 
+                                                   Kind="Broom" 
+                                                   Width="24" Height="24" 
+                                                   Foreground="{StaticResource Primary700Brush}"
+                                                   VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" 
+                                     Text="You are logged in as Cleaner" 
+                                     Style="{StaticResource TitleMedium}" 
+                                     Foreground="{StaticResource Primary700Brush}"
+                                     VerticalAlignment="Center" 
+                                     Margin="16,0,0,0"/>
+                            <Button Grid.Column="2" 
+                                  Style="{StaticResource IconButton}"
+                                  Width="32" Height="32">
+                                <materialDesign:PackIcon Kind="Close" Width="16" Height="16"/>
+                            </Button>
+                        </Grid>
+                    </materialDesign:Card>
 
-            <!-- Notification Banner -->
-            <Border x:Name="NotificationBanner" Background="#e0f7fa" Padding="10" CornerRadius="4" Grid.Row="0">
-                <DockPanel>
-                    <TextBlock Text="You are Cleaner" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" />
-                    <Button Content="X" Width="23" Height="20" DockPanel.Dock="Right" Background="Transparent" BorderThickness="0" Foreground="Black"  />
-                </DockPanel>
-            </Border>
-
-            <!-- DataGrid danh sách phòng cần dọn -->
-            <DataGrid Grid.Row="1" ItemsSource="{Binding RoomsToClean}" AutoGenerateColumns="False" Margin="0,10,0,10" ColumnHeaderStyle="{StaticResource DataGridHeaderStyle}" CanUserAddRows="False">
+                    <!-- Rooms to Clean Section -->
+                    <materialDesign:Card Margin="0,0,0,24" 
+                                        Effect="{StaticResource Elevation2}">
+                        <StackPanel Margin="24">
+                            <Grid Margin="0,0,0,16">
+                                <TextBlock Text="Rooms to Clean" 
+                                         Style="{StaticResource HeadlineMedium}"/>
+                                <materialDesign:PackIcon Kind="Broom" 
+                                                       Width="28" Height="28" 
+                                                       Foreground="{StaticResource Primary500Brush}"
+                                                       HorizontalAlignment="Right"/>
+                            </Grid>
+                            
+                            <DataGrid ItemsSource="{Binding RoomsToClean}" 
+                                    AutoGenerateColumns="False" 
+                                    Style="{StaticResource ModernDataGrid}"
+                                    CanUserAddRows="False">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Số phòng" Binding="{Binding RoomNumber}" Width="*" />
-                    <DataGridTextColumn Header="Loại phòng" Binding="{Binding RoomType}" Width="*" />
-                    <DataGridTextColumn Header="Trạng thái" Binding="{Binding IsAvailable}" Width="*" />
-                    <DataGridTemplateColumn Header="Hành động" Width="*">
+                                    <DataGridTemplateColumn Header="Room" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <materialDesign:PackIcon Kind="Door" 
+                                                                           Width="16" Height="16" 
+                                                                           Foreground="{StaticResource Primary500Brush}"/>
+                                                    <TextBlock Text="{Binding RoomNumber}" 
+                                                             Style="{StaticResource BodyLarge}" 
+                                                             Margin="8,0,0,0" 
+                                                             FontWeight="Medium"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    
+                                    <DataGridTextColumn Header="Room Type" 
+                                                      Binding="{Binding RoomType}" 
+                                                      Width="120"/>
+                                    
+                                    <DataGridTemplateColumn Header="Status" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Button Content="Dọn xong" Command="{Binding DataContext.MarkAsCleanedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Margin="0,0,10,0" />
-                                    <Button Content="Báo lỗi" Command="{Binding DataContext.ReportIssueCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" />
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding IsAvailable}" Style="{StaticResource BodyMedium}"/>
+                                                    <Ellipse Style="{StaticResource StatusIndicatorStyle}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
+                                    <DataGridTemplateColumn Header="Actions" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <Button Command="{Binding DataContext.MarkAsCleanedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                          CommandParameter="{Binding}"
+                                                          Style="{StaticResource ContainedButton}"
+                                                          Background="{StaticResource SuccessBrush}"
+                                                          Margin="0,0,24,0">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="CheckCircle" Width="16" Height="16"/>
+                                                            <TextBlock Text="Mark Clean" Margin="8,0,0,0"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                    <Button Command="{Binding DataContext.ReportIssueCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                          CommandParameter="{Binding}"
+                                                          Style="{StaticResource OutlinedButton}"
+                                                          BorderBrush="{StaticResource ErrorBrush}"
+                                                          Foreground="{StaticResource ErrorBrush}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="AlertCircle" Width="16" Height="16"/>
+                                                            <TextBlock Text="Report Issue" Margin="8,0,0,0"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-
-            <!-- Phần báo cáo hư hỏng (cho phép nhập số phòng, mô tả, kèm nhiều ảnh) -->
-            <Expander Grid.Row="2" Header="Báo cáo hư hỏng" IsExpanded="{Binding IsReportExpanded}" FontSize="16" Margin="0,10,0,0">
-                <StackPanel Margin="10">
-                    <StackPanel Orientation="Vertical" Margin="0,0,0,10">
-                        <TextBlock Text="Số phòng:" />
-                        <TextBox Text="{Binding DamageReport.RoomNumber}" Margin="0,5,0,10" />
-                        <TextBlock Text="Chi tiết vật dụng hư hỏng:" />
-                        <TextBox Text="{Binding DamageReport.Description}" Margin="0,5,0,10" AcceptsReturn="True" Height="60" />
-                        <TextBlock Text="Ảnh (Tùy chọn, có thể chọn nhiều):" />
-                        <StackPanel Orientation="Horizontal" Margin="0,5,0,10">
-                            <Button Content="Chọn ảnh" Command="{Binding SelectImageCommand}" Style="{StaticResource ModernButtonStyle}" />
                         </StackPanel>
-                        <!-- Hiển thị danh sách ảnh đã chọn -->
-                        <ItemsControl ItemsSource="{Binding ImagePaths}">
-                            <ItemsControl.ItemTemplate>
+                    </materialDesign:Card>
+
+                    <!-- Damage Report Section -->
+                    <materialDesign:Card Margin="0,0,0,24" 
+                                        Effect="{StaticResource Elevation2}">
+                        <Expander Header="Damage Report" 
+                                IsExpanded="{Binding IsReportExpanded}"
+                                Style="{StaticResource MaterialDesignExpander}">
+                            <Expander.HeaderTemplate>
                                 <DataTemplate>
-                                    <StackPanel Orientation="Horizontal" Margin="0,2">
-                                        <TextBlock Text="{Binding}" Width="200" TextTrimming="CharacterEllipsis" />
-                                        <Button Content="X" Command="{Binding DataContext.RemoveImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Width="25" Height="25" Margin="5,0,0,0"/>
-                                        <Button Content="Xem" Width="40" Height="25" Margin="5,0,0,0" Click="OnViewImageClick" Tag="{Binding}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="ToolboxOutline" 
+                                                               Width="24" Height="24" 
+                                                               Foreground="{StaticResource Secondary500Brush}"
+                                                               VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding}" 
+                                                 Style="{StaticResource TitleLarge}" 
+                                                 Margin="12,0,0,0" 
+                                                 VerticalAlignment="Center"/>
                                     </StackPanel>
+                                </DataTemplate>
+                            </Expander.HeaderTemplate>
+                            
+                            <Grid Margin="32">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Room Number Field -->
+                                <TextBox Grid.Row="0" Grid.ColumnSpan="2"
+                                       Text="{Binding DamageReport.RoomNumber}" 
+                                       Style="{StaticResource OutlinedTextField}"
+                                       materialDesign:HintAssist.Hint="Room Number"
+                                       Margin="0,0,0,16"/>
+
+                                <!-- Description Field -->
+                                <TextBox Grid.Row="1" Grid.ColumnSpan="2"
+                                       Text="{Binding DamageReport.Description}" 
+                                       Style="{StaticResource OutlinedTextField}"
+                                       materialDesign:HintAssist.Hint="Damage Description"
+                                       AcceptsReturn="True" 
+                                       MinHeight="80"
+                                       Margin="0,0,0,16"/>
+
+                                <!-- Image Selection -->
+                                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" 
+                                          Margin="0,0,0,16">
+                                    <TextBlock Text="Attach Images (Optional)" 
+                                             Style="{StaticResource BodyLarge}" 
+                                             Margin="0,0,0,24"/>
+                                    <Button Command="{Binding SelectImageCommand}"
+                                          Style="{StaticResource OutlinedButton}"
+                                          HorizontalAlignment="Left">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="ImagePlus" Width="20" Height="20"/>
+                                            <TextBlock Text="Select Images" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+
+                                <!-- Selected Images List -->
+                                <ItemsControl Grid.Row="3" Grid.ColumnSpan="2"
+                                            ItemsSource="{Binding ImagePaths}"
+                                            Margin="0,0,0,16">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <materialDesign:Card Margin="0,0,0,8" 
+                                                               Effect="{StaticResource Elevation1}">
+                                                <Grid Margin="8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    
+                                                    <materialDesign:PackIcon Grid.Column="0" 
+                                                                           Kind="FileImage" 
+                                                                           Width="16" Height="16" 
+                                                                           Foreground="{StaticResource Secondary500Brush}"
+                                                                           VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" 
+                                                             Text="{Binding}" 
+                                                             Style="{StaticResource BodyMedium}"
+                                                             TextTrimming="CharacterEllipsis" 
+                                                             VerticalAlignment="Center"
+                                                             Margin="8,0,8,0"/>
+                                                    <Button Grid.Column="2" 
+                                                          Command="{Binding DataContext.RemoveImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                          CommandParameter="{Binding}"
+                                                          Style="{StaticResource IconButton}"
+                                                          Width="24" Height="24"
+                                                          ToolTip="Remove Image">
+                                                        <materialDesign:PackIcon Kind="Close" Width="12" Height="12"/>
+                                                    </Button>
+                                                    <Button Grid.Column="3" 
+                                                          Command="{Binding DataContext.ViewImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                          CommandParameter="{Binding}"
+                                                          Style="{StaticResource IconButton}"
+                                                          Width="24" Height="24"
+                                                          ToolTip="View Image">
+                                                        <materialDesign:PackIcon Kind="Eye" Width="12" Height="12"/>
+                                                    </Button>
+                                                </Grid>
+                                            </materialDesign:Card>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </StackPanel>
-                    <Button Content="Gửi báo cáo hư hỏng" Command="{Binding SendDamageReportCommand}" Style="{StaticResource ModernButtonStyle}" HorizontalAlignment="Right" />
-                </StackPanel>
-            </Expander>
 
-            <!-- Lịch sử báo cáo hư hỏng/phòng đã dọn -->
-            <GroupBox Header="Lịch sử báo cáo &amp; phòng đã dọn" Grid.Row="3" Margin="0,10,0,0">
-                <DataGrid ItemsSource="{Binding DamageReportHistory}" AutoGenerateColumns="False" Height="200" Margin="0,5,0,0" CanUserAddRows="False">
+                                <!-- Submit Button -->
+                                <Button Grid.Row="4" Grid.ColumnSpan="2"
+                                      Command="{Binding SendDamageReportCommand}"
+                                      Style="{StaticResource ContainedButton}"
+                                      Background="{StaticResource Secondary500Brush}"
+                                      HorizontalAlignment="Right">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Send" Width="20" Height="20"/>
+                                        <TextBlock Text="Send Damage Report" Margin="8,0,0,0"/>
+                    </StackPanel>
+                                </Button>
+                            </Grid>
+            </Expander>
+                    </materialDesign:Card>
+
+                    <!-- History Section -->
+                    <materialDesign:Card Effect="{StaticResource Elevation2}">
+                        <StackPanel Margin="24">
+                            <Grid Margin="0,0,0,16">
+                                <TextBlock Text="Damage Report History" 
+                                         Style="{StaticResource HeadlineMedium}"/>
+                                <materialDesign:PackIcon Kind="History" 
+                                                       Width="28" Height="28" 
+                                                       Foreground="{StaticResource Accent500Brush}"
+                                                       HorizontalAlignment="Right"/>
+                            </Grid>
+                            
+                            <DataGrid ItemsSource="{Binding DamageReportHistory}" 
+                                    AutoGenerateColumns="False" 
+                                    Style="{StaticResource ModernDataGrid}"
+                                    MaxHeight="250"
+                                    CanUserAddRows="False">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Số phòng" Binding="{Binding RoomNumber}" Width="*" />
-                        <DataGridTextColumn Header="Mô tả" Binding="{Binding Description}" Width="2*" />
-                        <DataGridTextColumn Header="Ngày báo cáo" Binding="{Binding ReportedDate, StringFormat=dd/MM/yyyy HH:mm}" Width="*" />
-                        <DataGridTemplateColumn Header="Ảnh" Width="2*">
+                                    <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="80"/>
+                                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*"/>
+                                    <DataGridTextColumn Header="Report Date" 
+                                                      Binding="{Binding ReportedDate, StringFormat=dd/MM/yyyy HH:mm}" 
+                                                      Width="140"/>
+                                    <DataGridTemplateColumn Header="Images" Width="120">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <ItemsControl ItemsSource="{Binding ImagePath, Converter={StaticResource SplitImagePathConverter}}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Button Content="Xem ảnh" Width="70" Margin="2" Click="OnViewHistoryImageClick" Tag="{Binding}"/>
+                                                            <Button Command="{Binding DataContext.ViewImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                                  CommandParameter="{Binding}"
+                                                                  Style="{StaticResource IconButton}"
+                                                                  ToolTip="View Image"
+                                                                  Margin="2">
+                                                                <materialDesign:PackIcon Kind="Image" Width="16" Height="16"/>
+                                                            </Button>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
@@ -171,7 +369,10 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-            </GroupBox>
+                        </StackPanel>
+                    </materialDesign:Card>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
-    </Grid>
+    </materialDesign:Card>
 </UserControl>

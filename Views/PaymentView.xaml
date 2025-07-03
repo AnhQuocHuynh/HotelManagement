@@ -7,12 +7,22 @@
              xmlns:enums="clr-namespace:HotelManager.Models.Enums;assembly=HotelManager.Core"
              xmlns:vm="clr-namespace:HotelManager.ViewModels"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800"
-             Loaded="UserControl_Loaded">
+             d:DesignHeight="900" d:DesignWidth="1400"
+             Background="{StaticResource SurfaceGradient}">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
     <UserControl.DataContext>
         <vm:PaymentViewModel/>
     </UserControl.DataContext>
+
     <UserControl.Resources>
         <!-- Style cho DatePicker trong DataGrid -->
         <Style x:Key="DataGridDatePickerStyle" TargetType="DatePicker">
@@ -42,152 +52,350 @@
                 <x:Type TypeName="enums:PaymentMethod"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+
+        <!-- Quick Stats Card Style -->
+        <Style x:Key="QuickStatsCard" TargetType="materialDesign:Card">
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Effect" Value="{StaticResource Elevation1}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Effect" Value="{StaticResource Elevation2}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
-    <Grid Background="{StaticResource AccentBrush}">
-        <!-- Header with title and logout button -->
-        <Border Background="{StaticResource PrimaryBrush}" Height="50" VerticalAlignment="Top">
-            <Grid>
-                <TextBlock Text="Payment Management" 
-                           FontSize="20" 
-                           FontWeight="Bold" 
-                           Foreground="White" 
-                           VerticalAlignment="Center" 
-                           HorizontalAlignment="Left" 
-                           Margin="20,0,0,0"/>
-                <Button Content="Logout" 
-                        Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                        Width="80" 
-                        Height="30" 
-                        HorizontalAlignment="Right" 
-                        VerticalAlignment="Center" 
-                        Margin="0,0,20,0"
-                        Background="DarkRed"
-                        Foreground="White"/>
-            </Grid>
-        </Border>
 
-        <!-- Input Controls -->
-        <Grid Margin="10,60,10,10">
+    <materialDesign:Card Effect="{StaticResource Elevation3}">
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Labels Row 1 -->
-                <RowDefinition Height="Auto"/> <!-- Inputs Row 1 -->
-                <RowDefinition Height="Auto"/> <!-- Add Button Row -->
-                <RowDefinition Height="*"/> <!-- DataGrid -->
+                <RowDefinition Height="4*"/>
+                <RowDefinition Height="41*"/>
             </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/> <!-- Thêm cột cho Remaining Amount -->
-            </Grid.ColumnDefinitions>
 
-            <!-- Labels Row 1 -->
-            <TextBlock Text="Payment Date:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <TextBlock Text="Amount:" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <TextBlock Text="Payment Method:" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <TextBlock Text="Invoice:" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <TextBlock Text="Remaining:" Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
+            <!-- Header Section -->
+            <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" Margin="0,-58,0,758" Grid.RowSpan="2">
+                <Grid Margin="32">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-            <!-- Inputs Row 1 -->
-            <DatePicker x:Name="PaymentDatePicker" Grid.Row="1" Grid.Column="0" Height="30" Margin="0,0,5,5" SelectedDate="{Binding PaymentDate, Mode=TwoWay}"/>
-            <TextBox x:Name="AmountTextBox" Grid.Row="1" Grid.Column="1" Height="30" Margin="0,0,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <ComboBox x:Name="PaymentMethodBox"
-                      Grid.Row="1" Grid.Column="2"
-                      Height="30" Margin="0,0,5,5"
-                      SelectedItem="{Binding PaymentMethod, Mode=TwoWay}"
-                      ItemsSource="{Binding Source={StaticResource PaymentMethodValues}}"
-                      BorderBrush="{DynamicResource PrimaryBrush}" />
-            <ComboBox x:Name="InvoiceBox" Grid.Row="1" Grid.Column="3" Height="30" Margin="0,0,5,5" ItemsSource="{Binding AvailableInvoices}" DisplayMemberPath="Id" SelectedValuePath="Id" SelectedValue="{Binding SelectedInvoiceId, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}"/>
-            <TextBlock x:Name="RemainingTextBlock" Grid.Row="1" Grid.Column="4" Height="30" VerticalAlignment="Center" Margin="0,0,5,5" Text="{Binding RemainingAmount, StringFormat=c}" />
+                    <!-- Payment Title and Info -->
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock Text="Payment Management" 
+                                   Style="{StaticResource HeadlineLarge}" 
+                                   Foreground="White"/>
+                        <TextBlock Text="Process payments and track financial transactions" 
+                                   Style="{StaticResource BodyMedium}" 
+                                   Foreground="{StaticResource OnPrimary200Brush}" 
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
 
-            <!-- Add Button Row -->
-            <Button Content="Add Payment"
-                    Command="{Binding AddPaymentCommand}"
-                    Style="{StaticResource DefaultButtonStyle}"
-                    Width="150"
-                    Height="30"
-                    Grid.Row="2"
-                    Grid.ColumnSpan="5"
-                    HorizontalAlignment="Right"
-                    Margin="0,5,5,5"/>
+                    <!-- Logout Button -->
+                    <Button Grid.Column="1" 
+                            Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                            Style="{StaticResource TextButton}"
+                            Background="{StaticResource ErrorBrush}"
+                            Foreground="White" 
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Logout" 
+                                                   Width="20" Height="20" 
+                                                   Margin="0,0,8,0"/>
+                            <TextBlock Text="Logout" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
 
-            <!-- DataGrid for Payments -->
-            <DataGrid ItemsSource="{Binding Payments}" 
-                      AutoGenerateColumns="False" 
-                      CanUserAddRows="False" 
-                      SelectionMode="Single"
-                      Grid.Row="3"
-                      Grid.ColumnSpan="5"
-                      Margin="0,5,0,0"
-                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
-                      CanUserResizeRows="False"
-                      CanUserResizeColumns="False"
-                      SelectedItem="{Binding SelectedPayment}">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" 
-                                        Binding="{Binding Id}" 
-                                        Width="*"
-                                        IsReadOnly="True"/>
-                    <DataGridTemplateColumn Header="Payment Date" 
-                                           Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding PaymentDate, StringFormat=d}" 
-                                           VerticalAlignment="Center" 
-                                           Margin="2"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                        <DataGridTemplateColumn.CellEditingTemplate>
-                            <DataTemplate>
-                                <DatePicker SelectedDate="{Binding PaymentDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                            Style="{StaticResource DataGridDatePickerStyle}"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellEditingTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Amount" 
-                                        Binding="{Binding Amount, StringFormat=c, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                        Width="*"
-                                        IsReadOnly="False"/>
-                    <DataGridTemplateColumn Header="Method" 
-                                           Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding PaymentMethod}" 
-                                           VerticalAlignment="Center" 
-                                           Margin="2"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                        <DataGridTemplateColumn.CellEditingTemplate>
-                            <DataTemplate>
-                                <ComboBox SelectedItem="{Binding PaymentMethod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                          ItemsSource="{Binding Source={StaticResource PaymentMethodValues}}"
-                                          Style="{StaticResource DataGridComboBoxStyle}"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellEditingTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Invoice ID" 
-                                        Binding="{Binding InvoiceId}" 
-                                        Width="*"
-                                        IsReadOnly="True"/>
-                    <DataGridTextColumn Header="Remaining Amount" 
-                                        Binding="{Binding RemainingAmount, StringFormat=c}" 
-                                        Width="*"
-                                        IsReadOnly="True"/>
-                    <DataGridTemplateColumn Header="Action" Width="100">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Button Content="Save" Command="{Binding DataContext.SavePaymentCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            CommandParameter="{Binding}" Width="40" Margin="2" Style="{StaticResource DefaultButtonStyle}"/>
-                                    <Button Content="Delete" Command="{Binding DataContext.DeletePaymentCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                            CommandParameter="{Binding}" Width="40" Margin="2" Style="{StaticResource DefaultButtonStyle}"/>
+            <!-- Content Area -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="32">
+
+                    <!-- Quick Stats -->
+                    <Grid Margin="0,0,0,24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <materialDesign:Card Grid.Column="0" Style="{StaticResource QuickStatsCard}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <materialDesign:PackIcon Kind="CashMultiple" 
+                                                           Width="24" Height="24" 
+                                                           Foreground="{StaticResource SuccessBrush}"/>
+                                    <TextBlock Text="Total Payments" 
+                                             Style="{StaticResource BodyLarge}" 
+                                             Margin="12,0,0,0" 
+                                             VerticalAlignment="Center"/>
                                 </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+                                <TextBlock Text="{Binding Payments.Count}" 
+                                         Style="{StaticResource HeadlineMedium}" 
+                                         Foreground="{StaticResource SuccessBrush}" 
+                                         FontWeight="Bold"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+
+                        <materialDesign:Card Grid.Column="1" Style="{StaticResource QuickStatsCard}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <materialDesign:PackIcon Kind="FileDocument" 
+                                                           Width="24" Height="24" 
+                                                           Foreground="{StaticResource PrimaryBrush}"/>
+                                    <TextBlock Text="Pending Invoices" 
+                                             Style="{StaticResource BodyLarge}" 
+                                             Margin="12,0,0,0" 
+                                             VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding AvailableInvoices.Count}" 
+                                         Style="{StaticResource HeadlineMedium}" 
+                                         Foreground="{StaticResource PrimaryBrush}" 
+                                         FontWeight="Bold"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+
+                        <materialDesign:Card Grid.Column="2" Style="{StaticResource QuickStatsCard}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <materialDesign:PackIcon Kind="CurrencyUsd" 
+                                                           Width="24" Height="24" 
+                                                           Foreground="{StaticResource WarningBrush}"/>
+                                    <TextBlock Text="Remaining Amount" 
+                                             Style="{StaticResource BodyLarge}" 
+                                             Margin="12,0,0,0" 
+                                             VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding RemainingAmount, StringFormat='{}{0:C}'}" 
+                                         Style="{StaticResource HeadlineMedium}" 
+                                         Foreground="{StaticResource WarningBrush}" 
+                                         FontWeight="Bold"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+                    </Grid>
+
+                    <!-- Payment Form Section -->
+                    <materialDesign:Card Margin="0,0,0,24" 
+                                        Effect="{StaticResource Elevation2}">
+                        <StackPanel Margin="24">
+                            <!-- Section Header -->
+                            <Grid Margin="0,0,0,16">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="CreditCardPlus" 
+                                                           Foreground="{StaticResource PrimaryBrush}" 
+                                                           Width="24" Height="24" 
+                                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="Add New Payment" 
+                                             Style="{StaticResource TitleLarge}"
+                                             Margin="12,0,0,0" 
+                                             VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Form Grid -->
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Row 1: Payment Date & Amount -->
+                                <UniformGrid Grid.Row="0" Columns="2" Margin="0,0,0,16">
+                                    <StackPanel Margin="0,0,8,0">
+                                        <TextBlock Text="Payment Date *" 
+                                                 Style="{StaticResource LabelLarge}"
+                                                 Margin="0,0,0,8"/>
+                                        <DatePicker Style="{StaticResource MaterialDesignDatePicker}"
+                                                  materialDesign:HintAssist.Hint="Select payment date"
+                                                  materialDesign:HintAssist.IsFloating="False"
+                                                  SelectedDate="{Binding PaymentDate, Mode=TwoWay}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="8,0,0,0">
+                                        <TextBlock Text="Amount *" 
+                                                 Style="{StaticResource LabelLarge}"
+                                                 Margin="0,0,0,8"/>
+                                        <TextBox Style="{StaticResource OutlinedTextField}"
+                                               materialDesign:HintAssist.Hint="Enter payment amount"
+                                               materialDesign:HintAssist.IsFloating="False"
+                                               Text="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                </UniformGrid>
+
+                                <!-- Row 2: Payment Method & Invoice -->
+                                <UniformGrid Grid.Row="1" Columns="2" Margin="0,0,0,16">
+                                    <StackPanel Margin="0,0,8,0">
+                                        <TextBlock Text="Payment Method *" 
+                                                 Style="{StaticResource LabelLarge}"
+                                                 Margin="0,0,0,8"/>
+                                        <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                                materialDesign:HintAssist.Hint="Select payment method"
+                                                materialDesign:HintAssist.IsFloating="False"
+                          SelectedItem="{Binding PaymentMethod, Mode=TwoWay}"
+                                                ItemsSource="{Binding Source={StaticResource PaymentMethodValues}}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="8,0,0,0">
+                                        <TextBlock Text="Invoice *" 
+                                                 Style="{StaticResource LabelLarge}"
+                                                 Margin="0,0,0,8"/>
+                                        <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                                materialDesign:HintAssist.Hint="Select invoice"
+                                                materialDesign:HintAssist.IsFloating="False"
+                                                ItemsSource="{Binding AvailableInvoices}" 
+                                                DisplayMemberPath="Id" 
+                                                SelectedValuePath="Id" 
+                                                SelectedValue="{Binding SelectedInvoiceId, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                </UniformGrid>
+
+                                <!-- Action Button -->
+                                <Button Grid.Row="2" 
+                                      Command="{Binding AddPaymentCommand}"
+                        Style="{StaticResource ContainedButton}"
+                                      HorizontalAlignment="Right">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Plus" Width="20" Height="20"/>
+                                        <TextBlock Text="Add Payment" Margin="8,0,0,0"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </materialDesign:Card>
+
+                    <!-- Payments List Section -->
+                    <materialDesign:Card Effect="{StaticResource Elevation2}">
+                        <StackPanel Margin="24">
+                            <!-- Section Header -->
+                            <Grid Margin="0,0,0,16">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="FormatListBulleted" 
+                                                           Foreground="{StaticResource PrimaryBrush}" 
+                                                           Width="24" Height="24" 
+                                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="Payment History" 
+                                             Style="{StaticResource TitleLarge}"
+                                             Margin="12,0,0,0" 
+                                             VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Data Grid -->
+                            <Border Background="{StaticResource BackgroundBrush}" 
+                                  CornerRadius="{StaticResource RadiusS}" 
+                                  BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
+                                  BorderThickness="1">
+                                <DataGrid ItemsSource="{Binding Payments}" 
+                          AutoGenerateColumns="False" 
+                          CanUserAddRows="False" 
+                          SelectionMode="Single"
+                          Style="{StaticResource ModernDataGrid}"
+                                        ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
+                          CanUserResizeRows="False"
+                                        CanUserSortColumns="True"
+                                        SelectedItem="{Binding SelectedPayment}"
+                                        MinHeight="300">
+                                    <DataGrid.Columns>
+                                        <!-- Status Indicator -->
+                                        <DataGridTemplateColumn Header="" Width="50">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Border Background="{StaticResource Success100Brush}" 
+                                                          CornerRadius="12" 
+                                                          Width="24" 
+                                                          Height="24">
+                                                        <materialDesign:PackIcon Kind="Check" 
+                                                                               Width="14" 
+                                                                               Height="14" 
+                                                                               Foreground="{StaticResource SuccessBrush}"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTextColumn Header="Payment ID" 
+                                                          Binding="{Binding Id}" 
+                                                          Width="*"
+                                                          IsReadOnly="True"
+                                                          ElementStyle="{StaticResource BodyMedium}"/>
+
+                                        <DataGridTextColumn Header="Date" 
+                                                          Binding="{Binding PaymentDate, StringFormat=dd/MM/yyyy}" 
+                                                          Width="*"
+                                                          IsReadOnly="True"
+                                                          ElementStyle="{StaticResource BodyMedium}"/>
+
+                                        <DataGridTextColumn Header="Amount" 
+                                                          Binding="{Binding Amount, StringFormat='{}{0:C}'}" 
+                                                          Width="*"
+                                                          IsReadOnly="True"
+                                                          ElementStyle="{StaticResource BodyMedium}"/>
+
+                                        <DataGridTextColumn Header="Method" 
+                                                          Binding="{Binding PaymentMethod}" 
+                                            Width="*"
+                                                          IsReadOnly="True"
+                                                          ElementStyle="{StaticResource BodyMedium}"/>
+
+                                        <DataGridTextColumn Header="Invoice ID" 
+                                            Binding="{Binding InvoiceId}" 
+                                            Width="*"
+                                                          IsReadOnly="True"
+                                                          ElementStyle="{StaticResource BodyMedium}"/>
+
+                                        <DataGridTextColumn Header="Remaining" 
+                                                          Binding="{Binding RemainingAmount, StringFormat='{}{0:C}'}" 
+                                            Width="*"
+                                                          IsReadOnly="True"
+                                                          ElementStyle="{StaticResource BodyMedium}"/>
+
+                                        <!-- Actions Column -->
+                                        <DataGridTemplateColumn Header="Actions" Width="120">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" 
+                                                              HorizontalAlignment="Center">
+                                                        <Button ToolTip="Edit Payment" 
+                                                              Command="{Binding DataContext.SavePaymentCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                                              CommandParameter="{Binding}" 
+                                                              Style="{StaticResource IconButton}"
+                                                              Width="32" 
+                                                              Height="32"
+                                                              Margin="0,0,4,0">
+                                                            <materialDesign:PackIcon Kind="Pencil" 
+                                                                                   Width="16" 
+                                                                                   Height="16"
+                                                                                   Foreground="{StaticResource PrimaryBrush}"/>
+                                                        </Button>
+
+                                                        <Button ToolTip="Delete Payment" 
+                                                              Command="{Binding DataContext.DeletePaymentCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                                              CommandParameter="{Binding}" 
+                                                              Style="{StaticResource IconButton}"
+                                                              Width="32" 
+                                                              Height="32">
+                                                            <materialDesign:PackIcon Kind="Delete" 
+                                                                                   Width="16" 
+                                                                                   Height="16"
+                                                                                   Foreground="{StaticResource ErrorBrush}"/>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Border>
+                        </StackPanel>
+                    </materialDesign:Card>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
-    </Grid>
+    </materialDesign:Card>
 </UserControl>

@@ -135,6 +135,11 @@ namespace HotelManager.ViewModels
             Debug.WriteLine("PaymentViewModel: Constructor called, SavePaymentCommand initialized.");
         }
 
+        protected override async Task OnLoadedAsync()
+        {
+            await LoadDataAsync();
+        }
+
         public async Task LoadDataAsync()
         {
             try

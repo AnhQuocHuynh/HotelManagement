@@ -5,59 +5,403 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HotelManager.Views.StaffViews"
         xmlns:vm="clr-namespace:HotelManager.ViewModels"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="900" d:DesignWidth="1400"
+             Background="{StaticResource SurfaceGradient}">
+    
     <UserControl.DataContext>
         <vm:RoomViewModel/>
     </UserControl.DataContext>
     
-    <Border Background="White" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="2" CornerRadius="8">
-        <Grid Background="{StaticResource AccentBrush}">
-            <Border Background="{StaticResource PrimaryBrush}" Height="50" VerticalAlignment="Top">
-                <Grid>
-                    <TextBlock Text="Danh sách phòng" 
-                           FontSize="20" 
-                           FontWeight="Bold" 
-                           Foreground="White" 
-                           VerticalAlignment="Center" 
-                           HorizontalAlignment="Left" 
-                           Margin="20,0,0,0"/>
-                    <Button Content="Logout" 
+    <UserControl.Resources>
+        <!-- Quick Stats Card Style -->
+        <Style x:Key="QuickStatsCard" TargetType="materialDesign:Card">
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Effect" Value="{StaticResource Elevation1}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Effect" Value="{StaticResource Elevation2}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
+    <materialDesign:Card Effect="{StaticResource Elevation3}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header Section -->
+            <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" Height="80">
+                <Grid Margin="32">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Room Title and Info -->
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock Text="Room Management" 
+                                   Style="{StaticResource HeadlineLarge}" 
+                                   Foreground="White"/>
+                        <TextBlock Text="Manage hotel rooms, types, status and pricing" 
+                                   Style="{StaticResource BodyMedium}" 
+                                   Foreground="{StaticResource OnPrimary200Brush}" 
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Logout Button -->
+                    <Button Grid.Column="1" 
                         Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                        Width="80" 
-                        Height="30" 
-                        HorizontalAlignment="Right" 
-                        VerticalAlignment="Center" 
-                        Margin="0,0,20,0"
-                        Background="DarkRed"
-                        Foreground="White"/>
+                            Style="{StaticResource TextButton}"
+                            Background="{StaticResource ErrorBrush}"
+                            Foreground="White" 
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Logout" 
+                                                   Width="20" Height="20" 
+                                                   Margin="0,0,8,0"/>
+                            <TextBlock Text="Logout" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Button>
                 </Grid>
             </Border>
-            <Border Background="White" Margin="10,50,10,10" CornerRadius="8" BorderBrush="{StaticResource SecondaryBrush}" BorderThickness="1" VerticalAlignment="Top" Height="50">
+
+            <!-- Content Area -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="32">
+                    
+                    <!-- Quick Stats -->
+                    <Grid Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                        <materialDesign:Card Grid.Column="0" Style="{StaticResource QuickStatsCard}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <materialDesign:PackIcon Kind="Hotel" 
+                                                           Width="24" Height="24" 
+                                                           Foreground="{StaticResource PrimaryBrush}"/>
+                                    <TextBlock Text="Total Rooms" 
+                                             Style="{StaticResource BodyLarge}" 
+                                             Margin="12,0,0,0" 
+                                             VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding Rooms.Count}" 
+                                         Style="{StaticResource HeadlineMedium}" 
+                                         Foreground="{StaticResource PrimaryBrush}" 
+                                         FontWeight="Bold"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+                        
+                        <materialDesign:Card Grid.Column="1" Style="{StaticResource QuickStatsCard}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <materialDesign:PackIcon Kind="CheckCircle" 
+                                                           Width="24" Height="24" 
+                                                           Foreground="{StaticResource SuccessBrush}"/>
+                                    <TextBlock Text="Available" 
+                                             Style="{StaticResource BodyLarge}" 
+                                             Margin="12,0,0,0" 
+                                             VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="12" 
+                                         Style="{StaticResource HeadlineMedium}" 
+                                         Foreground="{StaticResource SuccessBrush}" 
+                                         FontWeight="Bold"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+                        
+                        <materialDesign:Card Grid.Column="2" Style="{StaticResource QuickStatsCard}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <materialDesign:PackIcon Kind="AccountMultiple" 
+                                                           Width="24" Height="24" 
+                                                           Foreground="{StaticResource WarningBrush}"/>
+                                    <TextBlock Text="Occupied" 
+                                             Style="{StaticResource BodyLarge}" 
+                                             Margin="12,0,0,0" 
+                                             VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="8" 
+                                         Style="{StaticResource HeadlineMedium}" 
+                                         Foreground="{StaticResource WarningBrush}" 
+                                         FontWeight="Bold"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+                        
+                        <materialDesign:Card Grid.Column="3" Style="{StaticResource QuickStatsCard}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <materialDesign:PackIcon Kind="Tools" 
+                                                           Width="24" Height="24" 
+                                                           Foreground="{StaticResource ErrorBrush}"/>
+                                    <TextBlock Text="Maintenance" 
+                                             Style="{StaticResource BodyLarge}" 
+                                             Margin="12,0,0,0" 
+                                             VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="2" 
+                                         Style="{StaticResource HeadlineMedium}" 
+                                         Foreground="{StaticResource ErrorBrush}" 
+                                         FontWeight="Bold"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+                    </Grid>
+
+                    <!-- Add Room Form Section -->
+                    <materialDesign:Card Margin="0,0,0,24" 
+                                        Effect="{StaticResource Elevation2}">
+                        <StackPanel Margin="32">
+                            <!-- Section Header -->
+                            <Grid Margin="0,0,0,16">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Hotel" 
+                                                           Foreground="{StaticResource PrimaryBrush}" 
+                                                           Width="24" Height="24" 
+                                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="Add New Room" 
+                                             Style="{StaticResource TitleLarge}"
+                                             Margin="12,0,0,0" 
+                                             VerticalAlignment="Center"/>
+                                </StackPanel>
+            </Grid>
+
+                            <!-- Form Grid -->
                 <Grid>
-                    <TextBlock Text="Tìm kiếm phòng:" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-                    <TextBox Text="{Binding RoomFilter, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,0" Background="Transparent" VerticalAlignment="Bottom" Height="30" BorderThickness="0"/>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Row 1: Room Number & Type -->
+                                <UniformGrid Grid.Row="0" Columns="2" Margin="0,0,0,16">
+                                    <StackPanel Margin="0,0,8,0">
+                                        <TextBlock Text="Room Number *" 
+                                                 Style="{StaticResource LabelLarge}"
+                                                 Margin="0,0,0,8"/>
+                                        <TextBox Style="{StaticResource OutlinedTextField}"
+                                               materialDesign:HintAssist.Hint="Enter room number"
+                                               materialDesign:HintAssist.IsFloating="False"
+                                               Text="{Binding RoomNumber, Mode=TwoWay}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="8,0,0,0">
+                                        <TextBlock Text="Room Type *" 
+                                                 Style="{StaticResource LabelLarge}"
+                                                 Margin="0,0,0,8"/>
+                                        <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                                materialDesign:HintAssist.Hint="Select room type"
+                                                materialDesign:HintAssist.IsFloating="False"
+                                                ItemsSource="{Binding RoomTypeOptions}" 
+                                                SelectedItem="{Binding RoomType, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                </UniformGrid>
+
+                                <!-- Row 2: Status & Price -->
+                                <UniformGrid Grid.Row="1" Columns="3" Margin="0,0,0,16">
+                                    <StackPanel Margin="0,0,8,0">
+                                        <TextBlock Text="Status *" 
+                                                 Style="{StaticResource LabelLarge}"
+                                                 Margin="0,0,0,8"/>
+                                        <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                                materialDesign:HintAssist.Hint="Select status"
+                                                materialDesign:HintAssist.IsFloating="False"
+                                                ItemsSource="{Binding RoomStatusOptions}" 
+                                                SelectedItem="{Binding RoomStatus, Mode=TwoWay}"/>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="8,0">
+                                        <TextBlock Text="Price per Night *" 
+                                                 Style="{StaticResource LabelLarge}"
+                                                 Margin="0,0,0,8"/>
+                                        <TextBox Style="{StaticResource OutlinedTextField}"
+                                               materialDesign:HintAssist.Hint="Enter price"
+                                               materialDesign:HintAssist.IsFloating="False"
+                                               Text="{Binding PricePerNight, Mode=TwoWay}"/>
+                                    </StackPanel>
+
+                                    <!-- Action Button -->
+                                    <StackPanel Margin="8,0,0,0" VerticalAlignment="Bottom">
+                                        <Button Command="{Binding AddCommand}"
+                                              Style="{StaticResource ContainedButton}"
+                                              HorizontalAlignment="Stretch">
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="Hotel" Width="20" Height="20"/>
+                                                <TextBlock Text="Add Room" Margin="8,0,0,0"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </UniformGrid>
                 </Grid>
-            </Border>
-            <DataGrid ItemsSource="{Binding Rooms}"
+                        </StackPanel>
+            </materialDesign:Card>
+
+                    <!-- Rooms List Section -->
+                    <materialDesign:Card Effect="{StaticResource Elevation2}">
+                        <StackPanel Margin="24">
+                            <!-- Section Header with Search -->
+                            <Grid Margin="0,0,0,16">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="FormatListBulleted" 
+                                                           Foreground="{StaticResource PrimaryBrush}" 
+                                                           Width="24" Height="24" 
+                                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="Room List" 
+                                             Style="{StaticResource TitleLarge}"
+                                             Margin="12,0,0,0" 
+                                             VerticalAlignment="Center"/>
+                                </StackPanel>
+                                
+                                <!-- Search Box -->
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <TextBox Style="{StaticResource OutlinedTextField}"
+                                           materialDesign:HintAssist.Hint="Search rooms..."
+                                           materialDesign:HintAssist.IsFloating="False"
+                                           Width="250"
+                                           Text="{Binding RoomFilter, UpdateSourceTrigger=PropertyChanged}"/>
+                                    
+                                    <Button Style="{StaticResource IconButton}"
+                                          ToolTip="Search"
+                                          Margin="8,0,0,0">
+                                        <materialDesign:PackIcon Kind="Magnify" 
+                                                               Width="20" 
+                                                               Height="20"/>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <!-- Data Grid -->
+                            <Border Background="{StaticResource BackgroundBrush}" 
+                                  CornerRadius="{StaticResource RadiusS}" 
+                                  BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
+                                  BorderThickness="1">
+                                <DataGrid ItemsSource="{Binding Rooms}" 
                       AutoGenerateColumns="False" 
                       CanUserAddRows="False"               
                       SelectionMode="Single"
+                                        Style="{StaticResource ModernDataGrid}"
+                                        ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
+                                        CanUserResizeRows="False"
+                                        CanUserSortColumns="True"
                       SelectedItem="{Binding SelectedRoom}"
-                      Margin="2,100,2,50"
-                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
-                      CanUserResizeRows="False"
-                      CanUserResizeColumns="False"
-                      IsReadOnly="True">
+                                        MinHeight="400">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Số phòng" Binding="{Binding RoomNumber}" Width="*"/>
-                    <DataGridTextColumn Header="Trạng thái" Binding="{Binding RoomStatusDisplay}" Width="*"/>
-                    <DataGridTextColumn Header="Loại phòng" Binding="{Binding RoomType}" Width="*"/>
-                    <DataGridTextColumn Header="Giá mỗi đêm" Binding="{Binding PricePerNight, StringFormat='{}{0:#,##0} ₫'}" Width="*"/>
+                                        <!-- Status Indicator -->
+                                        <DataGridTemplateColumn Header="" Width="50">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Border CornerRadius="12" 
+                                                          Width="24" 
+                                                          Height="24">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background" Value="{StaticResource Success100Brush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding RoomStatusDisplay}" Value="Occupied">
+                                                                        <Setter Property="Background" Value="{StaticResource Warning100Brush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding RoomStatusDisplay}" Value="Maintenance">
+                                                                        <Setter Property="Background" Value="{StaticResource Error100Brush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <materialDesign:PackIcon Width="14" Height="14" 
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center">
+                                                            <materialDesign:PackIcon.Style>
+                                                                <Style TargetType="materialDesign:PackIcon">
+                                                                    <Setter Property="Kind" Value="Check"/>
+                                                                    <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding RoomStatusDisplay}" Value="Occupied">
+                                                                            <Setter Property="Kind" Value="Account"/>
+                                                                            <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding RoomStatusDisplay}" Value="Maintenance">
+                                                                            <Setter Property="Kind" Value="Tools"/>
+                                                                            <Setter Property="Foreground" Value="{StaticResource ErrorBrush}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </materialDesign:PackIcon.Style>
+                                                        </materialDesign:PackIcon>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTextColumn Header="Room Number" 
+                                                          Binding="{Binding RoomNumber}" 
+                                                          Width="*"
+                                                          ElementStyle="{StaticResource BodyMedium}"/>
+                                        
+                                        <DataGridTextColumn Header="Room Type" 
+                                                          Binding="{Binding RoomType}" 
+                                                          Width="*"
+                                                          ElementStyle="{StaticResource BodyMedium}"/>
+                                        
+                                        <DataGridTextColumn Header="Status" 
+                                                          Binding="{Binding RoomStatusDisplay}" 
+                                                          Width="*"
+                                                          ElementStyle="{StaticResource BodyMedium}"/>
+                                        
+                                        <DataGridTextColumn Header="Price per Night" 
+                                                          Binding="{Binding PricePerNight, StringFormat='{}{0:#,##0} ₫'}" 
+                                                          Width="*"
+                                                          ElementStyle="{StaticResource BodyMedium}"/>
+
+                                        <!-- Actions Column -->
+                                        <DataGridTemplateColumn Header="Actions" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" 
+                                                              HorizontalAlignment="Center">
+                                                        <Button ToolTip="Edit Room" 
+                                                              Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                                              CommandParameter="{Binding}" 
+                                                              Style="{StaticResource IconButton}"
+                                                              Width="32" 
+                                                              Height="32"
+                                                              Margin="0,0,4,0">
+                                                            <materialDesign:PackIcon Kind="Pencil" 
+                                                                                   Width="16" 
+                                                                                   Height="16"
+                                                                                   Foreground="{StaticResource PrimaryBrush}"/>
+                                                        </Button>
+                                                        
+                                                        <Button ToolTip="Delete Room" 
+                                                              Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                                              CommandParameter="{Binding}" 
+                                                              Style="{StaticResource IconButton}"
+                                                              Width="32" 
+                                                              Height="32">
+                                                            <materialDesign:PackIcon Kind="Delete" 
+                                                                                   Width="16" 
+                                                                                   Height="16"
+                                                                                   Foreground="{StaticResource ErrorBrush}"/>
+                                                        </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
-                 
             </DataGrid>
-            <Button Content="Chỉnh sửa" Command="{Binding UpdateCommand}" Style="{StaticResource DefaultButtonStyle}" Width="80" Height="30" Margin="0,0,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+                            </Border>
+                        </StackPanel>
+                    </materialDesign:Card>
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
-    </Border>
+    </materialDesign:Card>
 </UserControl>

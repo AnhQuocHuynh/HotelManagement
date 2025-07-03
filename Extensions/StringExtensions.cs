@@ -5,6 +5,9 @@ namespace HotelManager.Extensions
 {
     public static class StringExtensions
     {
+        /// <summary>
+        /// Checks if the string is a valid email address
+        /// </summary>
         public static bool IsValidEmail(this string email)
         {
             if (string.IsNullOrWhiteSpace(email))
@@ -12,9 +15,8 @@ namespace HotelManager.Extensions
 
             try
             {
-                return Regex.IsMatch(email,
-                    @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
-                    RegexOptions.IgnoreCase);
+                var emailRegex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+                return emailRegex.IsMatch(email);
             }
             catch
             {
@@ -22,12 +24,27 @@ namespace HotelManager.Extensions
             }
         }
 
+        /// <summary>
+        /// Checks if the string is a valid phone number (Vietnamese format)
+        /// </summary>
         public static bool IsValidPhoneNumber(this string phoneNumber)
         {
             if (string.IsNullOrWhiteSpace(phoneNumber))
                 return false;
 
-            return Regex.IsMatch(phoneNumber, @"^\+?[0-9]{10,15}$");
+            try
+            {
+                // Remove spaces and special characters
+                var cleanPhone = phoneNumber.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
+                
+                // Vietnamese phone number format: 10-11 digits starting with 0
+                var phoneRegex = new Regex(@"^0[0-9]{8,10}$");
+                return phoneRegex.IsMatch(cleanPhone);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static string ToTitleCase(this string text)

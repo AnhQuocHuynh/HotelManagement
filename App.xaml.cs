@@ -10,6 +10,9 @@ using Serilog;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using HotelManager.Interfaces;
+using HotelManager.Services;
+using MaterialDesignThemes.Wpf;
+using HotelManager.Repositories;
 
 namespace HotelManager;
 
@@ -71,7 +74,9 @@ public partial class App : Application
 
                 // Đăng ký DbContext
                 services.AddDbContext<HotelDbContext>(options =>
-                    options.UseSqlServer(Config.DatabaseConfig.GetConnectionString()));
+                    options.UseSqlServer(
+                        Config.DatabaseConfig.GetConnectionString(),
+                        sql => sql.MigrationsAssembly("HotelManager.Core")));
 
                 // 📊 Enhanced logging services
                 services.AddLogging(builder =>
@@ -81,22 +86,22 @@ public partial class App : Application
                 });
 
                 // 🏗️ Repository và Unit of Work
-                services.AddScoped<HotelManager.Interfaces.IUnitOfWork, HotelManager.Repositories.UnitOfWork>();
-                services.AddScoped(typeof(HotelManager.Interfaces.IRepository<>), typeof(HotelManager.Repositories.Repository<>));
+                services.AddScoped<IUnitOfWork, HotelManager.Repositories.UnitOfWork>();
+                services.AddScoped(typeof(IRepository<>), typeof(HotelManager.Repositories.Repository<>));
                 
                 // 🔍 Monitoring & Audit Services
                 services.AddScoped<HotelManager.Interfaces.IAuditService, HotelManager.Services.AuditService>();
 
                 // 🛎️ Business Services with enhanced audit support
-                services.AddScoped<HotelManager.Services.BookingService>();
-                services.AddScoped<HotelManager.Services.RoomService>();
-                services.AddScoped<HotelManager.Services.CustomerService>();
-                services.AddScoped<HotelManager.Services.PaymentService>();
-                services.AddScoped<HotelManager.Services.InvoiceService>();
+                services.AddScoped<BookingService>();
+                services.AddScoped<CustomerService>();
+                services.AddScoped<EmployeeService>();
+                services.AddScoped<RoomService>();
+                services.AddScoped<PaymentService>();
+                services.AddScoped<InvoiceService>();
+                services.AddScoped<UserAccountService>();
                 services.AddScoped<HotelManager.Services.CleanRoomService>();
                 services.AddScoped<HotelManager.Services.MaintenanceService>();
-                services.AddScoped<HotelManager.Services.EmployeeService>();
-                services.AddScoped<HotelManager.Services.UserAccountService>();
                 services.AddScoped<HotelManager.Services.DialogService>();
                 
                 // 📈 Manager Services
@@ -112,7 +117,7 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.TechnicianViewModel>();
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.ManagerViewModel>();
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.ReceptionistViewModel>();
-                services.AddTransient<HotelManager.ViewModels.AdminViewModel>();
+                services.AddTransient<ViewModels.Admin.AdminViewModel>();
                 services.AddTransient<HotelManager.ViewModels.EmployeeEditViewModel>();
                 services.AddTransient<HotelManager.ViewModels.RoomInfoEditViewModel>();
                 services.AddTransient<HotelManager.ViewModels.Common.LoginViewModel>();
@@ -124,6 +129,13 @@ public partial class App : Application
                 // Interface mappings for staff services
                 services.AddScoped<HotelManager.Interfaces.ICleanRoomService, HotelManager.Services.CleanRoomService>();
                 services.AddScoped<HotelManager.Interfaces.IMaintenanceService, HotelManager.Services.MaintenanceService>();
+
+                // Register new services for Phase 4
+                services.AddSingleton<ISnackbarMessageQueue>(provider => new SnackbarMessageQueue(TimeSpan.FromSeconds(3)));
+                services.AddSingleton<INotificationService, NotificationService>();
+                services.AddSingleton<INavigationService, NavigationService>();
+
+                services.AddScoped<IDialogService, DialogService>();
 
                 Log.Information("✅ Dependency Injection Services Configured Successfully");
             })

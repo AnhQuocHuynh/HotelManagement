@@ -119,7 +119,8 @@ namespace HotelManager.ViewModels
             }
         }
 
-        
+        public IEnumerable<RoomStatus> RoomStatusOptions { get; } = Enum.GetValues(typeof(RoomStatus)).Cast<RoomStatus>();
+        public IEnumerable<RoomType> RoomTypeOptions { get; } = Enum.GetValues(typeof(RoomType)).Cast<RoomType>();
 
         public RoomViewModel(RoomService roomService, DialogService dialogService)
         {

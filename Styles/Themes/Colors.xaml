@@ -1,0 +1,78 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Primary Colors -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="#6200EA"/>
+    <SolidColorBrush x:Key="Primary100Brush" Color="#E8E1FF"/>
+    <SolidColorBrush x:Key="Primary200Brush" Color="#C8B5FF"/>
+    <SolidColorBrush x:Key="Primary500Brush" Color="#8C5CF6"/>
+    <SolidColorBrush x:Key="Primary700Brush" Color="#6200EA"/>
+    
+    <!-- Secondary Colors -->
+    <SolidColorBrush x:Key="SecondaryBrush" Color="#03DAC5"/>
+    <SolidColorBrush x:Key="Secondary100Brush" Color="#F0FDFC"/>
+    <SolidColorBrush x:Key="Secondary500Brush" Color="#03DAC5"/>
+    
+    <!-- Surface & Background -->
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="BackgroundBrush" Color="#FAFAFA"/>
+    
+    <!-- Gradients -->
+    <LinearGradientBrush x:Key="SurfaceGradient" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#F8FAFC" Offset="0"/>
+        <GradientStop Color="#F1F5F9" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="PrimaryGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#667eea" Offset="0"/>
+        <GradientStop Color="#764ba2" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <!-- Semantic Colors -->
+    <SolidColorBrush x:Key="SuccessBrush" Color="#10B981"/>
+    <SolidColorBrush x:Key="Success100Brush" Color="#ECFDF5"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="#F59E0B"/>
+    <SolidColorBrush x:Key="Warning100Brush" Color="#FFFBEB"/>
+    <SolidColorBrush x:Key="ErrorBrush" Color="#EF4444"/>
+    <SolidColorBrush x:Key="Error100Brush" Color="#FEF2F2"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="#8B5CF6"/>
+    <SolidColorBrush x:Key="Accent500Brush" Color="#8B5CF6"/>
+    
+    <!-- Text Colors -->
+    <SolidColorBrush x:Key="OnPrimaryBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="OnPrimary200Brush" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="OnSurfaceBrush" Color="#1F2937"/>
+    <SolidColorBrush x:Key="OnSurfaceVariantBrush" Color="#6B7280"/>
+    <SolidColorBrush x:Key="OnSurface600Brush" Color="#757575"/>
+    
+    <!-- Additional Colors for Compatibility -->
+    <SolidColorBrush x:Key="MaterialDesignPaper" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="MaterialDesignCardBackground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="MaterialDesignToolBarBackground" Color="#6200EA"/>
+    <SolidColorBrush x:Key="MaterialDesignBody" Color="#1F2937"/>
+    <SolidColorBrush x:Key="MaterialDesignBodyLight" Color="#6B7280"/>
+    <SolidColorBrush x:Key="MaterialDesignColumnHeader" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="MaterialDesignCheckBoxOff" Color="#6B7280"/>
+    <SolidColorBrush x:Key="MaterialDesignCheckBoxDisabled" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="MaterialDesignTextBoxBorder" Color="#D1D5DB"/>
+    <SolidColorBrush x:Key="MaterialDesignDivider" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="MaterialDesignSelection" Color="#E8E1FF"/>
+    <SolidColorBrush x:Key="MaterialDesignToolForeground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="MaterialDesignLightForeground" Color="#1F2937"/>
+    <SolidColorBrush x:Key="MaterialDesignDarkForeground" Color="#FFFFFF"/>
+    
+    <!-- Validation Colors -->
+    <SolidColorBrush x:Key="MaterialDesignValidationErrorBrush" Color="#EF4444"/>
+    
+    <!-- Data Grid Colors -->
+    <SolidColorBrush x:Key="MaterialDesignDataGridRowHoverBackground" Color="#F8FAFC"/>
+    
+    <!-- Snackbar Colors -->
+    <SolidColorBrush x:Key="MaterialDesignSnackbarBackground" Color="#374151"/>
+    <SolidColorBrush x:Key="MaterialDesignSnackbarMouseOver" Color="#4B5563"/>
+    <SolidColorBrush x:Key="MaterialDesignSnackbarRipple" Color="#6B7280"/>
+    
+    <!-- Dark Separator -->
+    <SolidColorBrush x:Key="MaterialDesignDarkSeparatorBackground" Color="#F3F4F6"/>
+    
+</ResourceDictionary> 

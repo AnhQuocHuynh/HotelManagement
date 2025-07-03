@@ -25,22 +25,5 @@ namespace HotelManager.Views
         {
             InitializeComponent();
         }
-
-        private async void UserControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Debug.WriteLine("PaymentView: UserControl_Loaded started");
-                if (DataContext is PaymentViewModel viewModel)
-                {
-                    await viewModel.LoadDataAsync();
-                    Debug.WriteLine("PaymentView: Data loaded successfully");
-                }
-            }
-            catch (System.Exception ex)
-            {
-                Debug.WriteLine($"PaymentView: Load error - {ex.Message}");
-            }
-        }
     }
 }

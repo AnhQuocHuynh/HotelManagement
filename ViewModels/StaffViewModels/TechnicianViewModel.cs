@@ -9,6 +9,7 @@ using HotelManager.Models;
 using HotelManager.Models.Enums;
 using HotelManager.Services;
 using Microsoft.Win32;
+using System.ComponentModel;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -40,6 +41,18 @@ namespace HotelManager.ViewModels.StaffViewModels
             SelectCompletionImageCommand = new RelayCommand<MaintenanceReport>(SelectCompletionImage);
 
             LoadMaintenanceReports();
+        }
+
+        public TechnicianViewModel() : base()
+        {
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            {
+                // Design-time: mock or empty data
+            }
+            else
+            {
+                // Runtime: resolve dependencies as needed
+            }
         }
 
         private async void LoadMaintenanceReports()

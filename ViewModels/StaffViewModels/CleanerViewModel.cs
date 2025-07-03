@@ -11,6 +11,8 @@ using HotelManager.Interfaces;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
 using HotelManager.Services;
+using System.Diagnostics;
+using System.ComponentModel;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -58,6 +60,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand SendDamageReportCommand { get; }
         public ICommand RemoveImageCommand { get; }
         public ICommand RefreshDamageReportHistoryCommand { get; }
+        public ICommand ViewImageCommand { get; }
 
         public CleanerViewModel(ICleanRoomService cleanroomService)
         {
@@ -69,9 +72,22 @@ namespace HotelManager.ViewModels.StaffViewModels
             SendDamageReportCommand = new RelayCommand(SendDamageReport);
             RemoveImageCommand = new RelayCommand<string>(RemoveImage);
             RefreshDamageReportHistoryCommand = new RelayCommand(async () => await LoadDamageReportHistoryAsync());
+            ViewImageCommand = new RelayCommand<string>(ViewImage);
 
             // sequential async initialization to avoid concurrent DbContext operations
             _ = InitializeAsync();
+        }
+
+        public CleanerViewModel() : base()
+        {
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            {
+                // Design-time: mock or empty data
+            }
+            else
+            {
+                // Runtime: resolve dependencies as needed
+            }
         }
 
         private async Task InitializeAsync()
@@ -197,6 +213,21 @@ namespace HotelManager.ViewModels.StaffViewModels
             catch (Exception ex)
             {
                 MessageBox.Show($"Lỗi khi tải lịch sử báo cáo: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ViewImage(string imagePath)
+        {
+            if (!string.IsNullOrWhiteSpace(imagePath))
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(imagePath) { UseShellExecute = true });
+                }
+                catch
+                {
+                    MessageBox.Show($"Cannot open image: {imagePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
     }

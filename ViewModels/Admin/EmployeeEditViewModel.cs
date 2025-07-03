@@ -39,6 +39,7 @@ namespace HotelManager.ViewModels
                 FullName = employee.FullName,
                 Email = employee.Email,
                 PhoneNumber = employee.PhoneNumber,
+                CCCD = employee.CCCD,
                 HireDate = employee.HireDate,
                 Position = employee.Position,
                 UserAccount = employee.UserAccount
@@ -69,6 +70,7 @@ namespace HotelManager.ViewModels
             _originalEmp.FullName = EditableEmployee.FullName;
             _originalEmp.Email = EditableEmployee.Email;
             _originalEmp.PhoneNumber = EditableEmployee.PhoneNumber;
+            _originalEmp.CCCD = EditableEmployee.CCCD;
             _originalEmp.HireDate = EditableEmployee.HireDate;
             _originalEmp.Position = EditableEmployee.Position;
 

@@ -6,15 +6,23 @@
              xmlns:local="clr-namespace:HotelManager.Views.StaffViews"
              xmlns:enums="clr-namespace:HotelManager.Models.Enums;assembly=HotelManager.Core"
              xmlns:vm="clr-namespace:HotelManager.ViewModels.StaffViewModels"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:ReceptionistViewModel, IsDesignTimeCreatable=True}"
-             d:DesignHeight="450" d:DesignWidth="800"
-             Loaded="UserControl_Loaded">
+             d:DesignHeight="900" d:DesignWidth="1400">
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
     <UserControl.DataContext>
         <vm:ReceptionistViewModel/>
     </UserControl.DataContext>
+    
     <UserControl.Resources>
         <!-- ObjectDataProvider cho BookingStatus -->
         <ObjectDataProvider x:Key="BookingStatusEnum" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
@@ -34,177 +42,493 @@
                 <x:Type TypeName="enums:RoomType"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+
+        <!-- Quick Stats Card Style -->
+        <Style x:Key="QuickStatsCard" TargetType="materialDesign:Card">
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Effect" Value="{StaticResource Elevation1}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Effect" Value="{StaticResource Elevation2}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Section Header Style -->
+        <Style x:Key="SectionHeader" TargetType="TextBlock" BasedOn="{StaticResource TitleLarge}">
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
     </UserControl.Resources>
-    <Grid Background="{StaticResource AccentBrush}">
-        <!-- Header with title and logout button -->
-        <Border Background="{StaticResource PrimaryBrush}" Height="50" VerticalAlignment="Top">
+
+    <Grid Background="{StaticResource SurfaceGradient}" Margin="32">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="32">
+                
+                <!-- Header Section -->
+                <materialDesign:Card Margin="0,0,0,24">
+                    <Border Background="{StaticResource PrimaryGradient}" 
+                            CornerRadius="{StaticResource RadiusM}" 
+                            Padding="32"
+                            Effect="{StaticResource Elevation2}">
             <Grid>
-                <TextBlock Text="Receptionist Dashboard" 
-                           FontSize="20" 
-                           FontWeight="Bold" 
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Welcome Section -->
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Border Background="White" 
+                                        CornerRadius="30" 
+                                        Width="60" 
+                                        Height="60" 
+                                        Margin="0,0,16,0">
+                                    <materialDesign:PackIcon Kind="Bell" 
+                                                             Foreground="{StaticResource PrimaryBrush}" 
+                                                             Width="32" 
+                                                             Height="32"
+                                                             HorizontalAlignment="Center"
+                                                             VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Hello! Receptionist" 
+                                               Style="{StaticResource BodyLarge}"
+                                               Foreground="White" 
+                                               Opacity="0.9"/>
+                                    <TextBlock Text="Booking Management" 
+                                               Style="{StaticResource HeadlineMedium}"
+                                               Foreground="White" 
+                                               FontWeight="Bold"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Quick Stats -->
+                            <StackPanel Grid.Column="1" 
+                                        Orientation="Horizontal" 
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center">
+                                <Border Background="White" 
+                                        CornerRadius="{StaticResource RadiusS}" 
+                                        Padding="12,8" 
+                                        Margin="8,0"
+                                        Opacity="0.9">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="CalendarCheck" 
+                                                                 Foreground="{StaticResource PrimaryBrush}" 
+                                                                 Width="20" 
+                                                                 Height="20" 
+                                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding TotalBookings, StringFormat='{}{0} Bookings'}" 
+                                                   Style="{StaticResource LabelLarge}"
+                                                   Foreground="{StaticResource PrimaryBrush}" 
+                                                   FontWeight="SemiBold"
+                                                   Margin="8,0,0,0" 
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <Border Background="White" 
+                                        CornerRadius="{StaticResource RadiusS}" 
+                                        Padding="12,8" 
+                                        Margin="8,0"
+                                        Opacity="0.9">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="BedKingOutline" 
+                                                                 Foreground="{StaticResource SuccessBrush}" 
+                                                                 Width="20" 
+                                                                 Height="20" 
+                                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding AvailableRoomsCount, StringFormat='{}{0} Rooms Available'}" 
+                                                   Style="{StaticResource LabelLarge}"
+                                                   Foreground="{StaticResource SuccessBrush}" 
+                                                   FontWeight="SemiBold"
+                                                   Margin="8,0,0,0" 
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Action Buttons -->
+                            <StackPanel Grid.Column="2" 
+                                        Orientation="Horizontal" 
+                                        VerticalAlignment="Center">
+                                <Button Content="Reports"
+                                        Style="{StaticResource OutlinedButton}"
                            Foreground="White" 
-                           VerticalAlignment="Center" 
-                           HorizontalAlignment="Left" 
-                           Margin="20,0,0,0"/>
-                <Button Content="Logout" 
+                                        BorderBrush="White"
+                                        Margin="0,0,12,0"
+                                        ToolTip="View reports">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="Transparent"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="{StaticResource RadiusS}"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                                
+                                <Button Content="Logout" 
                         Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                        Width="80" 
-                        Height="30" 
-                        HorizontalAlignment="Right" 
-                        VerticalAlignment="Center" 
-                        Margin="0,0,20,0"
-                        Background="DarkRed"
-                        Foreground="White"/>
+                                        Style="{StaticResource ContainedButton}"
+                                        Background="White"
+                                        Foreground="{StaticResource PrimaryBrush}"
+                                        FontWeight="SemiBold"/>
+                            </StackPanel>
             </Grid>
         </Border>
+                </materialDesign:Card>
 
-        <!-- Input Controls -->
-        <Grid Margin="10,60,10,10">
+                <!-- Booking Form Section -->
+                <materialDesign:Card Padding="24" 
+                                     Margin="0,0,0,24"
+                                     Effect="{StaticResource Elevation2}">
+                    <StackPanel>
+                        <!-- Section Header -->
+                        <Grid Margin="0,0,0,24">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="CalendarPlus" 
+                                                         Foreground="{StaticResource PrimaryBrush}" 
+                                                         Width="24" 
+                                                         Height="24" 
+                                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="New Booking" 
+                                           Style="{StaticResource SectionHeader}"
+                                           Margin="12,0,0,0" 
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <Button Style="{StaticResource TextButton}"
+                                    HorizontalAlignment="Right"
+                                    Command="{Binding RefreshCommand}">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Refresh" 
+                                                                 Width="16" 
+                                                                 Height="16" 
+                                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Text="Refresh" 
+                                                   Margin="4,0,0,0" 
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+                        </Grid>
+
+                        <!-- Customer Information -->
+                        <TextBlock Text="Customer Information" 
+                                   Style="{StaticResource HeadlineSmall}"
+                                   Margin="0,0,0,16"/>
+                        
+                        <UniformGrid Columns="3" Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,8,0">
+                                <TextBlock Text="Full Name *" 
+                                           Style="{StaticResource LabelLarge}"
+                                           Margin="0,0,0,8"/>
+                                <TextBox Style="{StaticResource OutlinedTextField}"
+                                         materialDesign:HintAssist.Hint="Enter customer full name"
+                                         materialDesign:HintAssist.IsFloating="False"
+                                         Text="{Binding CustomerFullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="8,0">
+                                <TextBlock Text="ID Card *" 
+                                           Style="{StaticResource LabelLarge}"
+                                           Margin="0,0,0,8"/>
+                                <TextBox Style="{StaticResource OutlinedTextField}"
+                                         materialDesign:HintAssist.Hint="Enter ID number"
+                                         materialDesign:HintAssist.IsFloating="False"
+                                         Text="{Binding CustomerCCCD, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+
+                            <StackPanel Margin="8,0,0,0">
+                                <TextBlock Text="Phone Number *" 
+                                           Style="{StaticResource LabelLarge}"
+                                           Margin="0,0,0,8"/>
+                                <TextBox Style="{StaticResource OutlinedTextField}"
+                                         materialDesign:HintAssist.Hint="Enter phone number"
+                                         materialDesign:HintAssist.IsFloating="False"
+                                         Text="{Binding CustomerPhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </UniformGrid>
+
+                        <!-- Booking Information -->
+                        <TextBlock Text="Booking Information" 
+                                   Style="{StaticResource HeadlineSmall}"
+                                   Margin="0,16,0,16"/>
+                        
+                        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- Labels Row 1 -->
                 <RowDefinition Height="Auto"/>
-                <!-- Inputs Row 1 -->
-                <RowDefinition Height="Auto"/>
-                <!-- Labels Row 2 + Add Button -->
-                <RowDefinition Height="Auto"/>
-                <!-- Inputs Row 2 -->
-                <RowDefinition Height="Auto"/>
-                <!-- Empty Row -->
-                <RowDefinition Height="*"/>
-                <!-- DataGrid -->
             </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
 
-            <!-- Labels Row 1 -->
-            <TextBlock Text="Full Name:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <TextBlock Text="CCCD:" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <TextBlock Text="Phone Number:" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <TextBlock Text="Customer Type:" Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <TextBlock Text="Room Type:" Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-
-            <!-- Inputs Row 1 -->
-            <TextBox x:Name="FullNameTextBox" Grid.Row="1" Grid.Column="0" Height="30" Margin="0,0,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding CustomerFullName, Mode=TwoWay}"/>
-            <TextBox x:Name="CCCDTextBox" Grid.Row="1" Grid.Column="1" Height="30" Margin="0,0,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding CustomerCCCD, Mode=TwoWay}"/>
-            <TextBox x:Name="PhoneNumberTextBox" Grid.Row="1" Grid.Column="2" Height="30" Margin="0,0,5,5" Style="{StaticResource DefaultTextBoxStyle}" Text="{Binding CustomerPhoneNumber, Mode=TwoWay}"/>
-            <ComboBox x:Name="CustomerTypeBox" Grid.Row="1" Grid.Column="3" Height="30" Margin="0,0,5,5"
+                            <!-- Row 1 -->
+                            <UniformGrid Grid.Row="0" Columns="3" Margin="0,0,0,20">
+                                <StackPanel Margin="0,0,8,0">
+                                    <TextBlock Text="Customer Type *" 
+                                               Style="{StaticResource LabelLarge}"
+                                               Margin="0,0,0,8"/>
+                                    <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                              materialDesign:HintAssist.Hint="Select customer type"
+                                              materialDesign:HintAssist.IsFloating="False"
                       SelectedItem="{Binding SelectedCustomerType, Mode=TwoWay}"
-                      ItemsSource="{Binding Source={StaticResource CustomerTypeEnum}}"
-                      BorderBrush="{DynamicResource PrimaryBrush}" />
-            <ComboBox x:Name="RoomTypeBox" Grid.Row="1" Grid.Column="4" Height="30" Margin="0,0,5,5"
+                                              ItemsSource="{Binding Source={StaticResource CustomerTypeEnum}}"/>
+                                </StackPanel>
+
+                                <StackPanel Margin="8,0">
+                                    <TextBlock Text="Room Type *" 
+                                               Style="{StaticResource LabelLarge}"
+                                               Margin="0,0,0,8"/>
+                                    <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                              materialDesign:HintAssist.Hint="Select room type"
+                                              materialDesign:HintAssist.IsFloating="False"
                       SelectedItem="{Binding SelectedRoomType, Mode=TwoWay}"
-                      ItemsSource="{Binding Source={StaticResource RoomTypeEnum}}"
-                      BorderBrush="{DynamicResource PrimaryBrush}" />
+                                              ItemsSource="{Binding Source={StaticResource RoomTypeEnum}}"/>
+                                </StackPanel>
 
-            <!-- Labels Row 2 + Add Button -->
-            <TextBlock Text="Room Number:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <TextBlock Text="Check-In Date:" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <TextBlock Text="Check-Out Date:" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <TextBlock Text="Status:" Grid.Row="2" Grid.Column="3" VerticalAlignment="Center" Background="Azure" Padding="5" Margin="0,0,5,5"/>
-            <Button Content="Add New Booking"
-                    Command="{Binding AddNewBookingCommand}"
-                    Style="{StaticResource DefaultButtonStyle}"
-                    Width="150"
-                    Height="30"
-                    Grid.Row="2"
-                    Grid.Column="4"
+                                <StackPanel Margin="8,0,0,0">
+                                    <TextBlock Text="Room Number *" 
+                                               Style="{StaticResource LabelLarge}"
+                                               Margin="0,0,0,8"/>
+                                    <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                              materialDesign:HintAssist.Hint="Select room number"
+                                              materialDesign:HintAssist.IsFloating="False"
+                                              ItemsSource="{Binding AvailableRooms}" 
+                                              SelectedItem="{Binding SelectedRoomNumber, Mode=TwoWay}"/>
+                                </StackPanel>
+                            </UniformGrid>
+
+                            <!-- Row 2 -->
+                            <UniformGrid Grid.Row="1" Columns="3">
+                                <StackPanel Margin="0,0,8,0">
+                                    <TextBlock Text="Check-in Date *" 
+                                               Style="{StaticResource LabelLarge}"
+                                               Margin="0,0,0,8"/>
+                                    <DatePicker Style="{StaticResource MaterialDesignDatePicker}"
+                                                materialDesign:HintAssist.Hint="Pick check-in date"
+                                                materialDesign:HintAssist.IsFloating="False"
+                                                SelectedDate="{Binding CheckInDate, Mode=TwoWay}"/>
+                                </StackPanel>
+
+                                <StackPanel Margin="8,0">
+                                    <TextBlock Text="Check-out Date *" 
+                                               Style="{StaticResource LabelLarge}"
+                                               Margin="0,0,0,8"/>
+                                    <DatePicker Style="{StaticResource MaterialDesignDatePicker}"
+                                                materialDesign:HintAssist.Hint="Pick check-out date"
+                                                materialDesign:HintAssist.IsFloating="False"
+                                                SelectedDate="{Binding CheckOutDate, Mode=TwoWay}"/>
+                                </StackPanel>
+
+                                <StackPanel Margin="8,0,0,0">
+                                    <TextBlock Text="Status *" 
+                                               Style="{StaticResource LabelLarge}"
+                                               Margin="0,0,0,8"/>
+                                    <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                              materialDesign:HintAssist.Hint="Select status"
+                                              materialDesign:HintAssist.IsFloating="False"
+                                              SelectedItem="{Binding SelectedStatus, Mode=TwoWay}"
+                                              ItemsSource="{Binding Source={StaticResource BookingStatusEnum}}"/>
+                                </StackPanel>
+                            </UniformGrid>
+                        </Grid>
+
+                        <!-- Action Buttons -->
+                        <StackPanel Orientation="Horizontal" 
                     HorizontalAlignment="Right"
-                    Margin="0,5,5,5"/>
+                                    Margin="0,24,0,0">
+                            <Button Content="Cancel"
+                                    Style="{StaticResource OutlinedButton}"
+                                    Margin="0,0,12,0"
+                                    Command="{Binding ClearFormCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </materialDesign:Card>
 
-            <!-- Inputs Row 2 -->
-            <ComboBox x:Name="RoomNumberBox" Grid.Row="3" Grid.Column="0" Height="30" Margin="0,0,5,5" ItemsSource="{Binding AvailableRooms}" SelectedItem="{Binding SelectedRoomNumber, Mode=TwoWay}" BorderBrush="{DynamicResource PrimaryBrush}"/>
-            <DatePicker x:Name="CheckInDatePicker" Grid.Row="3" Grid.Column="1" Height="30" Margin="0,0,5,5" SelectedDate="{Binding CheckInDate, Mode=TwoWay}"/>
-            <DatePicker x:Name="CheckOutDatePicker" Grid.Row="3" Grid.Column="2" Height="30" Margin="0,0,5,5" SelectedDate="{Binding CheckOutDate, Mode=TwoWay}"/>
-            <ComboBox x:Name="StatusBox" Grid.Row="3" Grid.Column="3" Height="30" Margin="0,0,5,5"
-                      SelectedItem="{Binding SelectedStatus, Mode=TwoWay}"
-                      ItemsSource="{Binding Source={StaticResource BookingStatusEnum}}"
-                      BorderBrush="{DynamicResource PrimaryBrush}" />
+                <!-- Bookings List Section -->
+                <materialDesign:Card Padding="24"
+                                     Effect="{StaticResource Elevation2}">
+                    <StackPanel>
+                        <!-- Section Header -->
+                        <Grid Margin="0,0,0,20">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="CalendarMultiple" 
+                                                         Foreground="{StaticResource PrimaryBrush}" 
+                                                         Width="24" 
+                                                         Height="24" 
+                                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="Booking List" 
+                                           Style="{StaticResource SectionHeader}"
+                                           Margin="12,0,0,0" 
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
 
-            <!-- Grid for displaying bookings -->
+                            <!-- Search Box -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <TextBox Style="{StaticResource OutlinedTextField}"
+                                         materialDesign:HintAssist.Hint="Search bookings..."
+                                         materialDesign:HintAssist.IsFloating="False"
+                                         Width="250"
+                                         Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                                
+                                <Button Style="{StaticResource IconButton}"
+                                        Command="{Binding SearchCommand}"
+                                        ToolTip="Search"
+                                        Margin="8,0,0,0">
+                                    <materialDesign:PackIcon Kind="Magnify" 
+                                                             Width="20" 
+                                                             Height="20"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Data Grid -->
+                        <Border Background="{StaticResource BackgroundBrush}" 
+                                CornerRadius="{StaticResource RadiusS}" 
+                                BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
+                                BorderThickness="1">
             <DataGrid ItemsSource="{Binding Bookings}" 
                       AutoGenerateColumns="False" 
                       CanUserAddRows="False"               
                       SelectionMode="Single"
-                      Grid.Row="5"
-                      Grid.ColumnSpan="5"
-                      Margin="0,5,0,0"
-                      ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                      Style="{StaticResource ModernDataGrid}"
+                                      ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
                       CanUserResizeRows="False"
-                      CanUserResizeColumns="False">
+                                      CanUserSortColumns="True"
+                                      MinHeight="400">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Customer Name" 
-                                        Binding="{Binding Customer.FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                        Width="*"/>
-                    <DataGridTextColumn Header="CCCD" 
-                                        Binding="{Binding Customer.CCCD, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                        Width="*"/>
-                    <DataGridTextColumn Header="Phone" 
-                                        Binding="{Binding Customer.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                        Width="*"/>
-                    <DataGridComboBoxColumn Header="Customer Type" 
-                                            SelectedItemBinding="{Binding Customer.Type, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            ItemsSource="{Binding Source={StaticResource CustomerTypeEnum}}"
-                                            Width="*"/>
-                    <DataGridComboBoxColumn Header="Room Type" 
-                                            SelectedItemBinding="{Binding RoomType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            ItemsSource="{Binding Source={StaticResource RoomTypeEnum}}"
-                                            Width="*"/>
-                    <DataGridTextColumn Header="Room Number" 
-                                        Binding="{Binding RoomNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                        Width="*"/>
-                    <DataGridTemplateColumn Header="Check-In" Width="*">
+                                    <!-- Status Indicator -->
+                                    <DataGridTemplateColumn Header="" Width="50">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding CheckInDate, StringFormat=d}"/>
+                                                <Ellipse Width="12" Height="12">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse">
+                                                            <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Confirmed">
+                                                                    <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                                    <Setter Property="Fill" Value="{StaticResource ErrorBrush}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="CheckedIn">
+                                                                    <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
-                        <DataGridTemplateColumn.CellEditingTemplate>
-                            <DataTemplate>
-                                <DatePicker SelectedDate="{Binding CheckInDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellEditingTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Check-Out" Width="*">
+
+                                    <DataGridTextColumn Header="Customer Name" 
+                                                        Binding="{Binding Customer.FullName}" 
+                                                        Width="2*"
+                                                        IsReadOnly="True"
+                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                    
+                                    <DataGridTextColumn Header="ID" 
+                                                        Binding="{Binding Customer.CCCD}" 
+                                                        Width="*"
+                                                        IsReadOnly="True"
+                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                    
+                                    <DataGridTextColumn Header="Phone Number" 
+                                                        Binding="{Binding Customer.PhoneNumber}" 
+                                                        Width="*"
+                                                        IsReadOnly="True"
+                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                    
+                                    <DataGridTextColumn Header="Customer Type" 
+                                                        Binding="{Binding Customer.Type}" 
+                                                        Width="*"
+                                                        IsReadOnly="True"
+                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                    
+                                    <DataGridTextColumn Header="Room Type" 
+                                                        Binding="{Binding RoomType}" 
+                                                        Width="*"
+                                                        IsReadOnly="True"
+                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                    
+                                    <DataGridTextColumn Header="Room Number" 
+                                                        Binding="{Binding RoomNumber}" 
+                                                        Width="*"
+                                                        IsReadOnly="True"
+                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                    
+                                    <DataGridTextColumn Header="Check-in" 
+                                                        Binding="{Binding CheckInDate, StringFormat=dd/MM/yyyy}" 
+                                                        Width="*"
+                                                        IsReadOnly="True"
+                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                    
+                                    <DataGridTextColumn Header="Check-out" 
+                                                        Binding="{Binding CheckOutDate, StringFormat=dd/MM/yyyy}" 
+                                                        Width="*"
+                                                        IsReadOnly="True"
+                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                    
+                                    <DataGridTextColumn Header="Status" 
+                                                        Binding="{Binding Status}" 
+                                                        Width="*"
+                                                        IsReadOnly="True"
+                                                        ElementStyle="{StaticResource BodyMedium}"/>
+
+                                    <!-- Actions Column -->
+                                    <DataGridTemplateColumn Header="Actions" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding CheckOutDate, StringFormat=d}"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                        <DataGridTemplateColumn.CellEditingTemplate>
-                            <DataTemplate>
-                                <DatePicker SelectedDate="{Binding CheckOutDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellEditingTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridComboBoxColumn Header="Status" 
-                                            SelectedItemBinding="{Binding Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            ItemsSource="{Binding Source={StaticResource BookingStatusEnum}}"
-                                            Width="*"/>
-                    <DataGridTemplateColumn Header="Actions">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Button Content="Edit" 
+                                                <StackPanel Orientation="Horizontal" 
+                                                            HorizontalAlignment="Center">
+                                                    <Button ToolTip="Edit" 
                                             Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
                                             CommandParameter="{Binding}" 
-                                            Style="{StaticResource DefaultButtonStyle}"/>
-                                    <Button Content="Delete" 
+                                                            Style="{StaticResource IconButton}"
+                                                            Width="32" 
+                                                            Height="32"
+                                                            Margin="0,0,4,0">
+                                                        <materialDesign:PackIcon Kind="Pencil" 
+                                                                                 Width="16" 
+                                                                                 Height="16"
+                                                                                 Foreground="{StaticResource PrimaryBrush}"/>
+                                                    </Button>
+                                                    
+                                                    <Button ToolTip="Delete" 
                                             Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
                                             CommandParameter="{Binding}" 
-                                            Margin="5,0,0,0" 
-                                            Style="{StaticResource DefaultButtonStyle}"/>
+                                                            Style="{StaticResource IconButton}"
+                                                            Width="32" 
+                                                            Height="32">
+                                                        <materialDesign:PackIcon Kind="Delete" 
+                                                                                 Width="16" 
+                                                                                 Height="16"
+                                                                                 Foreground="{StaticResource ErrorBrush}"/>
+                                                    </Button>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-        </Grid>
+                        </Border>
+                    </StackPanel>
+                </materialDesign:Card>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

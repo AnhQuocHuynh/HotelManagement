@@ -12,41 +12,41 @@
             CornerRadius="8">
 
         <StackPanel Margin="20" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-            <TextBlock Text="Chỉnh Sửa Thông Tin Phòng"
+            <TextBlock Text="Edit Room Information"
                        FontSize="20"
                        Foreground="{StaticResource PrimaryBrush}"
                        FontWeight="Bold"
                        Margin="0,0,0,20"
                        HorizontalAlignment="Center"/>
 
-            <TextBlock Text="Số phòng:" Foreground="{StaticResource SecondaryBrush}" />
+            <TextBlock Text="Room Number:" Foreground="{StaticResource SecondaryBrush}" />
             <TextBlock Text="{Binding EditableRoom.RoomNumber}"
            FontWeight="Bold"
            Foreground="Black"
            Margin="0,5,0,10"/>
 
-            <TextBlock Text="Loại phòng:" Foreground="{StaticResource SecondaryBrush}" />
+            <TextBlock Text="Room Type:" Foreground="{StaticResource SecondaryBrush}" />
             <ComboBox ItemsSource="{Binding RoomTypes}"
                       SelectedItem="{Binding EditableRoom.RoomType}"
                       Margin="0,5,0,10"/>
 
-            <TextBlock Text="Trạng thái:" Foreground="{StaticResource SecondaryBrush}" />
+            <TextBlock Text="Status:" Foreground="{StaticResource SecondaryBrush}" />
             <ComboBox ItemsSource="{Binding RoomStatuses}"
                       SelectedItem="{Binding EditableRoom.RoomStatus}"
                       Margin="0,5,0,10"/>
 
-            <TextBlock Text="Giá mỗi đêm:" Foreground="{StaticResource SecondaryBrush}" />
+            <TextBlock Text="Price per Night:" Foreground="{StaticResource SecondaryBrush}" />
             <TextBox Text="{Binding EditableRoom.PricePerNight, UpdateSourceTrigger=PropertyChanged}"
                      Margin="0,5,0,20"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Lưu"
+                <Button Content="Save"
                         Command="{Binding SaveCommand}"
                         Background="{StaticResource PrimaryBrush}"
                         Foreground="White"
                         Padding="10,5"
                         Margin="0,0,10,0"/>
-                <Button Content="Hủy"
+                <Button Content="Cancel"
                         Command="{Binding CancelCommand}"
                         Background="{StaticResource AccentBrush}"
                         Foreground="White"
