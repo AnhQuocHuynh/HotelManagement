@@ -18,7 +18,7 @@
             </Grid.RowDefinitions>
 
             <!-- Header Section -->
-            <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" Height="80">
+            <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" Margin="0,0,0,10">
                 <Grid Margin="32">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -30,7 +30,7 @@
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock Text="Manager Dashboard" 
                                    Style="{StaticResource HeadlineLarge}" 
-                                   Foreground="White"/>
+                                   Foreground="White" Height="45"/>
                         <TextBlock Text="Manage hotel operations and reports" 
                                    Style="{StaticResource BodyMedium}" 
                                    Foreground="{StaticResource OnPrimary200Brush}" 
@@ -50,7 +50,7 @@
                                   materialDesign:HintAssist.IsFloating="True"
                                   Style="{StaticResource MaterialDesignFilledComboBox}"
                                   Background="Transparent"
-                                  Foreground="White">
+                                  Foreground="White" SelectionChanged="comboBox_Options_SelectionChanged">
                             <ComboBox.Resources>
                                 <Style TargetType="ComboBoxItem">
                                     <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>

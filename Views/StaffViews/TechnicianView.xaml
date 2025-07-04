@@ -40,6 +40,9 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Add this to your resource dictionary or UserControl.Resources -->
+        <SolidColorBrush x:Key="OnSurface600Brush" Color="#757575"/>
     </UserControl.Resources>
     
     <materialDesign:Card Effect="{StaticResource Elevation3}">
@@ -50,7 +53,7 @@
         </Grid.RowDefinitions>
 
             <!-- Header Section -->
-            <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" Height="80">
+            <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" Margin="0,-27,0,722" Grid.RowSpan="2">
                 <Grid Margin="24">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -61,7 +64,7 @@
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                 <TextBlock Text="Technician Dashboard" 
                                    Style="{StaticResource HeadlineLarge}" 
-                                   Foreground="White"/>
+                                   Foreground="White" Height="47"/>
                         <TextBlock Text="Manage maintenance reports and repairs" 
                                    Style="{StaticResource BodyMedium}" 
                                    Foreground="{StaticResource OnPrimary200Brush}" 
@@ -110,7 +113,7 @@
                                      Margin="0,16,0,0"/>
                             <TextBlock Text="Reports to Review" 
                                      Style="{StaticResource BodyMedium}" 
-                                     Foreground="{StaticResource OnSurfaceBrush}"
+                                     Foreground="{StaticResource OnSurface600Brush}"
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
                     </materialDesign:Card>
@@ -130,7 +133,7 @@
                                      Margin="0,16,0,0"/>
                             <TextBlock Text="Active Repairs" 
                                      Style="{StaticResource BodyMedium}" 
-                                     Foreground="{StaticResource OnSurfaceBrush}"
+                                     Foreground="{StaticResource OnSurface600Brush}"
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
                     </materialDesign:Card>
@@ -149,7 +152,7 @@
                                      Margin="0,16,0,0"/>
                             <TextBlock Text="Resolved Issues" 
                                      Style="{StaticResource BodyMedium}" 
-                                     Foreground="{StaticResource OnSurfaceBrush}"
+                                     Foreground="{StaticResource OnSurface600Brush}"
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
                     </materialDesign:Card>
@@ -183,7 +186,7 @@
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Border Background="{StaticResource Primary100Brush}" 
-                                                  CornerRadius="{StaticResource CornerRadiusS}"
+                                                  CornerRadius="{StaticResource CornerRadiusXS}"
                                                   Padding="8,4">
                                                 <TextBlock Text="{Binding Id}" 
                                                          Style="{StaticResource LabelLarge}"
@@ -226,7 +229,7 @@
                                                          Style="{StaticResource BodyMedium}"/>
                                                 <TextBlock Text="{Binding ReportedDate, StringFormat=HH:mm}" 
                                                          Style="{StaticResource BodySmall}"
-                                                         Foreground="{StaticResource OnSurfaceBrush}"/>
+                                                         Foreground="{StaticResource OnSurface600Brush}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
@@ -256,7 +259,7 @@
                                                          Style="{StaticResource BodyMedium}"/>
                                                 <TextBlock Text="{Binding CompletedDate, StringFormat=HH:mm}" 
                                                          Style="{StaticResource BodySmall}"
-                                                         Foreground="{StaticResource OnSurfaceBrush}"/>
+                                                         Foreground="{StaticResource OnSurface600Brush}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>

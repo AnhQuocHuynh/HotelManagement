@@ -112,6 +112,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand AddNewBookingCommand { get; private set; }
         public ICommand UpdateCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
+        public ICommand LoadedCommand { get; private set; }
 
         // Constructor cho XAML (không tham số) – tự resolve qua DI
         public ReceptionistViewModel() : base()
@@ -152,6 +153,8 @@ namespace HotelManager.ViewModels.StaffViewModels
             DeleteCommand = new AsyncRelayCommand<Booking?>(
                 execute: b => DeleteAsync(b!),
                 canExecute: b => b != null);
+
+            LoadedCommand = new AsyncRelayCommand(LoadDataAsync);
         }
 
         protected override async Task OnLoadedAsync()

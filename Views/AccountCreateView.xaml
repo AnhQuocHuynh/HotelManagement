@@ -5,22 +5,22 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:HotelManager.Views"
              xmlns:helpers="clr-namespace:HotelManager.Helpers"
+             xmlns:converters="clr-namespace:HotelManager.Converters"
              mc:Ignorable="d" 
              SizeToContent="WidthAndHeight"
              WindowStartupLocation="CenterOwner"
              ResizeMode="NoResize"
-             Title="Create Account"
-             d:DesignHeight="450" d:DesignWidth="500">
-    <UserControl.Resources>
-        <local:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-    </UserControl.Resources>
+             Title="Create Account" d:DesignWidth="500" Height="707">
+    <Window.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    </Window.Resources>
     <Border Background="White" CornerRadius="16" Padding="24">
         <StackPanel Width="400">
             <!-- Header -->
             <TextBlock Text="Create Account" FontSize="24" FontWeight="Bold" 
                        Foreground="{StaticResource PrimaryBrush}" 
                        HorizontalAlignment="Center" Margin="0,0,0,20"/>
-            
+
             <!-- Employee Info -->
             <Border Background="{StaticResource MaterialDesignDarkSeparatorBackground}" 
                     CornerRadius="8" Padding="16" Margin="0,0,0,20">
@@ -75,12 +75,12 @@
                     <ColumnDefinition Width="20"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <Button Grid.Column="0" Content="Create Account" 
                         Command="{Binding SaveCommand}" 
                         Style="{StaticResource MaterialDesignContainedButton}" 
                         Height="40"/>
-                
+
                 <Button Grid.Column="2" Content="Cancel" 
                         Command="{Binding CancelCommand}" 
                         Style="{StaticResource MaterialDesignOutlinedButton}" 

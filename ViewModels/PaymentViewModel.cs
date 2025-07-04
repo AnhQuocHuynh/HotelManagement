@@ -108,9 +108,28 @@ namespace HotelManager.ViewModels
         public ICommand SavePaymentCommand { get; set; }
         public ICommand DeletePaymentCommand { get; set; }
 
-        public PaymentViewModel() : this(App.ServiceProvider?.GetRequiredService<PaymentService>() ?? throw new InvalidOperationException("PaymentService not registered"),
-                                         App.ServiceProvider?.GetRequiredService<InvoiceService>() ?? throw new InvalidOperationException("InvoiceService not registered"))
+        public PaymentViewModel()
         {
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            {
+                // Initialize with design-time data
+                Payments = new ObservableCollection<Payment>();
+                AvailableInvoices = new ObservableCollection<Invoice>();
+                PaymentDate = DateTime.Now;
+                PaymentMethod = PaymentMethod.Cash;
+                
+                // Initialize commands with empty implementations for design-time
+                AddPaymentCommand = new RelayCommand(() => { }, () => false);
+                SavePaymentCommand = new RelayCommand<Payment>(_ => { }, _ => false);
+                DeletePaymentCommand = new RelayCommand<Payment>(_ => { }, _ => false);
+                return;
+            }
+
+            // Runtime initialization
+            _paymentService = App.ServiceProvider?.GetRequiredService<PaymentService>() ?? throw new InvalidOperationException("PaymentService not registered");
+            _invoiceService = App.ServiceProvider?.GetRequiredService<InvoiceService>() ?? throw new InvalidOperationException("InvoiceService not registered");
+            
+            InitializeViewModel();
         }
 
         public PaymentViewModel(PaymentService paymentService, InvoiceService invoiceService)

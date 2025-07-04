@@ -68,7 +68,7 @@
     </UserControl.Resources>
 
     <materialDesign:Card Effect="{StaticResource Elevation3}">
-        <Grid>
+                <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="4*"/>
                 <RowDefinition Height="41*"/>
@@ -84,7 +84,7 @@
 
                     <!-- Payment Title and Info -->
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock Text="Payment Management" 
+                    <TextBlock Text="Payment Management" 
                                    Style="{StaticResource HeadlineLarge}" 
                                    Foreground="White"/>
                         <TextBlock Text="Process payments and track financial transactions" 
@@ -116,11 +116,11 @@
 
                     <!-- Quick Stats -->
                     <Grid Margin="0,0,0,24">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
                         <materialDesign:Card Grid.Column="0" Style="{StaticResource QuickStatsCard}">
                             <StackPanel>
@@ -258,11 +258,11 @@
                                       Command="{Binding AddPaymentCommand}"
                         Style="{StaticResource ContainedButton}"
                                       HorizontalAlignment="Right">
-                                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal">
                                         <materialDesign:PackIcon Kind="Plus" Width="20" Height="20"/>
-                                        <TextBlock Text="Add Payment" Margin="8,0,0,0"/>
-                                    </StackPanel>
-                                </Button>
+                        <TextBlock Text="Add Payment" Margin="8,0,0,0"/>
+                    </StackPanel>
+                </Button>
                             </Grid>
                         </StackPanel>
                     </materialDesign:Card>
@@ -289,7 +289,7 @@
                                   CornerRadius="{StaticResource RadiusS}" 
                                   BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
                                   BorderThickness="1">
-                                <DataGrid ItemsSource="{Binding Payments}" 
+                <DataGrid ItemsSource="{Binding Payments}" 
                           AutoGenerateColumns="False" 
                           CanUserAddRows="False" 
                           SelectionMode="Single"
@@ -299,11 +299,11 @@
                                         CanUserSortColumns="True"
                                         SelectedItem="{Binding SelectedPayment}"
                                         MinHeight="300">
-                                    <DataGrid.Columns>
+                    <DataGrid.Columns>
                                         <!-- Status Indicator -->
                                         <DataGridTemplateColumn Header="" Width="50">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
                                                     <Border Background="{StaticResource Success100Brush}" 
                                                           CornerRadius="12" 
                                                           Width="24" 
@@ -315,9 +315,9 @@
                                                                                HorizontalAlignment="Center"
                                                                                VerticalAlignment="Center"/>
                                                     </Border>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
                                         <DataGridTextColumn Header="Payment ID" 
                                                           Binding="{Binding Id}" 
@@ -331,7 +331,7 @@
                                                           IsReadOnly="True"
                                                           ElementStyle="{StaticResource BodyMedium}"/>
 
-                                        <DataGridTextColumn Header="Amount" 
+                        <DataGridTextColumn Header="Amount" 
                                                           Binding="{Binding Amount, StringFormat='{}{0:C}'}" 
                                                           Width="*"
                                                           IsReadOnly="True"
@@ -343,7 +343,7 @@
                                                           IsReadOnly="True"
                                                           ElementStyle="{StaticResource BodyMedium}"/>
 
-                                        <DataGridTextColumn Header="Invoice ID" 
+                        <DataGridTextColumn Header="Invoice ID" 
                                             Binding="{Binding InvoiceId}" 
                                             Width="*"
                                                           IsReadOnly="True"
@@ -357,8 +357,8 @@
 
                                         <!-- Actions Column -->
                                         <DataGridTemplateColumn Header="Actions" Width="120">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
                                                     <StackPanel Orientation="Horizontal" 
                                                               HorizontalAlignment="Center">
                                                         <Button ToolTip="Edit Payment" 
@@ -385,12 +385,12 @@
                                                                                    Height="16"
                                                                                    Foreground="{StaticResource ErrorBrush}"/>
                                                         </Button>
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                    </DataGrid.Columns>
-                                </DataGrid>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
                             </Border>
                         </StackPanel>
                     </materialDesign:Card>

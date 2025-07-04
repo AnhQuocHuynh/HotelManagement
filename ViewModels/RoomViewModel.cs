@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,10 +14,11 @@ using HotelManager.Interfaces;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
 using HotelManager.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.ViewModels
 {
-    internal class RoomViewModel : BaseViewModel
+    public class RoomViewModel : BaseViewModel
     {
         private readonly RoomService roomService;
         private readonly DialogService _dialogService = new DialogService();
@@ -121,6 +123,28 @@ namespace HotelManager.ViewModels
 
         public IEnumerable<RoomStatus> RoomStatusOptions { get; } = Enum.GetValues(typeof(RoomStatus)).Cast<RoomStatus>();
         public IEnumerable<RoomType> RoomTypeOptions { get; } = Enum.GetValues(typeof(RoomType)).Cast<RoomType>();
+
+        public RoomViewModel()
+        {
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            {
+                // Initialize with design-time data
+                Rooms = new ObservableCollection<Room>();
+                RoomStatusOptions = Enum.GetValues(typeof(RoomStatus)).Cast<RoomStatus>();
+                RoomTypeOptions = Enum.GetValues(typeof(RoomType)).Cast<RoomType>();
+                
+                // Initialize commands with empty implementations for design-time
+                UpdateCommand = new RelayCommand<object>(_ => { });
+                DeleteCommand = new RelayCommand<object>(_ => { });
+                AddCommand = new AsyncRelayCommand(() => Task.CompletedTask);
+                return;
+            }
+
+            // Runtime initialization
+            this.roomService = App.ServiceProvider?.GetRequiredService<RoomService>() ?? throw new InvalidOperationException("RoomService not registered");
+            this._dialogService = App.ServiceProvider?.GetRequiredService<DialogService>() ?? new DialogService();
+            InitializeViewModel();
+        }
 
         public RoomViewModel(RoomService roomService, DialogService dialogService)
         {

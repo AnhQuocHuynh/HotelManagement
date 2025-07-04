@@ -159,12 +159,47 @@ namespace HotelManager.ViewModels.Admin
             }
         }
 
-        public AdminViewModel() : this(App.ServiceProvider?.GetRequiredService<EmployeeService>() ?? throw new InvalidOperationException("EmployeeService not registered"),
-            App.ServiceProvider?.GetRequiredService<IDialogService>() ?? throw new InvalidOperationException("DialogService not registered"),
-            App.ServiceProvider?.GetRequiredService<INotificationService>() ?? throw new InvalidOperationException("NotificationService not registered"),
-            App.ServiceProvider?.GetRequiredService<ILogger<AdminViewModel>>() ?? throw new InvalidOperationException("Logger not registered"),
-            App.ServiceProvider, App.ServiceProvider.GetRequiredService<IUnitOfWork>())
+        public AdminViewModel()
         {
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            {
+                // Initialize with design-time data
+                Greeting = "Hello, Admin (Design Mode)";
+                Employees = new ObservableCollection<Employee>();
+                EmployeePositions = EnumHelper.EmployeePositions;
+                
+                // Initialize commands with empty implementations for design-time
+                AddCommand = new AsyncRelayCommand<Employee>(_ => Task.CompletedTask);
+                UpdateCommand = new RelayCommand<Employee>(_ => { });
+                DeleteCommand = new AsyncRelayCommand<Employee>(_ => Task.CompletedTask);
+                AddNewEmployeeCommand = new RelayCommand(() => { });
+                LogoutCommand = new RelayCommand(() => { });
+                CreateAccountCommand = new RelayCommand(() => { }, () => false);
+                return;
+            }
+
+            // Runtime initialization
+            _employeeService = App.ServiceProvider?.GetRequiredService<EmployeeService>() ?? throw new InvalidOperationException("EmployeeService not registered");
+            _dialogService = App.ServiceProvider?.GetRequiredService<IDialogService>() ?? throw new InvalidOperationException("DialogService not registered");
+            _notificationService = App.ServiceProvider?.GetRequiredService<INotificationService>() ?? throw new InvalidOperationException("NotificationService not registered");
+            _logger = App.ServiceProvider?.GetRequiredService<ILogger<AdminViewModel>>() ?? throw new InvalidOperationException("Logger not registered");
+            _serviceProvider = App.ServiceProvider;
+            _unitOfWork = App.ServiceProvider.GetRequiredService<IUnitOfWork>();
+
+            AddCommand = new AsyncRelayCommand<Employee>(AddAsync);
+            UpdateCommand = new RelayCommand<Employee>(Update);
+            DeleteCommand = new AsyncRelayCommand<Employee>(DeleteAsync);
+            AddNewEmployeeCommand = new RelayCommand(AddNewEmployee);
+            LogoutCommand = new RelayCommand(Logout);
+            CreateAccountCommand = new RelayCommand(CreateAccount, CanCreateAccount);
+
+            LoadEmployees();
+
+            var user = AppSession.GetCurrentUserAccount();
+            if (user != null)
+            {
+                Greeting = $"Hello, {user.Username}";
+            }
         }
 
         public async void LoadEmployees()

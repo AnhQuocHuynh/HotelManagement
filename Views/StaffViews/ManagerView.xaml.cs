@@ -28,5 +28,10 @@ namespace HotelManager.Views.StaffViews
                 DataContext = App.ServiceProvider.GetRequiredService<ViewModels.StaffViewModels.ManagerViewModel>();
             }
         }
+
+        private void comboBox_Options_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

@@ -7,8 +7,7 @@
              mc:Ignorable="d" 
              SizeToContent="WidthAndHeight"
              WindowStartupLocation="CenterOwner"
-             ResizeMode="NoResize"
-             d:DesignHeight="450" d:DesignWidth="500">
+             ResizeMode="NoResize" d:DesignWidth="500" Height="648">
     <Border Background="White" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="10" CornerRadius="8">
         <StackPanel Margin="20" HorizontalAlignment="Center" Width="400" Background="White" >
             <TextBlock Text="Edit Employee Information" 

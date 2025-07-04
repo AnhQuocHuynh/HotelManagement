@@ -10,9 +10,7 @@
              d:DesignHeight="900" d:DesignWidth="1400"
              Background="{StaticResource SurfaceGradient}">
     
-    <UserControl.DataContext>
-        <vm:RoomViewModel/>
-    </UserControl.DataContext>
+
     
     <UserControl.Resources>
         <!-- Quick Stats Card Style -->
