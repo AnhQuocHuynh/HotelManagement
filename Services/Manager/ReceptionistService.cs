@@ -88,7 +88,10 @@ namespace HotelManager.Services.Manager
                 .Where(b => b.BookingDate >= start && b.BookingDate <= end);
 
             if (!string.IsNullOrEmpty(roomType) && roomType != "All")
-                bookingCreatedQuery = bookingCreatedQuery.Where(b => b.Room.RoomType.ToString() == roomType);
+            {
+                var rt = Enum.Parse<RoomType>(roomType);
+                bookingCreatedQuery = bookingCreatedQuery.Where(b => b.Room.RoomType == rt);
+            }
 
             var bookingRevenue = await bookingCreatedQuery
                 .GroupBy(b => b.BookingEmployeeId!.Value)
@@ -103,7 +106,10 @@ namespace HotelManager.Services.Manager
                 .Where(b => b.CheckInEmployeeID != null && b.CheckInEmployee.Position == EmployeePosition.Receptionist);
 
             if (!string.IsNullOrEmpty(roomType) && roomType != "All")
-                checkInQuery = checkInQuery.Where(b => b.Room.RoomType.ToString() == roomType);
+            {
+                var rt = Enum.Parse<RoomType>(roomType);
+                bookingCreatedQuery = bookingCreatedQuery.Where(b => b.Room.RoomType == rt);
+            }
 
             var checkInRevenue = await checkInQuery
                 .GroupBy(b => b.CheckInEmployeeID!.Value)
@@ -118,7 +124,10 @@ namespace HotelManager.Services.Manager
                 .Where(b => b.CheckOutEmployeeID != null && b.CheckOutEmployee.Position == EmployeePosition.Receptionist);
 
             if (!string.IsNullOrEmpty(roomType) && roomType != "All")
-                checkOutQuery = checkOutQuery.Where(b => b.Room.RoomType.ToString() == roomType);
+            {
+                var rt = Enum.Parse<RoomType>(roomType);
+                bookingCreatedQuery = bookingCreatedQuery.Where(b => b.Room.RoomType == rt);
+            }
 
             var checkOutRevenue = await checkOutQuery
                 .GroupBy(b => b.CheckOutEmployeeID!.Value)

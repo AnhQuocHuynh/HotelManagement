@@ -16,6 +16,8 @@ using SkiaSharp;
 using HotelManager.Models.Enums;
 using System.Windows.Media;
 using HotelManager.Services.Manager;
+using Microsoft.Extensions.DependencyInjection;
+using HotelManager.Data;
 
 namespace HotelManager.ViewModels.ManagerViewModels
 {
@@ -26,6 +28,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
         private bool _isUpdatingRange = false;
         private bool _isManualDateChange = false;
         private bool _isInitializing = false;
+        private bool _isLoading;
 
         // time units
         public ObservableCollection<string> TimeUnits { get; set; }
@@ -41,7 +44,8 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     _selectedTimeUnit = value;
                     OnPropertyChanged(nameof(SelectedTimeUnit));
                     if (!_isInitializing)
-                        _ = UpdateChartAsync();
+                        _ = RefreshChartAsync();
+
                 }
             }
         }
@@ -63,7 +67,8 @@ namespace HotelManager.ViewModels.ManagerViewModels
                         SelectedTimeRange = "Custom";
                         _isManualDateChange = false;
 
-                        _ = UpdateChartAsync();
+                        _ = RefreshChartAsync();
+
                         SetTimeBackground(false);
                     }
                 }
@@ -87,7 +92,8 @@ namespace HotelManager.ViewModels.ManagerViewModels
                         SelectedTimeRange = "Custom";
                         _isManualDateChange = false;
 
-                        _ = UpdateChartAsync();
+                        _ = RefreshChartAsync();
+
                         SetTimeBackground(false);
                     }
                 }
@@ -112,7 +118,8 @@ namespace HotelManager.ViewModels.ManagerViewModels
                         SetTimeRange();
                         SetTimeBackground(true);
                         if (!_isInitializing)
-                            _ = UpdateChartAsync();
+                            _ = RefreshChartAsync();
+
                     }
                 }
             }
@@ -132,7 +139,8 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     _selectedRoomType = value;
                     OnPropertyChanged(nameof(SelectedRoomType));
                     if (!_isInitializing)
-                        _ = UpdateChartAsync();
+                        _ = RefreshChartAsync();
+
                 }
             }
         }
@@ -168,22 +176,49 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
 
         // chart elements
-        public ISeries[] Series { get; set; }
-        public Axis[] XAxes { get; set; }
-        public Axis[] YAxes { get; set; }
+        private ISeries[] _series;
+        public ISeries[] Series
+        {
+            get => _series;
+            set { _series = value; OnPropertyChanged(); }
+        }
 
-// constructor
+        private Axis[] _yAxes;
+        public Axis[] YAxes
+        {
+            get => _yAxes;
+            set { _yAxes = value; OnPropertyChanged(); }
+        }
+
+        private Axis[] _xAxes;
+        public Axis[] XAxes
+        {
+            get => _xAxes;
+            set { _xAxes = value; OnPropertyChanged(); }
+        }
+
+        // constructor
+        private IServiceScope _scope;
+
         public RevenueReportChartViewModel()
         {
             _isInitializing = true;
 
-            inVoiceService = new InVoiceService(new Data.HotelDbContext());
+            _scope = App.ServiceProvider.CreateScope(); // GIỮ scope trong ViewModel
+            var dbContext = _scope.ServiceProvider.GetRequiredService<HotelDbContext>();
+            inVoiceService = new InVoiceService(dbContext);
+
             TimeUnitInit();
             TimeRangeInit();
             RoomTypeInit();
 
             _isInitializing = false;
-            _ = UpdateChartAsync();
+            _ = RefreshChartAsync();
+
+        }
+        public void Dispose()
+        {
+            _scope?.Dispose();
         }
 
         void TimeUnitInit()
@@ -227,32 +262,33 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
         void SetTimeRange()
         {
+            DateTime today = DateTime.Today;
             _isUpdatingRange = true;
             switch (SelectedTimeRange)
             {
                 case "Last 7 days":
                     StartDate = DateTime.Now.AddDays(-7).Date;
-                    EndDate = DateTime.Now.Date;
+                    EndDate = today;
                     break;
                 case "Last 1 month":
                     StartDate = DateTime.Now.AddDays(-30).Date;
-                    EndDate = DateTime.Now.Date;
+                    EndDate = today;
                     break;
                 case "Last 3 months":
                     StartDate = DateTime.Now.AddDays(-90).Date;
-                    EndDate = DateTime.Now.Date;
+                    EndDate = today;
                     break;
                 case "Last 6 months":
                     StartDate = DateTime.Now.AddMonths(-6).Date;
-                    EndDate = DateTime.Now.Date;
+                    EndDate = today;
                     break;
                 case "Last 1 year":
                     StartDate = DateTime.Now.AddMonths(-12).Date;
-                    EndDate = DateTime.Now.Date;
+                    EndDate = today;
                     break;
                 case "Last 3 years":
                     StartDate = DateTime.Now.AddYears(-3).Date;
-                    EndDate = DateTime.Now.Date;
+                    EndDate = today;
                     break;
                 case "Custom":
                     _isUpdatingRange = false;
@@ -276,68 +312,79 @@ namespace HotelManager.ViewModels.ManagerViewModels
         }
 
 
-        private async Task UpdateChartAsync()
+        // get data
+        private Dictionary<string, (decimal revenue, int invoiceCount)> _chartData;
+        private async Task FetchChartDataAsync()
         {
-            if (SelectedTimeUnit == null) return;
-
-            var statsData = await inVoiceService.GetInvoiceStatsGroupedAsync(
+            var data = await inVoiceService.GetInvoiceStatsGroupedAsync(
                 StartDate,
                 EndDate,
                 SelectedTimeUnit,
                 SelectedRoomType?.ToString()
             );
 
-            var labels = statsData.Keys.ToList();
+            _chartData = data ?? new Dictionary<string, (decimal revenue, int invoiceCount)>();
+        }
+
+        // update chart
+        private void UpdateChart()
+        {
+            if (_chartData == null || _chartData.Count == 0)
+            {
+                Series = Array.Empty<ISeries>();
+                XAxes = Array.Empty<Axis>();
+                YAxes = Array.Empty<Axis>();
+                OnPropertyChanged(nameof(Series));
+                OnPropertyChanged(nameof(XAxes));
+                OnPropertyChanged(nameof(YAxes));
+                return;
+            }
+
+            var labels = _chartData.Keys.ToList();
             labels.Sort();
 
             var revenueValues = labels.Select((label, index) =>
             {
-                var data = statsData.TryGetValue(label, out var value) ? value : (0m, 0);
+                var data = _chartData.TryGetValue(label, out var value) ? value : (0m, 0);
                 return new ObservablePoint(index, (double)(value.revenue));
             }).ToList();
 
             var invoiceCountValues = labels.Select((label, index) =>
             {
-                var data = statsData.TryGetValue(label, out var value) ? value : (0m, 0);
+                var data = _chartData.TryGetValue(label, out var value) ? value : (0m, 0);
                 return new ObservablePoint(index, value.invoiceCount);
             }).ToList();
 
-
-
             Series = new ISeries[]
             {
-                // cột doanh thu
-                new ColumnSeries<ObservablePoint>
-                {
-                    Values = revenueValues,
-                    MaxBarWidth = 40,
-                    Padding = 10,
-                    Stroke = null,
-                    DataLabelsSize = 12,
-                    DataLabelsPaint = new SolidColorPaint(SKColors.Black),
-                    DataLabelsFormatter = point =>
-                    {
-                        var y = (point.Model as ObservablePoint)?.Y ?? 0;
-                        return y.ToString("N0") + " ₫";
-                    },
-                    Name = "Revenue",
-                    Fill = new SolidColorPaint(SKColors.DeepSkyBlue),
-                },
-
-                // đường số lượng invoice
-                new LineSeries<ObservablePoint>
-                {
-                    Values = invoiceCountValues,
-                    GeometrySize = 0,
-                    Stroke = new SolidColorPaint(SKColors.DarkRed,2),
-                    Fill = null,
-                    Name = "Invoice Count",
-                    ScalesYAt = 1,
-                    LineSmoothness = 0
-                }
+        new ColumnSeries<ObservablePoint>
+        {
+            Values = revenueValues,
+            MaxBarWidth = 40,
+            Padding = 10,
+            Stroke = null,
+            DataLabelsSize = 12,
+            DataLabelsPaint = new SolidColorPaint(SKColors.Black),
+            DataLabelsFormatter = point =>
+            {
+                var y = (point.Model as ObservablePoint)?.Y ?? 0;
+                return y.ToString("N0") + " ₫";
+            },
+            Name = "Revenue",
+            Fill = new SolidColorPaint(SKColors.DeepSkyBlue),
+        },
+        new LineSeries<ObservablePoint>
+        {
+            Values = invoiceCountValues,
+            GeometrySize = 0,
+            Stroke = new SolidColorPaint(SKColors.DarkRed,2),
+            Fill = null,
+            Name = "Invoice Count",
+            ScalesYAt = 1,
+            LineSmoothness = 0
+        }
             };
 
-            // khi update biểu đồ, nếu số label > 30 thì cuộn về cuối, default chỉ hiển thị 30 label trong window
             int maxUnits = 31;
             bool enableScrolling = labels.Count > maxUnits;
             double? minLimit = null;
@@ -348,46 +395,72 @@ namespace HotelManager.ViewModels.ManagerViewModels
                 maxLimit = labels.Count;
             }
 
-            XAxes = new Axis[]{
-                new Axis{
-                    Labels = labels,
-                    Name = "Time",
-                    LabelsRotation = 0,
-                    MinLimit = minLimit,
-                    MaxLimit = maxLimit
-                }
+            XAxes = new Axis[]
+            {
+        new Axis
+        {
+            Labels = labels,
+            Name = "Time",
+            LabelsRotation = 0,
+            MinLimit = minLimit,
+            MaxLimit = maxLimit
+        }
             };
 
             double maxRevenue = revenueValues.Max(p => p.Y ?? 0);
             double maxInvoiceCount = invoiceCountValues.Max(p => p.Y ?? 0);
 
-            YAxes = new Axis[]{
-                // trục Y bên trái: doanh thu
-                new Axis{
-                    Name = "Revenue (VNĐ)",
-                    LabelsPaint = new SolidColorPaint(SKColors.Black),
-                    TextSize = 12,
-                    Labeler = value => value.ToString("N0") + " ₫",
-                    MinLimit = 0,
-                    MaxLimit = maxRevenue * 1.1
-                },
-
-                // trục Y bên phải: lượt đặt
-                new Axis{
-                    Name = "Invoice Count",
-                    Position = LiveChartsCore.Measure.AxisPosition.End,
-                    LabelsPaint = new SolidColorPaint(SKColors.DarkRed),
-                    TextSize = 12,
-                    Labeler = value => value.ToString("N0"),
-                    MinLimit = 0,
-                    MaxLimit = maxInvoiceCount * 1.1
-                }
+            YAxes = new Axis[]
+            {
+        new Axis
+        {
+            Name = "Revenue (VNĐ)",
+            LabelsPaint = new SolidColorPaint(SKColors.Black),
+            TextSize = 12,
+            Labeler = value => value.ToString("N0") + " ₫",
+            MinLimit = 0,
+            MaxLimit = maxRevenue * 1.1
+        },
+        new Axis
+        {
+            Name = "Invoice Count",
+            Position = LiveChartsCore.Measure.AxisPosition.End,
+            LabelsPaint = new SolidColorPaint(SKColors.DarkRed),
+            TextSize = 12,
+            Labeler = value => value.ToString("N0"),
+            MinLimit = 0,
+            MaxLimit = maxInvoiceCount * 1.1
+        }
             };
 
             OnPropertyChanged(nameof(Series));
             OnPropertyChanged(nameof(XAxes));
             OnPropertyChanged(nameof(YAxes));
         }
+
+
+        // rèfresh chart
+        private async Task RefreshChartAsync()
+        {
+            if (_isLoading) return;
+            _isLoading = true;
+
+            try
+            {
+                await FetchChartDataAsync();
+                UpdateChart();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"🚨 Error in RefreshChartAsync: {ex.Message}");
+            }
+            finally
+            {
+                _isLoading = false;
+            }
+        }
+
+
     }
 
 }
