@@ -25,10 +25,19 @@ namespace HotelManager.ViewModels.ManagerViewModels
     {
         InVoiceService inVoiceService;
 
+        // khi start date hoặc end date đổi refresh chart
+        // khi dùng time ranges sẽ set nhanh cả start với end date
+        // ==> nếu set time range nhanh cần đợi set cả start và end date xong mới refresh chart
         private bool _isUpdatingRange = false;
-        private bool _isManualDateChange = false;
+
+
+        // khi gọi constructor sẽ set giá trị cho tất cả unit, startDate, endDate, roomType
+        // ==> refresh chart bị gọi 4 lần
+        // ==> cần vô hiệu hóa refresh chart khi đang set giá trị trong constructor đến khi hoàn tất
         private bool _isInitializing = false;
-        private bool _isLoading;
+
+        // tránh gọi update data liên tục khi data chưa update xong
+        private bool _isLoading = false;
 
         // time units
         public ObservableCollection<string> TimeUnits { get; set; }
@@ -63,9 +72,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     OnPropertyChanged(nameof(StartDate));
                     if (!_isUpdatingRange && !_isInitializing)
                     {
-                        _isManualDateChange = true;
                         SelectedTimeRange = "Custom";
-                        _isManualDateChange = false;
 
                         _ = RefreshChartAsync();
 
@@ -88,9 +95,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     OnPropertyChanged(nameof(EndDate));
                     if (!_isUpdatingRange && !_isInitializing)
                     {
-                        _isManualDateChange = true;
                         SelectedTimeRange = "Custom";
-                        _isManualDateChange = false;
 
                         _ = RefreshChartAsync();
 
@@ -113,14 +118,10 @@ namespace HotelManager.ViewModels.ManagerViewModels
                 {
                     _selectedTimeRange = value;
                     OnPropertyChanged(nameof(SelectedTimeRange));
-                    if (!_isManualDateChange)
-                    {
-                        SetTimeRange();
-                        SetTimeBackground(true);
-                        if (!_isInitializing)
-                            _ = RefreshChartAsync();
-
-                    }
+                    SetTimeRange();
+                    SetTimeBackground(true);
+                    if (!_isInitializing)
+                        _ = RefreshChartAsync();
                 }
             }
         }
@@ -442,12 +443,14 @@ namespace HotelManager.ViewModels.ManagerViewModels
         // rèfresh chart
         private async Task RefreshChartAsync()
         {
+            // ngăn khi đang refresh
             if (_isLoading) return;
             _isLoading = true;
 
             try
             {
                 await FetchChartDataAsync();
+                //update chart sau khi đủ data
                 UpdateChart();
             }
             catch (Exception ex)
