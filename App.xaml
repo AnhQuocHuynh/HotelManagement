@@ -11,13 +11,15 @@
                 <ResourceDictionary Source="Styles/Themes/Colors.xaml"/>
                 <ResourceDictionary Source="Styles/Themes/Typography.xaml"/>
                 <ResourceDictionary Source="Styles/Themes/Spacing.xaml"/>
-
+                
                 <ResourceDictionary Source="Styles/Themes/AppStyles.xaml"/>
                 <materialDesign:BundledTheme BaseTheme="Light"
                                             PrimaryColor="Blue"
                                             SecondaryColor="Lime" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <QuadraticEase x:Key="EaseOut" EasingMode="EaseOut"/>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
