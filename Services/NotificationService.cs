@@ -73,7 +73,7 @@ namespace HotelManager.Services
                 _messageQueue.Enqueue(
                     message,
                     "OK",
-                    null,
+                    _ => { },
                     PackIconKind.ErrorOutline,
                     false,
                     true,

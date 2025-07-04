@@ -54,6 +54,7 @@ namespace HotelManager.ViewModels.Admin
             {
                 _employees = value;
                 OnPropertyChanged(nameof(Employees));
+                
             }
         }
 
@@ -65,6 +66,7 @@ namespace HotelManager.ViewModels.Admin
             {
                 _selectedEmployee = value;
                 OnPropertyChanged(nameof(SelectedEmployee));
+                ((RelayCommand)CreateAccountCommand).NotifyCanExecuteChanged();
             }
         }
 
