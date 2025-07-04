@@ -158,7 +158,7 @@
                             <StackPanel Margin="24" HorizontalAlignment="Center">
                                 <materialDesign:PackIcon Kind="ViewDashboard" 
                                                    Width="40" Height="40" 
-                                                   Foreground="{StaticResource Primary700Brush}"
+                                                   Foreground="{StaticResource PrimaryBrush}"
                                                    HorizontalAlignment="Center"/>
                                 <TextBlock Text="Dashboard" 
                                      Style="{StaticResource TitleLarge}" 
@@ -201,9 +201,9 @@
                                 <ScaleTransform/>
                             </materialDesign:Card.RenderTransform>
                             <StackPanel Margin="24" HorizontalAlignment="Center">
-                                <materialDesign:PackIcon Kind="ChartLine" 
+                                <materialDesign:PackIcon Kind="ChartLine"                 
                                    Width="40" Height="40" 
-                                   Foreground="{DynamicResource Secondary700Brush}"
+                                   Foreground="{DynamicResource Primary500Brush}"
                                    HorizontalAlignment="Center"/>
                                 <TextBlock Text="Reports" 
                      Style="{StaticResource TitleLarge}" 
@@ -218,7 +218,7 @@
 
                         <!-- Management Card -->
                         <materialDesign:Card Effect="{StaticResource Elevation2}"
-                        Background="{DynamicResource Accent100Brush}">
+                        Background="{DynamicResource Warning100Brush}">
                             <materialDesign:Card.Triggers>
                                 <EventTrigger RoutedEvent="MouseEnter">
                                     <BeginStoryboard>
@@ -247,7 +247,7 @@
                             <StackPanel Margin="24" HorizontalAlignment="Center">
                                 <materialDesign:PackIcon Kind="AccountMultiple" 
                                    Width="40" Height="40" 
-                                    Foreground="{DynamicResource Accent100Brush}"
+                                    Foreground="{StaticResource AccentBrush}"
                                    HorizontalAlignment="Center"/>
                                 <TextBlock Text="Management" 
                      Style="{StaticResource TitleLarge}" 
