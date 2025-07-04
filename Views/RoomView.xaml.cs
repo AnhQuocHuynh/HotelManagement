@@ -11,17 +11,25 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using HotelManager.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.Views
 {
     /// <summary>
     /// Interaction logic for RoomView.xaml
     /// </summary>
-    public partial class RoomView : Window
+    public partial class RoomView : UserControl
     {
         public RoomView()
         {
             InitializeComponent();
+            
+            // Set DataContext using DI
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<RoomViewModel>();
+            }
         }
     }
 }

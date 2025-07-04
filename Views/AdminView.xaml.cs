@@ -11,13 +11,14 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using HotelManager.ViewModels;
 
 namespace HotelManager.Views
 {
     /// <summary>
     /// Interaction logic for AdminView.xaml
     /// </summary>
-    public partial class AdminView : Window
+    public partial class AdminView : UserControl
     {
         public AdminView()
         {

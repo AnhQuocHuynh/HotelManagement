@@ -1,12 +1,252 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+using CommunityToolkit.Mvvm.Input;
+using HotelManager.Interfaces;
+using HotelManager.Models;
+using HotelManager.Models.Enums;
+using HotelManager.Services;
+using System.Diagnostics;
+using System.ComponentModel;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
-    internal class CleanerViewModel
+    public class CleanerViewModel : BaseViewModel
     {
+        private readonly ICleanRoomService _cleanroomService;
+        private ObservableCollection<Room> _roomsToClean;
+        public ObservableCollection<Room> RoomsToClean
+        {
+            get => _roomsToClean;
+            set { _roomsToClean = value; OnPropertyChanged(); }
+        }
+
+        // Lịch sử báo cáo hư hỏng/phòng đã dọn
+        public ObservableCollection<MaintenanceReport> DamageReportHistory { get; set; } = new();
+
+        private bool _isReportExpanded;
+        public bool IsReportExpanded
+        {
+            get => _isReportExpanded;
+            set
+            {
+                _isReportExpanded = value;
+                OnPropertyChanged();
+            }
+        }
+        private MaintenanceReport _damageReport = new();
+        public MaintenanceReport DamageReport
+        {
+            get => _damageReport;
+            set
+            {
+                _damageReport = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // Cho phép upload nhiều ảnh cho một báo cáo
+        public List<string> ImagePaths { get; set; } = new();
+
+        private bool _isNotificationVisible = true;
+        public bool IsNotificationVisible
+        {
+            get => _isNotificationVisible;
+            set
+            {
+                _isNotificationVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // Commands
+        public ICommand MarkAsCleanedCommand { get; }
+        public ICommand ReportIssueCommand { get; }
+        public ICommand SelectImageCommand { get; }
+        public ICommand SendDamageReportCommand { get; }
+        public ICommand RemoveImageCommand { get; }
+        public ICommand RefreshDamageReportHistoryCommand { get; }
+        public ICommand ViewImageCommand { get; }
+        public ICommand CloseNotificationCommand { get; }
+
+        public CleanerViewModel(ICleanRoomService cleanroomService)
+        {
+            _cleanroomService = cleanroomService;
+            RoomsToClean = new ObservableCollection<Room>();
+            MarkAsCleanedCommand = new RelayCommand<Room>(MarkRoomAsCleaned);
+            ReportIssueCommand = new RelayCommand<Room>(ReportIssue);
+            SelectImageCommand = new RelayCommand(SelectImage);
+            SendDamageReportCommand = new RelayCommand(SendDamageReport);
+            RemoveImageCommand = new RelayCommand<string>(RemoveImage);
+            RefreshDamageReportHistoryCommand = new RelayCommand(async () => await LoadDamageReportHistoryAsync());
+            ViewImageCommand = new RelayCommand<string>(ViewImage);
+            CloseNotificationCommand = new RelayCommand(CloseNotification);
+
+            // sequential async initialization to avoid concurrent DbContext operations
+            _ = InitializeAsync();
+        }
+
+        public CleanerViewModel() : base()
+        {
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            {
+                // Design-time: mock or empty data
+            }
+            else
+            {
+                // Runtime: resolve dependencies as needed
+            }
+        }
+
+        private async Task InitializeAsync()
+        {
+            await LoadRoomsToCleanAsync();
+            await LoadDamageReportHistoryAsync();
+        }
+
+        private async Task LoadRoomsToCleanAsync()
+        {
+            try
+            {
+                var rooms = await _cleanroomService.GetAllAsync();
+                RoomsToClean = new ObservableCollection<Room>(rooms);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải danh sách phòng cần dọn: " + ex.Message);
+            }
+        }
+
+        private async void MarkRoomAsCleaned(Room room)
+        {
+            if (room == null) return;
+            // Thêm xác nhận trước khi đánh dấu
+            var result = MessageBox.Show($"Bạn có chắc chắn muốn đánh dấu phòng {room.RoomNumber} là đã dọn xong?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes) return;
+            try
+            {
+                await _cleanroomService.MarkRoomAsCleanedAsync(room);
+                RoomsToClean.Remove(room);
+                MessageBox.Show($"Phòng {room.RoomNumber} đã được đánh dấu là đã dọn.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                await LoadDamageReportHistoryAsync(); // Cập nhật lịch sử
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi đánh dấu phòng đã dọn: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ReportIssue(Room room)
+        {
+            if (room != null)
+            {
+                IsReportExpanded = true;
+                DamageReport = new MaintenanceReport
+                {
+                    RoomNumber = room.RoomNumber
+                };
+                ImagePaths = new List<string>();
+                OnPropertyChanged(nameof(ImagePaths));
+            }
+        }
+
+        private void SelectImage()
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Chọn ảnh báo cáo",
+                Filter = "Ảnh (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png|Tất cả các tệp (*.*)|*.*",
+                Multiselect = true
+            };
+            if (openFileDialog.ShowDialog() == true)
+            {
+                foreach (var file in openFileDialog.FileNames)
+                {
+                    if (!ImagePaths.Contains(file))
+                        ImagePaths.Add(file);
+                }
+                OnPropertyChanged(nameof(ImagePaths));
+            }
+        }
+
+        private void RemoveImage(string imagePath)
+        {
+            if (ImagePaths.Contains(imagePath))
+            {
+                ImagePaths.Remove(imagePath);
+                OnPropertyChanged(nameof(ImagePaths));
+            }
+        }
+
+        private async void SendDamageReport()
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(DamageReport.RoomNumber))
+                {
+                    MessageBox.Show("Vui lòng nhập số phòng!", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(DamageReport.Description))
+                {
+                    MessageBox.Show("Vui lòng nhập mô tả hư hỏng!", "Thiếu thông tin", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                // Lưu nhiều ảnh vào trường ImagePath (dạng chuỗi phân tách hoặc json nếu DB hỗ trợ)
+                DamageReport.ImagePath = string.Join(";", ImagePaths);
+                DamageReport.ReportedDate = DateTime.Now;
+                await _cleanroomService.SendDamageReportAsync(DamageReport);
+                MessageBox.Show("Gửi báo cáo thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                DamageReport = new MaintenanceReport();
+                ImagePaths = new List<string>();
+                OnPropertyChanged(nameof(ImagePaths));
+                IsReportExpanded = false;
+                await LoadDamageReportHistoryAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Gửi báo cáo thất bại: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task LoadDamageReportHistoryAsync()
+        {
+            try
+            {
+                // Giả sử service có method lấy lịch sử báo cáo cho cleaner hiện tại
+                var reports = await _cleanroomService.GetDamageReportsAsync();
+                DamageReportHistory = new ObservableCollection<MaintenanceReport>(reports);
+                OnPropertyChanged(nameof(DamageReportHistory));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi tải lịch sử báo cáo: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ViewImage(string imagePath)
+        {
+            if (!string.IsNullOrWhiteSpace(imagePath))
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(imagePath) { UseShellExecute = true });
+                }
+                catch
+                {
+                    MessageBox.Show($"Cannot open image: {imagePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void CloseNotification()
+        {
+            IsNotificationVisible = false;
+        }
     }
 }

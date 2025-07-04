@@ -30,11 +30,23 @@ namespace HotelManager.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("BookingEmployeeId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("CheckInEmployeeID")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CheckOutDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("CheckOutEmployeeID")
+                        .HasColumnType("int");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -50,6 +62,12 @@ namespace HotelManager.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BookingEmployeeId");
+
+                    b.HasIndex("CheckInEmployeeID");
+
+                    b.HasIndex("CheckOutEmployeeID");
 
                     b.HasIndex("CustomerId");
 
@@ -173,6 +191,46 @@ namespace HotelManager.Migrations
                     b.ToTable("InvoiceDetails");
                 });
 
+            modelBuilder.Entity("HotelManager.Models.MaintenanceReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CompletionImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsResolved")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("ReportedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RoomNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoomNumber");
+
+                    b.ToTable("MaintenanceReports");
+                });
+
             modelBuilder.Entity("HotelManager.Models.Payment", b =>
                 {
                     b.Property<int>("Id")
@@ -193,6 +251,9 @@ namespace HotelManager.Migrations
                     b.Property<int>("PaymentMethod")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("RemainingAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("InvoiceId");
@@ -205,11 +266,11 @@ namespace HotelManager.Migrations
                     b.Property<string>("RoomNumber")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
                     b.Property<decimal>("PricePerNight")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RoomStatus")
+                        .HasColumnType("int");
 
                     b.Property<int>("RoomType")
                         .HasColumnType("int");
@@ -257,6 +318,21 @@ namespace HotelManager.Migrations
 
             modelBuilder.Entity("HotelManager.Models.Booking", b =>
                 {
+                    b.HasOne("HotelManager.Models.Employee", "BookingEmployee")
+                        .WithMany()
+                        .HasForeignKey("BookingEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HotelManager.Models.Employee", "CheckInEmployee")
+                        .WithMany()
+                        .HasForeignKey("CheckInEmployeeID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HotelManager.Models.Employee", "CheckOutEmployee")
+                        .WithMany()
+                        .HasForeignKey("CheckOutEmployeeID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("HotelManager.Models.Customer", "Customer")
                         .WithMany("Bookings")
                         .HasForeignKey("CustomerId")
@@ -268,6 +344,12 @@ namespace HotelManager.Migrations
                         .HasForeignKey("RoomNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BookingEmployee");
+
+                    b.Navigation("CheckInEmployee");
+
+                    b.Navigation("CheckOutEmployee");
 
                     b.Navigation("Customer");
 
@@ -300,6 +382,17 @@ namespace HotelManager.Migrations
                         .IsRequired();
 
                     b.Navigation("Invoice");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("HotelManager.Models.MaintenanceReport", b =>
+                {
+                    b.HasOne("HotelManager.Models.Room", "Room")
+                        .WithMany("MaintenanceReports")
+                        .HasForeignKey("RoomNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Room");
                 });
@@ -354,6 +447,8 @@ namespace HotelManager.Migrations
                     b.Navigation("Bookings");
 
                     b.Navigation("InvoiceDetails");
+
+                    b.Navigation("MaintenanceReports");
                 });
 #pragma warning restore 612, 618
         }

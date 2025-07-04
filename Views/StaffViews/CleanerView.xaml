@@ -1,12 +1,380 @@
-﻿<Window x:Class="HotelManager.Views.StaffViews.CleanerView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:HotelManager.Views.StaffViews"
-        mc:Ignorable="d"
-        Title="CleanerView" Height="450" Width="800">
-    <Grid>
+﻿<UserControl x:Class="HotelManager.Views.StaffViews.CleanerView" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:HotelManager.Converters"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1200" 
+             Background="{StaticResource SurfaceBrush}">
+    
+    <UserControl.Resources>
+        <local:SplitImagePathConverter x:Key="SplitImagePathConverter" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
         
-    </Grid>
-</Window>
+        <!-- Custom Status Indicator Style -->
+        <Style x:Key="StatusIndicatorStyle" TargetType="Ellipse">
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsCleaned}" Value="True">
+                    <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsCleaned}" Value="False">
+                    <Setter Property="Fill" Value="{StaticResource WarningBrush}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <materialDesign:Card Effect="{StaticResource Elevation3}">
+    <Grid>
+        <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+            <!-- Header Section -->
+            <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" Height="80">
+                <Grid Margin="24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Cleaner Title and Info -->
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="Cleaner Dashboard" 
+                                   Style="{StaticResource HeadlineLarge}" 
+                                   Foreground="White"/>
+                        <TextBlock Text="Manage room cleaning and maintenance reports" 
+                                   Style="{StaticResource BodyMedium}" 
+                                   Foreground="{StaticResource OnPrimary200Brush}" 
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Logout Button -->
+                    <Button Grid.Column="1" 
+                            Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                            Style="{StaticResource TextButton}"
+                            Background="{StaticResource ErrorBrush}"
+                           Foreground="White" 
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Logout" 
+                                                   Width="20" Height="20" 
+                                                   Margin="0,0,8,0"/>
+                            <TextBlock Text="Logout" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Button>
+            </Grid>
+        </Border>
+
+        <!-- Content Area -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="24">
+                    
+                    <!-- Status Banner -->
+                    <materialDesign:Card x:Name="NotificationBanner" 
+                                        Background="{StaticResource Primary100Brush}" 
+                                        Margin="0,24,0,16"
+                                        Effect="{StaticResource Elevation1}"
+                                        Visibility="{Binding IsNotificationVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid Margin="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <materialDesign:PackIcon Grid.Column="0" 
+                                                   Kind="Broom" 
+                                                   Width="24" Height="24" 
+                                                   Foreground="{StaticResource Primary700Brush}"
+                                                   VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" 
+                                     Text="You are logged in as Cleaner" 
+                                     Style="{StaticResource TitleMedium}" 
+                                     Foreground="{StaticResource Primary700Brush}"
+                                     VerticalAlignment="Center" 
+                                     Margin="16,0,0,0"/>
+                            <Button Grid.Column="2" 
+                                  Style="{StaticResource IconButton}"
+                                  Command="{Binding CloseNotificationCommand}"
+                                  Width="32" Height="32">
+                                <materialDesign:PackIcon Kind="Close" Width="16" Height="16"/>
+                            </Button>
+                        </Grid>
+                    </materialDesign:Card>
+
+                    <!-- Rooms to Clean Section -->
+                    <materialDesign:Card Margin="0,0,0,24" 
+                                        Effect="{StaticResource Elevation2}">
+                        <StackPanel Margin="24">
+                            <Grid Margin="0,0,0,16">
+                                <TextBlock Text="Rooms to Clean" 
+                                         Style="{StaticResource HeadlineMedium}"/>
+                                <materialDesign:PackIcon Kind="Broom" 
+                                                       Width="28" Height="28" 
+                                                       Foreground="{StaticResource Primary500Brush}"
+                                                       HorizontalAlignment="Right"/>
+                            </Grid>
+                            
+                            <DataGrid ItemsSource="{Binding RoomsToClean}" 
+                                    AutoGenerateColumns="False" 
+                                    Style="{StaticResource ModernDataGrid}"
+                                    CanUserAddRows="False">
+                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Room" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <materialDesign:PackIcon Kind="Door" 
+                                                                           Width="16" Height="16" 
+                                                                           Foreground="{StaticResource Primary500Brush}"/>
+                                                    <TextBlock Text="{Binding RoomNumber}" 
+                                                             Style="{StaticResource BodyLarge}" 
+                                                             Margin="8,0,0,0" 
+                                                             FontWeight="Medium"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    
+                                    <DataGridTextColumn Header="Room Type" 
+                                                      Binding="{Binding RoomType}" 
+                                                      Width="120"/>
+                                    
+                                    <DataGridTemplateColumn Header="Status" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding IsAvailable}" Style="{StaticResource BodyMedium}"/>
+                                                    <Ellipse Style="{StaticResource StatusIndicatorStyle}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                                    <DataGridTemplateColumn Header="Actions" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <Button Command="{Binding DataContext.MarkAsCleanedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                          CommandParameter="{Binding}"
+                                                          Style="{StaticResource ContainedButton}"
+                                                          Background="{StaticResource SuccessBrush}"
+                                                          Margin="0,0,24,0">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="CheckCircle" Width="16" Height="16"/>
+                                                            <TextBlock Text="Mark Clean" Margin="8,0,0,0"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                    <Button Command="{Binding DataContext.ReportIssueCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                          CommandParameter="{Binding}"
+                                                          Style="{StaticResource OutlinedButton}"
+                                                          BorderBrush="{StaticResource ErrorBrush}"
+                                                          Foreground="{StaticResource ErrorBrush}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <materialDesign:PackIcon Kind="AlertCircle" Width="16" Height="16"/>
+                                                            <TextBlock Text="Report Issue" Margin="8,0,0,0"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+                        </StackPanel>
+                    </materialDesign:Card>
+
+                    <!-- Damage Report Section -->
+                    <materialDesign:Card Margin="0,0,0,24" 
+                                        Effect="{StaticResource Elevation2}">
+                        <Expander Header="Damage Report" 
+                                IsExpanded="{Binding IsReportExpanded}"
+                                Style="{StaticResource MaterialDesignExpander}">
+                            <Expander.HeaderTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="ToolboxOutline" 
+                                                               Width="24" Height="24" 
+                                                               Foreground="{StaticResource Secondary500Brush}"
+                                                               VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding}" 
+                                                 Style="{StaticResource TitleLarge}" 
+                                                 Margin="12,0,0,0" 
+                                                 VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </Expander.HeaderTemplate>
+                            
+                            <Grid Margin="32">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Room Number Field -->
+                                <TextBox Grid.Row="0" Grid.ColumnSpan="2"
+                                       Text="{Binding DamageReport.RoomNumber}" 
+                                       Style="{StaticResource OutlinedTextField}"
+                                       materialDesign:HintAssist.Hint="Room Number"
+                                       Margin="0,0,0,16"/>
+
+                                <!-- Description Field -->
+                                <TextBox Grid.Row="1" Grid.ColumnSpan="2"
+                                       Text="{Binding DamageReport.Description}" 
+                                       Style="{StaticResource OutlinedTextField}"
+                                       materialDesign:HintAssist.Hint="Damage Description"
+                                       AcceptsReturn="True" 
+                                       MinHeight="80"
+                                       Margin="0,0,0,16"/>
+
+                                <!-- Image Selection -->
+                                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" 
+                                          Margin="0,0,0,16">
+                                    <TextBlock Text="Attach Images (Optional)" 
+                                             Style="{StaticResource BodyLarge}" 
+                                             Margin="0,0,0,24"/>
+                                    <Button Command="{Binding SelectImageCommand}"
+                                          Style="{StaticResource OutlinedButton}"
+                                          HorizontalAlignment="Left">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="ImagePlus" Width="20" Height="20"/>
+                                            <TextBlock Text="Select Images" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+
+                                <!-- Selected Images List -->
+                                <ItemsControl Grid.Row="3" Grid.ColumnSpan="2"
+                                            ItemsSource="{Binding ImagePaths}"
+                                            Margin="0,0,0,16">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <materialDesign:Card Margin="0,0,0,8" 
+                                                               Effect="{StaticResource Elevation1}">
+                                                <Grid Margin="8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    
+                                                    <materialDesign:PackIcon Grid.Column="0" 
+                                                                           Kind="FileImage" 
+                                                                           Width="16" Height="16" 
+                                                                           Foreground="{StaticResource Secondary500Brush}"
+                                                                           VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" 
+                                                             Text="{Binding}" 
+                                                             Style="{StaticResource BodyMedium}"
+                                                             TextTrimming="CharacterEllipsis" 
+                                                             VerticalAlignment="Center"
+                                                             Margin="8,0,8,0"/>
+                                                    <Button Grid.Column="2" 
+                                                          Command="{Binding DataContext.RemoveImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                          CommandParameter="{Binding}"
+                                                          Style="{StaticResource IconButton}"
+                                                          Width="24" Height="24"
+                                                          ToolTip="Remove Image">
+                                                        <materialDesign:PackIcon Kind="Close" Width="12" Height="12"/>
+                                                    </Button>
+                                                    <Button Grid.Column="3" 
+                                                          Command="{Binding DataContext.ViewImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                          CommandParameter="{Binding}"
+                                                          Style="{StaticResource IconButton}"
+                                                          Width="24" Height="24"
+                                                          ToolTip="View Image">
+                                                        <materialDesign:PackIcon Kind="Eye" Width="12" Height="12"/>
+                                                    </Button>
+                                                </Grid>
+                                            </materialDesign:Card>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                                <!-- Submit Button -->
+                                <Button Grid.Row="4" Grid.ColumnSpan="2"
+                                      Command="{Binding SendDamageReportCommand}"
+                                      Style="{StaticResource ContainedButton}"
+                                      Background="{StaticResource Secondary500Brush}"
+                                      HorizontalAlignment="Right">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="Send" Width="20" Height="20"/>
+                                        <TextBlock Text="Send Damage Report" Margin="8,0,0,0"/>
+                    </StackPanel>
+                                </Button>
+                            </Grid>
+            </Expander>
+                    </materialDesign:Card>
+
+                    <!-- History Section -->
+                    <materialDesign:Card Effect="{StaticResource Elevation2}">
+                        <StackPanel Margin="24">
+                            <Grid Margin="0,0,0,16">
+                                <TextBlock Text="Damage Report History" 
+                                         Style="{StaticResource HeadlineMedium}"/>
+                                <materialDesign:PackIcon Kind="History" 
+                                                       Width="28" Height="28" 
+                                                       Foreground="{StaticResource Accent500Brush}"
+                                                       HorizontalAlignment="Right"/>
+                            </Grid>
+                            
+                            <DataGrid ItemsSource="{Binding DamageReportHistory}" 
+                                    AutoGenerateColumns="False" 
+                                    Style="{StaticResource ModernDataGrid}"
+                                    MaxHeight="250"
+                                    CanUserAddRows="False">
+                    <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="80"/>
+                                    <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*"/>
+                                    <DataGridTextColumn Header="Report Date" 
+                                                      Binding="{Binding ReportedDate, StringFormat=dd/MM/yyyy HH:mm}" 
+                                                      Width="140"/>
+                                    <DataGridTemplateColumn Header="Images" Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ItemsControl ItemsSource="{Binding ImagePath, Converter={StaticResource SplitImagePathConverter}}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                            <Button Command="{Binding DataContext.ViewImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                                  CommandParameter="{Binding}"
+                                                                  Style="{StaticResource IconButton}"
+                                                                  ToolTip="View Image"
+                                                                  Margin="2">
+                                                                <materialDesign:PackIcon Kind="Image" Width="16" Height="16"/>
+                                                            </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                        </StackPanel>
+                    </materialDesign:Card>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </materialDesign:Card>
+</UserControl>

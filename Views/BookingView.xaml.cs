@@ -11,17 +11,25 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using HotelManager.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.Views
 {
     /// <summary>
     /// Interaction logic for BookingView.xaml
     /// </summary>
-    public partial class BookingView : Window
+    public partial class BookingView : UserControl
     {
         public BookingView()
         {
             InitializeComponent();
+            
+            // Set DataContext from DI container
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<BookingViewModel>();
+            }
         }
     }
 }

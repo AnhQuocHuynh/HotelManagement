@@ -1,4 +1,3 @@
-
 # Build output
 bin/
 obj/
@@ -61,3 +60,6 @@ appsettings.*.json
 *.bak
 *.swp
 *.DS_Store
+/HotelManager.csproj
+
+HotelManager.Core/Config/DatabaseConfig.cs

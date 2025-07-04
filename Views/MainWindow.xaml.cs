@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using HotelManager.ViewModels;
+using HotelManager.Utilities;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
@@ -19,8 +20,7 @@ namespace HotelManager.Views
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
-
+            DataContext = ViewModelLocator.GetViewModel<MainViewModel>();
         }
     }
 }

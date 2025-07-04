@@ -1,5 +1,7 @@
-﻿using System;
+﻿using HotelManager.ViewModels;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,12 +14,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace HotelManager.Views.StaffViews
+namespace HotelManager.Views
 {
     /// <summary>
     /// Interaction logic for PaymentView.xaml
     /// </summary>
-    public partial class PaymentView : Window
+    public partial class PaymentView : UserControl
     {
         public PaymentView()
         {

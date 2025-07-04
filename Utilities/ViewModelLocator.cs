@@ -3,47 +3,48 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using HotelManager.ViewModels;
+using HotelManager.ViewModels.Common;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace HotelManager.Utilities
+namespace HotelManager.Utilities;
+
+public class ViewModelLocator
 {
-    public class ViewModelLocator
+    public static ViewModelLocator Instance { get; } = new();
+
+    private static readonly Dictionary<Type, Type> _viewModelToViewMap = new();
+    private static readonly Dictionary<Type, object> _viewModelInstances = new();
+
+    public MainViewModel MainViewModel => GetViewModel<MainViewModel>();
+    public PaymentViewModel PaymentViewModel => GetViewModel<PaymentViewModel>();
+
+    public static void Register<TVm, TView>() where TVm : class where TView : FrameworkElement
     {
-        private static readonly Dictionary<Type, Type> _viewModelToViewMap = new Dictionary<Type, Type>();
-        private static readonly Dictionary<Type, object> _viewModelInstances = new Dictionary<Type, object>();
-
-        public static void Register<TViewModel, TView>() 
-            where TViewModel : class
-            where TView : FrameworkElement
-        {
-            _viewModelToViewMap[typeof(TViewModel)] = typeof(TView);
-        }
-
-        public static TView GetView<TViewModel, TView>() 
-            where TViewModel : class
-            where TView : FrameworkElement
-        {
-            if (!_viewModelToViewMap.ContainsKey(typeof(TViewModel)))
-            {
-                throw new KeyNotFoundException($"No view registered for ViewModel type {typeof(TViewModel).Name}");
-            }
-
-            var viewType = _viewModelToViewMap[typeof(TViewModel)];
-            return (TView)Activator.CreateInstance(viewType);
-        }
-
-        public static TViewModel GetViewModel<TViewModel>() where TViewModel : class
-        {
-            if (!_viewModelInstances.ContainsKey(typeof(TViewModel)))
-            {
-                _viewModelInstances[typeof(TViewModel)] = Activator.CreateInstance<TViewModel>();
-            }
-
-            return (TViewModel)_viewModelInstances[typeof(TViewModel)];
-        }
-
-        public static void ClearViewModelInstances()
-        {
-            _viewModelInstances.Clear();
-        }
+        _viewModelToViewMap[typeof(TVm)] = typeof(TView);
     }
+
+    public static TView GetView<TVm, TView>() where TVm : class where TView : FrameworkElement
+    {
+        if (!_viewModelToViewMap.TryGetValue(typeof(TVm), out var viewType))
+            throw new KeyNotFoundException($"No view registered for {typeof(TVm).Name}");
+        return (TView)Activator.CreateInstance(viewType)!;
+    }
+
+    public static TVm GetViewModel<TVm>() where TVm : class
+    {
+        if (App.ServiceProvider is IServiceProvider sp)
+        {
+            var resolved = sp.GetService<TVm>();
+            if (resolved != null) return resolved;
+        }
+
+        if (!_viewModelInstances.TryGetValue(typeof(TVm), out var vm))
+        {
+            vm = Activator.CreateInstance(typeof(TVm))!;
+            _viewModelInstances[typeof(TVm)] = vm;
+        }
+        return (TVm)vm;
+    }
+
+    public static void Clear() => _viewModelInstances.Clear();
 } 

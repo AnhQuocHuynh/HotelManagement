@@ -11,17 +11,27 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.Views.StaffViews
 {
     /// <summary>
     /// Interaction logic for ManagerView.xaml
     /// </summary>
-    public partial class ManagerView : Window
+    public partial class ManagerView : UserControl
     {
         public ManagerView()
         {
             InitializeComponent();
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<ViewModels.StaffViewModels.ManagerViewModel>();
+            }
+        }
+
+        private void comboBox_Options_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }
