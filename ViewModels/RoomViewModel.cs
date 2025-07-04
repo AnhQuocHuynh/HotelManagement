@@ -41,6 +41,7 @@ namespace HotelManager.ViewModels
         public ICommand UpdateCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
         public ICommand AddCommand { get; set; }
+        public ICommand SearchCommand { get; set; }
 
         private Room _selectedRoom;
         public Room SelectedRoom
@@ -137,6 +138,7 @@ namespace HotelManager.ViewModels
                 UpdateCommand = new RelayCommand<object>(_ => { });
                 DeleteCommand = new RelayCommand<object>(_ => { });
                 AddCommand = new AsyncRelayCommand(() => Task.CompletedTask);
+                SearchCommand = new RelayCommand(() => { });
                 return;
             }
 
@@ -158,6 +160,7 @@ namespace HotelManager.ViewModels
             UpdateCommand = new RelayCommand<object>(_ => UpdateRoom(_selectedRoom));
             DeleteCommand = new RelayCommand<object>(_ => DeleteRoom(_selectedRoom));
             AddCommand = new AsyncRelayCommand(AddRoom);
+            SearchCommand = new RelayCommand(FilterRooms);
             LoadRooms();
         }
 

@@ -42,6 +42,9 @@ namespace HotelManager.ViewModels.Admin
         public ICommand AddNewEmployeeCommand { get; set; }
         public ICommand LogoutCommand { get; set; }
         public ICommand CreateAccountCommand { get; set; }
+        public ICommand ReportsCommand { get; set; }
+        public ICommand RefreshCommand { get; set; }
+        public ICommand ClearFormCommand { get; set; }
 
         private ObservableCollection<Employee> _employees = new();
         public ObservableCollection<Employee> Employees
@@ -149,6 +152,9 @@ namespace HotelManager.ViewModels.Admin
             AddNewEmployeeCommand = new RelayCommand(AddNewEmployee);
             LogoutCommand = new RelayCommand(Logout);
             CreateAccountCommand = new RelayCommand(CreateAccount, CanCreateAccount);
+            ReportsCommand = new RelayCommand(Reports);
+            RefreshCommand = new RelayCommand(Refresh);
+            ClearFormCommand = new RelayCommand(ClearForm);
 
             LoadEmployees();
 
@@ -175,6 +181,9 @@ namespace HotelManager.ViewModels.Admin
                 AddNewEmployeeCommand = new RelayCommand(() => { });
                 LogoutCommand = new RelayCommand(() => { });
                 CreateAccountCommand = new RelayCommand(() => { }, () => false);
+                ReportsCommand = new RelayCommand(() => { });
+                RefreshCommand = new RelayCommand(() => { });
+                ClearFormCommand = new RelayCommand(() => { });
                 return;
             }
 
@@ -192,6 +201,9 @@ namespace HotelManager.ViewModels.Admin
             AddNewEmployeeCommand = new RelayCommand(AddNewEmployee);
             LogoutCommand = new RelayCommand(Logout);
             CreateAccountCommand = new RelayCommand(CreateAccount, CanCreateAccount);
+            ReportsCommand = new RelayCommand(Reports);
+            RefreshCommand = new RelayCommand(Refresh);
+            ClearFormCommand = new RelayCommand(ClearForm);
 
             LoadEmployees();
 
@@ -384,6 +396,28 @@ namespace HotelManager.ViewModels.Admin
                 _logger.LogError(ex, "Error opening create account dialog");
                 _notificationService.ShowError($"Lỗi mở dialog tạo tài khoản: {ex.Message}");
             }
+        }
+
+        private void Reports()
+        {
+            MessageBox.Show("Reports feature will be implemented in future versions.\n\nYou will be able to view:\n• Employee statistics\n• Room occupancy reports\n• Revenue analytics\n• Performance metrics", 
+                "Reports", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void Refresh()
+        {
+            LoadEmployees();
+            MessageBox.Show("Employee list refreshed successfully!", "Refresh", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void ClearForm()
+        {
+            EmployeeFullName = string.Empty;
+            EmployeeEmail = string.Empty;
+            EmployeePhoneNumber = string.Empty;
+            EmployeeCCCD = string.Empty;
+            SelectedPosition = EmployeePosition.Receptionist;
+            EmployeeHireDate = DateTime.Today;
         }
 
     }

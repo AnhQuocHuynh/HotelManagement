@@ -53,6 +53,17 @@ namespace HotelManager.ViewModels.StaffViewModels
         // Cho phép upload nhiều ảnh cho một báo cáo
         public List<string> ImagePaths { get; set; } = new();
 
+        private bool _isNotificationVisible = true;
+        public bool IsNotificationVisible
+        {
+            get => _isNotificationVisible;
+            set
+            {
+                _isNotificationVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
         // Commands
         public ICommand MarkAsCleanedCommand { get; }
         public ICommand ReportIssueCommand { get; }
@@ -61,6 +72,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand RemoveImageCommand { get; }
         public ICommand RefreshDamageReportHistoryCommand { get; }
         public ICommand ViewImageCommand { get; }
+        public ICommand CloseNotificationCommand { get; }
 
         public CleanerViewModel(ICleanRoomService cleanroomService)
         {
@@ -73,6 +85,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             RemoveImageCommand = new RelayCommand<string>(RemoveImage);
             RefreshDamageReportHistoryCommand = new RelayCommand(async () => await LoadDamageReportHistoryAsync());
             ViewImageCommand = new RelayCommand<string>(ViewImage);
+            CloseNotificationCommand = new RelayCommand(CloseNotification);
 
             // sequential async initialization to avoid concurrent DbContext operations
             _ = InitializeAsync();
@@ -229,6 +242,11 @@ namespace HotelManager.ViewModels.StaffViewModels
                     MessageBox.Show($"Cannot open image: {imagePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private void CloseNotification()
+        {
+            IsNotificationVisible = false;
         }
     }
 }

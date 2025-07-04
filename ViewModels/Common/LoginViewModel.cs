@@ -49,6 +49,7 @@ namespace HotelManager.ViewModels.Common
         // ICommnd
         public ICommand LoginCommand { get; set; }
         public ICommand ChangePasswordVisibilityCommand { get; set; }
+        public ICommand ContactAdminCommand { get; set; }
 
 
 
@@ -57,6 +58,7 @@ namespace HotelManager.ViewModels.Common
         {
             // coommand
             LoginCommand = new RelayCommand(Login);
+            ContactAdminCommand = new RelayCommand(ContactAdmin);
 
             PasswordVisibility = false;
         }
@@ -128,6 +130,17 @@ namespace HotelManager.ViewModels.Common
             {
                 System.Windows.MessageBox.Show($"Login error: {ex.Message}!");
             }
+        }
+
+        private void ContactAdmin()
+        {
+            var message = "Để được hỗ trợ tạo tài khoản hoặc khắc phục sự cố đăng nhập, vui lòng liên hệ:\n\n" +
+                         "📧 Email: admin@hotelmanager.com\n" +
+                         "📞 Phone: +84 123 456 789\n" +
+                         "🕒 Working hours: 8:00 AM - 6:00 PM (Mon-Fri)";
+            
+            System.Windows.MessageBox.Show(message, "Contact Administrator", 
+                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
         }
     }
 }

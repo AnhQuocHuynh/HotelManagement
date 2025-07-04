@@ -113,6 +113,9 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand UpdateCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
         public ICommand LoadedCommand { get; private set; }
+        public ICommand ReportsCommand { get; private set; }
+        public ICommand RefreshCommand { get; private set; }
+        public ICommand ClearFormCommand { get; private set; }
 
         // Constructor cho XAML (không tham số) – tự resolve qua DI
         public ReceptionistViewModel() : base()
@@ -155,6 +158,10 @@ namespace HotelManager.ViewModels.StaffViewModels
                 canExecute: b => b != null);
 
             LoadedCommand = new AsyncRelayCommand(LoadDataAsync);
+
+            ReportsCommand = new AsyncRelayCommand(ReportsAsync);
+            RefreshCommand = new AsyncRelayCommand(RefreshAsync);
+            ClearFormCommand = new AsyncRelayCommand(ClearFormAsync);
         }
 
         protected override async Task OnLoadedAsync()
@@ -358,7 +365,47 @@ namespace HotelManager.ViewModels.StaffViewModels
             SelectedRoomNumber = null;
             CheckInDate = null;
             CheckOutDate = null;
-            SelectedStatus = default;
+            SelectedStatus = BookingStatus.Pending;
+        }
+
+        private async Task ReportsAsync()
+        {
+            try
+            {
+                var message = "Reports feature is available in Manager role.\n\nAs a Receptionist, you have access to:\n• View current bookings\n• Add new bookings\n• Update booking status\n• Check room availability";
+                MessageBox.Show(message, "Reports", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error showing reports message");
+            }
+        }
+
+        private async Task RefreshAsync()
+        {
+            try
+            {
+                await LoadDataAsync();
+                MessageBox.Show("Data refreshed successfully!", "Refresh", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error refreshing data");
+                MessageBox.Show("Error refreshing data. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task ClearFormAsync()
+        {
+            try
+            {
+                ClearInputFields();
+                MessageBox.Show("Form cleared successfully!", "Clear Form", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error clearing form");
+            }
         }
     }
 }

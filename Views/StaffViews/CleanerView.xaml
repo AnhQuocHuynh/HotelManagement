@@ -81,7 +81,8 @@
                     <materialDesign:Card x:Name="NotificationBanner" 
                                         Background="{StaticResource Primary100Brush}" 
                                         Margin="0,24,0,16"
-                                        Effect="{StaticResource Elevation1}">
+                                        Effect="{StaticResource Elevation1}"
+                                        Visibility="{Binding IsNotificationVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Grid Margin="16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -102,6 +103,7 @@
                                      Margin="16,0,0,0"/>
                             <Button Grid.Column="2" 
                                   Style="{StaticResource IconButton}"
+                                  Command="{Binding CloseNotificationCommand}"
                                   Width="32" Height="32">
                                 <materialDesign:PackIcon Kind="Close" Width="16" Height="16"/>
                             </Button>

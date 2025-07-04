@@ -316,6 +316,7 @@
                                    VerticalAlignment="Center"/>
                         <Button Content="Contact Admin" 
                                 Style="{StaticResource TextButton}"
+                                Command="{Binding ContactAdminCommand}"
                                 Foreground="White" 
                                 FontWeight="Bold"
                                 Margin="8,0,0,0"/>
