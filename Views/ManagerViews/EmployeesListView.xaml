@@ -51,7 +51,7 @@
                            Style="{StaticResource LabelLarge}"
                            Margin="0,0,0,8"/>
                     <TextBox Style="{StaticResource OutlinedTextField}"
-                         Text="{Binding FilterName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                             Text="{Binding FilterName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
 
@@ -135,11 +135,11 @@
 
                 <UniformGrid Grid.Column="1"
                          Columns="1"
-                         Rows="2"
+                         Rows="3"
                          Margin="20,0,20,0">
 
                     <Button Content="Reset" 
-                        Height="50"
+                        Height="45"
                         VerticalAlignment="Bottom"
                         Style="{StaticResource OutlinedButton}"
                         Command="{Binding ResetCommand}"
@@ -165,7 +165,7 @@
                     </Button>
 
                     <Button Content="Apply"
-                        Height="50"
+                        Height="45"
                         VerticalAlignment="Bottom"
                         Command="{Binding ApplyFilterCommand}"
                         Style="{StaticResource ContainedButton}"
@@ -173,33 +173,43 @@
                         Foreground="White"
                         FontWeight="SemiBold"/>
 
-                </UniformGrid>
+                <Button Content="Export"
+                        Height="45"
+                        VerticalAlignment="Bottom"
+                        Command="{Binding ExportCommand}"
+                        Style="{StaticResource ContainedButton}"
+                        Background="{DynamicResource OnSurface600Brush}"
+                        Foreground="White"
+                        FontWeight="SemiBold"/>
+
+            </UniformGrid>
 
             </Grid>
 
 
             <!-- DataGrid -->
-            <DataGrid Grid.Row="1"
-          ItemsSource="{Binding Employees}"
-          AutoGenerateColumns="False"
-          IsReadOnly="True"
-          ColumnWidth="*">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" 
-                                    Binding="{Binding Id}" />
-                    <DataGridTextColumn Header="Tên" 
-                                    Binding="{Binding FullName}" />
-                    <DataGridTextColumn Header="Email" 
-                                    Binding="{Binding Email}" />
-                    <DataGridTextColumn Header="SĐT" 
-                                    Binding="{Binding PhoneNumber}" />
-                    <DataGridTextColumn Header="Ngày vào làm" 
-                                    Binding="{Binding HireDate, StringFormat=dd/MM/yyyy}" />
-                    <DataGridTextColumn Header="Chức vụ" 
-                                    Binding="{Binding Position}" />
-                    <DataGridTextColumn Header="CCCD" 
-                                    Binding="{Binding CCCD}" />
-                </DataGrid.Columns>
-            </DataGrid>
-        </Grid>
+        <DataGrid Grid.Row="1"
+                      ItemsSource="{Binding Employees}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      ColumnWidth="*">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" 
+                                        Binding="{Binding Id}" />
+                <DataGridTextColumn Header="Tên" 
+                                        Binding="{Binding FullName}" />
+                <DataGridTextColumn Header="Email" 
+                                        Binding="{Binding Email}" />
+                <DataGridTextColumn Header="SĐT" 
+                                        Binding="{Binding PhoneNumber}" />
+                <DataGridTextColumn Header="Ngày vào làm" 
+                                        Binding="{Binding HireDate, StringFormat=dd/MM/yyyy}" />
+                <DataGridTextColumn Header="Chức vụ" 
+                                        Binding="{Binding Position}" />
+                <DataGridTextColumn Header="CCCD" 
+                                        Binding="{Binding CCCD}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
 </UserControl>

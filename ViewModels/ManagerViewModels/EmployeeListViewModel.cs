@@ -17,6 +17,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
     public class EmployeeListViewModel : ObservableObject
     {
         private readonly EmployeeService _employeeService;
+        private readonly ExportService _exportService;
 
         // Dữ liệu gốc
         private List<Employee> _allEmployees = new();
@@ -88,6 +89,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
         // Commands
         public ICommand ApplyFilterCommand { get; }
         public ICommand ResetCommand { get; }
+        public ICommand ExportCommand { get; }
 
         // Scope để quản lý vòng đời của các dịch vụ
         private IServiceScope _scope;
@@ -99,15 +101,34 @@ namespace HotelManager.ViewModels.ManagerViewModels
             _scope = App.ServiceProvider.CreateScope();
             var dbContext = _scope.ServiceProvider.GetRequiredService<HotelDbContext>();
             _employeeService = new EmployeeService(dbContext);
+            _exportService = new ExportService();
+
 
             positionInit();
             ResetFilters();
 
             ApplyFilterCommand = new RelayCommand(ApplyFilters);
             ResetCommand = new RelayCommand(ResetFilters);
+            ExportCommand = new RelayCommand(ExportToExcel);
 
             _ = FetchEmployeesAsync();
         }
+
+        // export dữ liệu ra file excel
+        private void ExportToExcel()
+        {
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "Excel files (*.xlsx)|*.xlsx",
+                FileName = "Employees.xlsx"
+            };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                _exportService.ExportToExcel(Employees, saveFileDialog.FileName);
+            }
+        }
+
+
 
         // lấy employee từ db và gán vào list
         private async Task FetchEmployeesAsync()
