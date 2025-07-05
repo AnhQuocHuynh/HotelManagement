@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:HotelManager.Converters"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1200" 
              Background="{StaticResource SurfaceBrush}">
@@ -20,17 +21,27 @@
             <Setter Property="Height" Value="12"/>
             <Setter Property="Margin" Value="8,0,0,0"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding IsCleaned}" Value="True">
+                <DataTrigger Binding="{Binding RoomStatus}" Value="Available">
                     <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding IsCleaned}" Value="False">
+                <DataTrigger Binding="{Binding RoomStatus}" Value="UnderMaintenance">
                     <Setter Property="Fill" Value="{StaticResource WarningBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RoomStatus}" Value="OutOfService">
+                    <Setter Property="Fill" Value="{StaticResource ErrorBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RoomStatus}" Value="Occupied">
+                    <Setter Property="Fill" Value="{StaticResource Primary500Brush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding RoomStatus}" Value="Reserved">
+                    <Setter Property="Fill" Value="{StaticResource Secondary500Brush}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
 
     <materialDesign:Card Effect="{StaticResource Elevation3}">
+    <Border Padding="0,32,0,0">
     <Grid>
         <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -38,8 +49,8 @@
         </Grid.RowDefinitions>
 
             <!-- Header Section -->
-            <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" Height="80">
-                <Grid Margin="24">
+            <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" MinHeight="80" Padding="0,8">
+                <Grid Margin="16,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -47,7 +58,7 @@
 
                     <!-- Cleaner Title and Info -->
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                <TextBlock Text="Cleaner Dashboard" 
+                        <TextBlock Text="Cleaner Dashboard" 
                                    Style="{StaticResource HeadlineLarge}" 
                                    Foreground="White"/>
                         <TextBlock Text="Manage room cleaning and maintenance reports" 
@@ -61,8 +72,10 @@
                             Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                             Style="{StaticResource TextButton}"
                             Background="{StaticResource ErrorBrush}"
-                           Foreground="White" 
-                            VerticalAlignment="Center">
+                            Foreground="White" 
+                            VerticalAlignment="Center"
+                            Margin="16,0,0,0"
+                            MinWidth="100">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Logout" 
                                                    Width="20" Height="20" 
@@ -70,17 +83,17 @@
                             <TextBlock Text="Logout" FontWeight="Medium"/>
                         </StackPanel>
                     </Button>
-            </Grid>
-        </Border>
+                </Grid>
+            </Border>
 
         <!-- Content Area -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="24">
+                <StackPanel Margin="16">
                     
                     <!-- Status Banner -->
                     <materialDesign:Card x:Name="NotificationBanner" 
                                         Background="{StaticResource Primary100Brush}" 
-                                        Margin="0,24,0,16"
+                                        Margin="0,32,0,16"
                                         Effect="{StaticResource Elevation1}"
                                         Visibility="{Binding IsNotificationVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <Grid Margin="16">
@@ -109,6 +122,88 @@
                             </Button>
                         </Grid>
                     </materialDesign:Card>
+
+                    <!-- Filter Cards Section -->
+                    <UniformGrid Rows="1" Columns="3" 
+                               Margin="0,0,0,24">
+                        <!-- Pending Rooms Card -->
+                        <materialDesign:Card Margin="0,0,16,0" 
+                                            Effect="{StaticResource Elevation2}"
+                                            Background="{StaticResource Warning100Brush}"
+                                            Cursor="Hand">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonUp">
+                                    <i:InvokeCommandAction Command="{Binding FilterPendingCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <StackPanel Margin="24" HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="ClockTimeEight" 
+                                                       Width="40" Height="40" 
+                                                       Foreground="{StaticResource WarningBrush}"
+                                                       HorizontalAlignment="Center"/>
+                                <TextBlock Text="Pending" 
+                                         Style="{StaticResource TitleLarge}" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,16,0,0"/>
+                                <TextBlock Text="Rooms to Clean" 
+                                         Style="{StaticResource BodyMedium}" 
+                                         Foreground="{StaticResource OnSurface600Brush}"
+                                         HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+
+                        <!-- Cleaned Rooms Card -->
+                        <materialDesign:Card Margin="0,0,16,0"
+                                            Effect="{StaticResource Elevation2}"
+                                            Background="{StaticResource Success100Brush}"
+                                            Cursor="Hand">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonUp">
+                                    <i:InvokeCommandAction Command="{Binding FilterCleanedCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <StackPanel Margin="24" HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="CheckCircleOutline" 
+                                                       Width="40" Height="40" 
+                                                       Foreground="{StaticResource SuccessBrush}"
+                                                       HorizontalAlignment="Center"/>
+                                <TextBlock Text="Cleaned" 
+                                         Style="{StaticResource TitleLarge}" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,16,0,0"/>
+                                <TextBlock Text="Completed Rooms" 
+                                         Style="{StaticResource BodyMedium}" 
+                                         Foreground="{StaticResource OnSurface600Brush}"
+                                         HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+
+                        <!-- Clear Filter -->
+                        <materialDesign:Card Margin="0,0,16,0" 
+                                            Effect="{StaticResource Elevation2}"
+                                            Background="{StaticResource SurfaceBrush}"
+                                            Cursor="Hand">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonUp">
+                                    <i:InvokeCommandAction Command="{Binding ClearFilterCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <StackPanel Margin="24" HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="ViewList" 
+                                                       Width="40" Height="40" 
+                                                       Foreground="{StaticResource OnSurfaceBrush}"
+                                                       HorizontalAlignment="Center"/>
+                                <TextBlock Text="Overview" 
+                                         Style="{StaticResource TitleLarge}" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,16,0,0"/>
+                                <TextBlock Text="Show All Rooms" 
+                                         Style="{StaticResource BodyMedium}" 
+                                         Foreground="{StaticResource OnSurface600Brush}"
+                                         HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+                    </UniformGrid>
 
                     <!-- Rooms to Clean Section -->
                     <materialDesign:Card Margin="0,0,0,24" 
@@ -152,7 +247,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding IsAvailable}" Style="{StaticResource BodyMedium}"/>
+                                                    <TextBlock Text="{Binding RoomStatusDisplay}" Style="{StaticResource BodyMedium}"/>
                                                     <Ellipse Style="{StaticResource StatusIndicatorStyle}"/>
                                 </StackPanel>
                             </DataTemplate>
@@ -376,5 +471,6 @@
                 </StackPanel>
             </ScrollViewer>
         </Grid>
+    </Border>
     </materialDesign:Card>
 </UserControl>

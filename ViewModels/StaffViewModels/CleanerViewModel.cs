@@ -19,12 +19,17 @@ namespace HotelManager.ViewModels.StaffViewModels
     public class CleanerViewModel : BaseViewModel
     {
         private readonly ICleanRoomService _cleanroomService;
+        private readonly IService<HotelManager.Models.Room> _roomService;
         private ObservableCollection<Room> _roomsToClean;
         public ObservableCollection<Room> RoomsToClean
         {
             get => _roomsToClean;
             set { _roomsToClean = value; OnPropertyChanged(); }
         }
+
+        // Store all rooms for filtering
+        private List<Room> _allRooms = new();
+        private List<Room> _roomsNeedCleaning = new();
 
         // Lịch sử báo cáo hư hỏng/phòng đã dọn
         public ObservableCollection<MaintenanceReport> DamageReportHistory { get; set; } = new();
@@ -73,10 +78,14 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand RefreshDamageReportHistoryCommand { get; }
         public ICommand ViewImageCommand { get; }
         public ICommand CloseNotificationCommand { get; }
+        public ICommand FilterPendingCommand { get; }
+        public ICommand FilterCleanedCommand { get; }
+        public ICommand ClearFilterCommand { get; }
 
-        public CleanerViewModel(ICleanRoomService cleanroomService)
+        public CleanerViewModel(ICleanRoomService cleanroomService, IService<HotelManager.Models.Room> roomService)
         {
             _cleanroomService = cleanroomService;
+            _roomService = roomService;
             RoomsToClean = new ObservableCollection<Room>();
             MarkAsCleanedCommand = new RelayCommand<Room>(MarkRoomAsCleaned);
             ReportIssueCommand = new RelayCommand<Room>(ReportIssue);
@@ -86,6 +95,9 @@ namespace HotelManager.ViewModels.StaffViewModels
             RefreshDamageReportHistoryCommand = new RelayCommand(async () => await LoadDamageReportHistoryAsync());
             ViewImageCommand = new RelayCommand<string>(ViewImage);
             CloseNotificationCommand = new RelayCommand(CloseNotification);
+            FilterPendingCommand = new RelayCommand(FilterPending);
+            FilterCleanedCommand = new RelayCommand(FilterCleaned);
+            ClearFilterCommand = new RelayCommand(ClearFilter);
 
             // sequential async initialization to avoid concurrent DbContext operations
             _ = InitializeAsync();
@@ -105,16 +117,33 @@ namespace HotelManager.ViewModels.StaffViewModels
 
         private async Task InitializeAsync()
         {
+            await LoadAllRoomsAsync();
             await LoadRoomsToCleanAsync();
             await LoadDamageReportHistoryAsync();
+        }
+
+        private async Task LoadAllRoomsAsync()
+        {
+            try
+            {
+                var allRooms = await _roomService.GetAllAsync();
+                _allRooms = allRooms.ToList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải danh sách tất cả phòng: " + ex.Message);
+            }
         }
 
         private async Task LoadRoomsToCleanAsync()
         {
             try
             {
-                var rooms = await _cleanroomService.GetAllAsync();
-                RoomsToClean = new ObservableCollection<Room>(rooms);
+                var roomsNeedCleaning = await _cleanroomService.GetAllAsync();
+                _roomsNeedCleaning = roomsNeedCleaning;
+                
+                // Mặc định hiển thị rooms cần dọn dẹp
+                RoomsToClean = new ObservableCollection<Room>(roomsNeedCleaning);
             }
             catch (Exception ex)
             {
@@ -131,9 +160,13 @@ namespace HotelManager.ViewModels.StaffViewModels
             try
             {
                 await _cleanroomService.MarkRoomAsCleanedAsync(room);
-                RoomsToClean.Remove(room);
+                
+                // Refresh data sau khi mark as cleaned
+                await LoadAllRoomsAsync();
+                await LoadRoomsToCleanAsync();
+                await LoadDamageReportHistoryAsync();
+                
                 MessageBox.Show($"Phòng {room.RoomNumber} đã được đánh dấu là đã dọn.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-                await LoadDamageReportHistoryAsync(); // Cập nhật lịch sử
             }
             catch (Exception ex)
             {
@@ -247,6 +280,25 @@ namespace HotelManager.ViewModels.StaffViewModels
         private void CloseNotification()
         {
             IsNotificationVisible = false;
+        }
+
+        private void FilterPending()
+        {
+            // Hiển thị rooms cần dọn dẹp (từ CleanRoomService - rooms có booking CheckedOut)
+            RoomsToClean = new ObservableCollection<Room>(_roomsNeedCleaning);
+        }
+
+        private void FilterCleaned()
+        {
+            // Hiển thị rooms đã clean (Available status)
+            var cleaned = _allRooms.Where(r => r.RoomStatus == RoomStatus.Available);
+            RoomsToClean = new ObservableCollection<Room>(cleaned);
+        }
+
+        private void ClearFilter()
+        {
+            // Hiển thị tất cả rooms
+            RoomsToClean = new ObservableCollection<Room>(_allRooms);
         }
     }
 }
