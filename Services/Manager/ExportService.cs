@@ -5,6 +5,7 @@ using System.Windows.Media;
 using System.Windows;
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing.Chart;
+using HotelManager.ViewModels.ManagerViewModels.UIModel;
 
 namespace HotelManager.Services.Manager
 {
@@ -82,5 +83,81 @@ namespace HotelManager.Services.Manager
 
             package.SaveAs(new FileInfo(filePath));
         }
+
+        //export receptionist activity report
+        public void ExportReceptionistActivitiesToExcel(ReceptionistChartData data, string selectedUnit, string filePath)
+        {
+            ExcelPackage.License.SetNonCommercialPersonal("Bui Quoc Bao");
+
+            using var package = new ExcelPackage();
+            var ws = package.Workbook.Worksheets.Add("ReceptionistActivities");
+
+            // Header
+            if (selectedUnit == "Counting")
+            {
+                ws.Cells[1, 1].Value = "Receptionist";
+                ws.Cells[1, 2].Value = "Booking Created";
+                ws.Cells[1, 3].Value = "Check-In";
+                ws.Cells[1, 4].Value = "Check-Out";
+
+                ws.Row(1).Style.Font.Bold = true;
+
+                // Data
+                for (int i = 0; i < data.Labels.Length; i++)
+                {
+                    ws.Cells[i + 2, 1].Value = data.Labels[i];
+                    ws.Cells[i + 2, 2].Value = data.BookingCounts[i];
+                    ws.Cells[i + 2, 3].Value = data.CheckInCounts[i];
+                    ws.Cells[i + 2, 4].Value = data.CheckOutCounts[i];
+                }
+
+                // Add Chart
+                var chart = ws.Drawings.AddChart("ReceptionistChart", eChartType.BarClustered) as ExcelChart;
+                chart.Title.Text = "Receptionist Activities (Counting)";
+                chart.SetPosition(1, 0, 6, 0);
+                chart.SetSize(800, 500);
+
+                chart.Series.Add(ws.Cells[2, 2, data.Labels.Length + 1, 2], ws.Cells[2, 1, data.Labels.Length + 1, 1]).Header = "Booking Created";
+                chart.Series.Add(ws.Cells[2, 3, data.Labels.Length + 1, 3], ws.Cells[2, 1, data.Labels.Length + 1, 1]).Header = "Check-In";
+                chart.Series.Add(ws.Cells[2, 4, data.Labels.Length + 1, 4], ws.Cells[2, 1, data.Labels.Length + 1, 1]).Header = "Check-Out";
+            }
+            else if (selectedUnit == "Revenue")
+            {
+                ws.Cells[1, 1].Value = "Receptionist";
+                ws.Cells[1, 2].Value = "Booking Revenue";
+                ws.Cells[1, 3].Value = "Check-In Revenue";
+                ws.Cells[1, 4].Value = "Check-Out Revenue";
+
+                ws.Row(1).Style.Font.Bold = true;
+
+                // Data
+                for (int i = 0; i < data.Labels.Length; i++)
+                {
+                    ws.Cells[i + 2, 1].Value = data.Labels[i];
+                    ws.Cells[i + 2, 2].Value = data.BookingRevenues[i];
+                    ws.Cells[i + 2, 3].Value = data.CheckInRevenues[i];
+                    ws.Cells[i + 2, 4].Value = data.CheckOutRevenues[i];
+                }
+
+                // Format tiền tệ
+                ws.Cells[2, 2, data.Labels.Length + 1, 4].Style.Numberformat.Format = "#,##0 \"₫\"";
+
+                // Chart dạng Bar (thanh ngang)
+                var chart = ws.Drawings.AddChart("ReceptionistChart", eChartType.BarClustered) as ExcelChart;
+                chart.Title.Text = "Receptionist Activities (Counting)";
+                chart.SetPosition(1, 0, 6, 0);
+                chart.SetSize(800, 500);
+
+                chart.Series.Add(ws.Cells[2, 2, data.Labels.Length + 1, 2], ws.Cells[2, 1, data.Labels.Length + 1, 1]).Header = "Booking Created";
+                chart.Series.Add(ws.Cells[2, 3, data.Labels.Length + 1, 3], ws.Cells[2, 1, data.Labels.Length + 1, 1]).Header = "Check-In";
+                chart.Series.Add(ws.Cells[2, 4, data.Labels.Length + 1, 4], ws.Cells[2, 1, data.Labels.Length + 1, 1]).Header = "Check-Out";
+
+            }
+
+            ws.Cells[ws.Dimension.Address].AutoFitColumns();
+            package.SaveAs(new FileInfo(filePath));
+        }
+
+
     }
 }

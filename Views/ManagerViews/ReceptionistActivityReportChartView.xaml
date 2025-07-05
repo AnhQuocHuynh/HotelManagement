@@ -123,6 +123,15 @@
                   ItemsSource="{Binding RoomTypes}"
                   SelectedItem="{Binding SelectedRoomType}"/>
 
+        <Button Content="Export"
+                Width="100"
+                Height="40"
+                Grid.Row="0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="560,0,0,0"
+                Command="{Binding ExportChartAndDataCommand}"/>
+
         <!-- chart -->
         <lvc:CartesianChart Grid.Row="1"
                             Series="{Binding Series}"
