@@ -3,11 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:HotelManager.Converters"
              xmlns:local="clr-namespace:HotelManager.Views"
              mc:Ignorable="d" 
              SizeToContent="WidthAndHeight"
              WindowStartupLocation="CenterOwner"
              ResizeMode="NoResize" d:DesignWidth="500" Height="648">
+    <Window.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    </Window.Resources>
     <Border Background="White" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="10" CornerRadius="8">
         <StackPanel Margin="20" HorizontalAlignment="Center" Width="400" Background="White" >
             <TextBlock Text="Edit Employee Information" 
@@ -16,18 +20,26 @@
                        FontWeight="Bold" 
                        Margin="0,0,0,20" 
                        HorizontalAlignment="Center"/>
-
+            <!-- Full Name -->
             <TextBlock Text="Full Name:" Foreground="{StaticResource SecondaryBrush}" />
             <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding EditableEmployee.FullName, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,10"/>
+            <TextBlock Text="{Binding FullNameError}" Foreground="Red" FontSize="12" Visibility="{Binding FullNameError, Converter={StaticResource StringToVisibilityConverter}}" Margin="0,0,0,10"/>
 
+            <!-- ID -->
             <TextBlock Text="ID Card:" Foreground="{StaticResource SecondaryBrush}" />
             <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding EditableEmployee.CCCD, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,10"/>
+            <TextBlock Text="{Binding CCCDError}" Foreground="Red" FontSize="12" Visibility="{Binding CCCDError, Converter={StaticResource StringToVisibilityConverter}}" Margin="0,0,0,10"/>
 
+            <!-- Email -->
             <TextBlock Text="Email:" Foreground="{StaticResource SecondaryBrush}" />
             <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding EditableEmployee.Email, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,10"/>
-
+            <TextBlock Text="{Binding EmailError}" Foreground="Red" FontSize="12" Visibility="{Binding EmailError, Converter={StaticResource StringToVisibilityConverter}}" Margin="0,0,0,10"/>
+            
+            <!-- Phone Number -->
             <TextBlock Text="Phone Number:" Foreground="{StaticResource SecondaryBrush}" />
             <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding EditableEmployee.PhoneNumber, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,10"/>
+            <TextBlock Text="{Binding PhoneNumberError}" Foreground="Red" FontSize="12" Visibility="{Binding PhoneNumberError, Converter={StaticResource StringToVisibilityConverter}}" Margin="0,0,0,10"/>
+
 
             <TextBlock Text="Position:" Foreground="{StaticResource SecondaryBrush}" />
             <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}" ItemsSource="{Binding Positions}"

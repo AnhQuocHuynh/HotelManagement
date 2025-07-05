@@ -18,7 +18,13 @@ namespace HotelManager.ViewModels.Admin
         private readonly UserAccountService _userAccountService;
         private readonly INotificationService _notificationService;
         private readonly ILogger<AccountCreateViewModel> _logger;
-        
+
+        private readonly Dictionary<string, string> _errors = new();
+        public string UsernameError => GetError(nameof(Username));
+        public string PasswordError => GetError(nameof(Password));
+        public string ConfirmPasswordError => GetError(nameof(ConfirmPassword));
+
+
         public Employee Employee { get; set; }
         public Action? CloseAction { get; set; }
         public bool? DialogResult { get; set; }
@@ -42,6 +48,7 @@ namespace HotelManager.ViewModels.Admin
             set 
             { 
                 _password = value; 
+                //_logger?.LogDebug("Password set to: {Password}", value);
                 OnPropertyChanged();
                 ValidateProperty(value, nameof(Password));
             }
@@ -54,6 +61,7 @@ namespace HotelManager.ViewModels.Admin
             set 
             { 
                 _confirmPassword = value; 
+                _logger?.LogDebug("ConfirmPassword set to: {ConfirmPassword}", value);
                 OnPropertyChanged();
                 ValidateProperty(value, nameof(ConfirmPassword));
             }
@@ -91,35 +99,31 @@ namespace HotelManager.ViewModels.Admin
             SaveCommand = new AsyncRelayCommand(SaveAsync);
             CancelCommand = new RelayCommand(Cancel);
 
-            SetupValidation();
         }
 
-        private void SetupValidation()
-        {
-            // Simple validation setup without ValidatableBase methods
-            // We'll handle validation manually in SaveAsync
-        }
+        private string GetError(string propertyName) =>
+            _errors.TryGetValue(propertyName, out var message) ? message : string.Empty;
 
         private bool ValidateAllProperties()
         {
-            var errors = new List<string>();
+            _errors.Clear();
 
             if (string.IsNullOrWhiteSpace(Username))
-                errors.Add("Username is required");
+                _errors[nameof(Username)] = "Username is required";
 
-            if (string.IsNullOrWhiteSpace(Password))
-                errors.Add("Password is required");
+            if (string.IsNullOrEmpty(Password))
+               _errors[nameof(Password)] = "Password is required";
 
             if (Password != ConfirmPassword)
-                errors.Add("Passwords do not match");
+                _errors[nameof(ConfirmPassword)] = "Passwords do not match";
 
-            // UserRole default value is Staff (0), so we check if it's been explicitly set
-            // For validation, we might want to ensure all roles are valid choices
-            // Since all enum values are valid, we don't need to validate SelectedRole
-            
-            if (errors.Any())
+            OnPropertyChanged(nameof(UsernameError));
+            OnPropertyChanged(nameof(PasswordError));
+            OnPropertyChanged(nameof(ConfirmPasswordError));
+
+            if (_errors.Any())
             {
-                _notificationService?.ShowError(string.Join(Environment.NewLine, errors));
+                _notificationService?.ShowError(string.Join(Environment.NewLine, _errors.Values));
                 return false;
             }
 

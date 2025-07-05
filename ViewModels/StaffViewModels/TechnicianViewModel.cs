@@ -28,9 +28,16 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
         }
 
+        private List<MaintenanceReport> _allReports = new();
+
         // Command để cập nhật trạng thái sửa xong
         public ICommand ToggleResolvedCommand { get; }
         public ICommand SelectCompletionImageCommand { get; }
+        public ICommand ViewCompletionImageCommand { get; }
+        public ICommand ViewReportImageCommand { get; }
+        public ICommand FilterPendingCommand { get; }
+        public ICommand FilterCompletedCommand { get; }
+        public ICommand ClearFilterCommand { get; }
 
         public TechnicianViewModel(IMaintenanceService maintenanceService)
         {
@@ -39,6 +46,11 @@ namespace HotelManager.ViewModels.StaffViewModels
 
             ToggleResolvedCommand = new RelayCommand<MaintenanceReport>(ToggleResolved);
             SelectCompletionImageCommand = new RelayCommand<MaintenanceReport>(SelectCompletionImage);
+            ViewReportImageCommand = new RelayCommand<object>(ViewReportImage);
+            ViewCompletionImageCommand = new RelayCommand<object>(ViewCompletionImage);
+            FilterPendingCommand = new RelayCommand(FilterPending);
+            FilterCompletedCommand = new RelayCommand(FilterCompleted);
+            ClearFilterCommand = new RelayCommand(ClearFilter);
 
             LoadMaintenanceReports();
         }
@@ -62,8 +74,8 @@ namespace HotelManager.ViewModels.StaffViewModels
                 System.Diagnostics.Debug.WriteLine("Starting to load maintenance reports...");
                 var reports = await _maintenanceService.GetAllReportsAsync();
                 System.Diagnostics.Debug.WriteLine($"Successfully loaded {reports.Count} maintenance reports");
-                
-                MaintenanceReports = new ObservableCollection<MaintenanceReport>(reports);
+                _allReports = reports;
+                MaintenanceReports = new ObservableCollection<MaintenanceReport>(_allReports);
                 
                 if (reports.Count == 0)
                 {
@@ -160,6 +172,68 @@ namespace HotelManager.ViewModels.StaffViewModels
                 
                 MessageBox.Show("Đã thêm ảnh minh chứng hoàn thành.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
             }
+        }
+
+        private void ViewCompletionImage(object parameter)
+        {
+            if (parameter is MaintenanceReport report && !string.IsNullOrWhiteSpace(report.CompletionImagePath))
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = report.CompletionImagePath,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Không thể mở ảnh hoàn thành: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Không có đường dẫn ảnh hoàn thành để hiển thị.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void ViewReportImage(object parameter)
+        {
+            if (parameter is MaintenanceReport report && !string.IsNullOrWhiteSpace(report.ImagePath))
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = report.ImagePath,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Không thể mở ảnh báo cáo: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Không có đường dẫn ảnh báo cáo để hiển thị.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+        private void FilterPending()
+        {
+            var pending = _allReports.Where(r => !r.IsResolved);
+            MaintenanceReports = new ObservableCollection<MaintenanceReport>(pending);
+        }
+
+        private void FilterCompleted()
+        {
+            var completed = _allReports.Where(r => r.IsResolved);
+            MaintenanceReports = new ObservableCollection<MaintenanceReport>(completed);
+        }
+
+        private void ClearFilter()
+        {
+            MaintenanceReports = new ObservableCollection<MaintenanceReport>(_allReports);
         }
     }
 }
