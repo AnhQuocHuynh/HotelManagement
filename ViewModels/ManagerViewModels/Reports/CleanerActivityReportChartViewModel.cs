@@ -142,7 +142,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             var saveFileDialog = new Microsoft.Win32.SaveFileDialog
             {
                 Filter = "Excel files (*.xlsx)|*.xlsx",
-                FileName = "ReceptionistReport.xlsx"
+                FileName = "CleanerActivityReport.xlsx"
 
             };
             if (saveFileDialog.ShowDialog() == true)

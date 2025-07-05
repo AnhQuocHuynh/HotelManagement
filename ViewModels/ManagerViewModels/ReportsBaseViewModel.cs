@@ -50,6 +50,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
                 "View revenue report",
                 "View receptionist activity report",
                 "View cleaner activity report",
+                "Maintenance activity report",
             };
             // Set a default selected option
             SelectedOption = Options.FirstOrDefault();
@@ -74,6 +75,9 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     break;
                 case "View cleaner activity report":
                     CurrentContent = new Views.ManagerViews.Reports.CleanerActivivtyReportChartView();
+                    break;
+                case "Maintenance activity report":
+                    CurrentContent = new Views.ManagerViews.Reports.MaintenanceReportChartView();
                     break;
                 default:
                     CurrentContent = new Views.ManagerViews.Reports.RevenueReportChartView();
