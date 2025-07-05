@@ -75,7 +75,8 @@ public partial class App : Application
                 // Đăng ký DbContext
                 services.AddDbContext<HotelDbContext>(options =>
                     options.UseSqlServer(
-                        Config.DatabaseConfig.GetConnectionString(),
+                        //Config.DatabaseConfig.GetConnectionString(),
+                        Config.AppSettings.Database.ConnectionString,
                         sql => sql.MigrationsAssembly("HotelManager.Core")));
 
                 // 📊 Enhanced logging services

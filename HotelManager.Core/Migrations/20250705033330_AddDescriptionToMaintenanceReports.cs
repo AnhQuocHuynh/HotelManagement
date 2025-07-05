@@ -5,25 +5,25 @@
 namespace HotelManager.Core.Migrations
 {
     /// <inheritdoc />
-    public partial class AddEmployeeCCCDColumn : Migration
+    public partial class AddDescriptionToMaintenanceReports : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "CCCD",
-                table: "Employees",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
+            name: "Description",
+            table: "MaintenanceReports",
+            type: "nvarchar(max)",
+            nullable: false,
+            defaultValue: "");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "CCCD",
-                table: "Employees");
+            name: "Description",
+            table: "MaintenanceReports");
         }
     }
 }

@@ -22,6 +22,7 @@ namespace HotelManager.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Provider configuration (UseSqlServer, UseInMemory, ...) sẽ được cấu hình ở main project hoặc test project.
+
         }
 
         public DbSet<Customer> Customers { get; set; }

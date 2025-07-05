@@ -14,7 +14,7 @@ public class DesignTimeHotelDbContextFactory : IDesignTimeDbContextFactory<Hotel
     public HotelDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<HotelDbContext>();
-        optionsBuilder.UseSqlServer(Config.DatabaseConfig.GetConnectionString());
+        optionsBuilder.UseSqlServer(Config.AppSettings.Database.ConnectionString);
         return new HotelDbContext(optionsBuilder.Options);
     }
 } 

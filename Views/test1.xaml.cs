@@ -1,0 +1,31 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+
+namespace HotelManager.Views
+{
+    /// <summary>
+    /// Interaction logic for test1.xaml
+    /// </summary>
+    public partial class test1 : Window
+    {
+        public test1()
+        {
+            InitializeComponent();
+        }
+        private void BtnClick_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+    }
+}

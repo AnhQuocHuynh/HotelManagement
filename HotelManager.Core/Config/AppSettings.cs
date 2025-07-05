@@ -5,7 +5,7 @@ namespace HotelManager.Config
         // Database settings
         public static class Database
         {
-            public const string ConnectionString = "DefaultConnection";
+            public const string ConnectionString = "Server=LAPTOP-HR42JU06\\SQLEXPRESS;Database=HotelManager;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
             public const int CommandTimeout = 30;
         }
 
