@@ -93,7 +93,7 @@
             </Border>
 
             <!-- Content Area -->
-            <Grid Grid.Row="1" Margin="24,24,24,24" Grid.ColumnSpan="2">
+            <Grid Grid.Row="1" Margin="24,100,24,24" Grid.ColumnSpan="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
