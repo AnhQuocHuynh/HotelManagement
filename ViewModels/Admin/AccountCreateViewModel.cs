@@ -48,7 +48,7 @@ namespace HotelManager.ViewModels.Admin
             set 
             { 
                 _password = value; 
-                _logger?.LogDebug("Password set to: {Password}", value);
+                //_logger?.LogDebug("Password set to: {Password}", value);
                 OnPropertyChanged();
                 ValidateProperty(value, nameof(Password));
             }
@@ -112,7 +112,7 @@ namespace HotelManager.ViewModels.Admin
                 _errors[nameof(Username)] = "Username is required";
 
             if (string.IsNullOrEmpty(Password))
-                _errors[nameof(Password)] = "Password is required";
+               _errors[nameof(Password)] = "Password is required";
 
             if (Password != ConfirmPassword)
                 _errors[nameof(ConfirmPassword)] = "Passwords do not match";

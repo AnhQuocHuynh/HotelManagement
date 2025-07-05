@@ -74,7 +74,7 @@ namespace HotelManager.ViewModels
             _originalEmp.HireDate = EditableEmployee.HireDate;
             _originalEmp.Position = EditableEmployee.Position;
 
-            await _employeeService.UpdateAsync(EditableEmployee);
+            await _employeeService.UpdateAsync(_originalEmp);
             MessageBox.Show("Employee updated.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
             DialogResult = true; // Indicate success
