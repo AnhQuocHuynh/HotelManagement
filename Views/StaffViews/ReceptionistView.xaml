@@ -319,6 +319,10 @@
                         <StackPanel Orientation="Horizontal" 
                     HorizontalAlignment="Right"
                                     Margin="0,24,0,0">
+                            <Button Content="Save"
+                                    Style="{StaticResource ContainedButton}"
+                                    Command="{Binding AddNewBookingCommand}"
+                                    Margin="0,0,12,0"/>
                             <Button Content="Cancel"
                                     Style="{StaticResource OutlinedButton}"
                                     Margin="0,0,12,0"
@@ -353,7 +357,8 @@
                                          Width="250"
                                          Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                     <TextBox.InputBindings>
-                                        <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                                        <KeyBinding Key="Enter"
+                                                    Command="{Binding SearchCommand}"/>
                                     </TextBox.InputBindings>
                                 </TextBox>
                                 
