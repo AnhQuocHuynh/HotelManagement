@@ -35,7 +35,7 @@ namespace HotelManager.Services
                 _messageQueue.Enqueue(
                     message,
                     "OK",
-                    null,
+                    _ => { },
                     PackIconKind.CheckCircle,
                     false,
                     true,
@@ -54,7 +54,7 @@ namespace HotelManager.Services
                 _messageQueue.Enqueue(
                     message,
                     "OK",
-                    null,
+                    _ => { },
                     PackIconKind.AlertCircle,
                     false,
                     true,
@@ -73,7 +73,7 @@ namespace HotelManager.Services
                 _messageQueue.Enqueue(
                     message,
                     "OK",
-                    null,
+                    _ => { },
                     PackIconKind.ErrorOutline,
                     false,
                     true,

@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace HotelManager.Helpers;
 
@@ -49,6 +50,11 @@ public static class PasswordBoxAssistant
 
         SetIsUpdating(passwordBox, true);
         SetBoundPassword(passwordBox, passwordBox.Password);
+
+        // Force binding update to ensure ViewModel is updated immediately
+        var bindingExpression = BindingOperations.GetBindingExpression(passwordBox, BoundPasswordProperty);
+        bindingExpression?.UpdateSource();
+
         SetIsUpdating(passwordBox, false);
     }
 } 

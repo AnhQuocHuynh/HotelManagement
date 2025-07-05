@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManager.Core.Migrations
 {
     [DbContext(typeof(HotelDbContext))]
-    [Migration("20250630101531_AddEmployeeCCCD2")]
-    partial class AddEmployeeCCCD2
+    [Migration("20250630101002_AddEmployeeCCCD")]
+    partial class AddEmployeeCCCD
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

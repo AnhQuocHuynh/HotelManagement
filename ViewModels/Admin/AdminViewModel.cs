@@ -45,8 +45,23 @@ namespace HotelManager.ViewModels.Admin
         public ICommand ReportsCommand { get; set; }
         public ICommand RefreshCommand { get; set; }
         public ICommand ClearFormCommand { get; set; }
+        public ICommand SearchCommand { get; }
+
+        private string _searchText;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         private ObservableCollection<Employee> _employees = new();
+        //_allEmployees should be used to store all employees for search/filtering purposes
+        private List<Employee> _allEmployees = new();
         public ObservableCollection<Employee> Employees
         {
             get => _employees;
@@ -54,6 +69,7 @@ namespace HotelManager.ViewModels.Admin
             {
                 _employees = value;
                 OnPropertyChanged(nameof(Employees));
+
             }
         }
 
@@ -65,6 +81,7 @@ namespace HotelManager.ViewModels.Admin
             {
                 _selectedEmployee = value;
                 OnPropertyChanged(nameof(SelectedEmployee));
+                ((RelayCommand)CreateAccountCommand).NotifyCanExecuteChanged();
             }
         }
 
@@ -136,7 +153,7 @@ namespace HotelManager.ViewModels.Admin
             set { _greeting = value; OnPropertyChanged(nameof(Greeting)); }
         }
 
-        public AdminViewModel(EmployeeService employeeService, IDialogService dialogService, 
+        public AdminViewModel(EmployeeService employeeService, IDialogService dialogService,
             INotificationService notificationService, ILogger<AdminViewModel> logger,
             IServiceProvider serviceProvider, IUnitOfWork unitOfWork)
         {
@@ -155,6 +172,7 @@ namespace HotelManager.ViewModels.Admin
             ReportsCommand = new RelayCommand(Reports);
             RefreshCommand = new RelayCommand(Refresh);
             ClearFormCommand = new RelayCommand(ClearForm);
+            SearchCommand = new RelayCommand(PerformSearch);
 
             LoadEmployees();
 
@@ -173,7 +191,7 @@ namespace HotelManager.ViewModels.Admin
                 Greeting = "Hello, Admin (Design Mode)";
                 Employees = new ObservableCollection<Employee>();
                 EmployeePositions = EnumHelper.EmployeePositions;
-                
+
                 // Initialize commands with empty implementations for design-time
                 AddCommand = new AsyncRelayCommand<Employee>(_ => Task.CompletedTask);
                 UpdateCommand = new RelayCommand<Employee>(_ => { });
@@ -204,6 +222,7 @@ namespace HotelManager.ViewModels.Admin
             ReportsCommand = new RelayCommand(Reports);
             RefreshCommand = new RelayCommand(Refresh);
             ClearFormCommand = new RelayCommand(ClearForm);
+            SearchCommand = new RelayCommand(PerformSearch);
 
             LoadEmployees();
 
@@ -217,9 +236,11 @@ namespace HotelManager.ViewModels.Admin
         public async void LoadEmployees()
         {
             var employees = await _employeeService.GetAllAsync();
+
+            _allEmployees = employees.ToList();
             Employees.Clear();
-            foreach (var emp in employees)
-                Employees.Add(emp); //Trigger UI update
+            foreach (var emp in _allEmployees)
+                Employees.Add(emp);
         }
 
         private async Task AddAsync(Employee employee)
@@ -357,7 +378,7 @@ namespace HotelManager.ViewModels.Admin
                 var mainVM = Application.Current.MainWindow?.DataContext as MainViewModel;
                 mainVM?.Logout();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show($"Logout failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -376,15 +397,15 @@ namespace HotelManager.ViewModels.Admin
             {
                 var userAccountService = new UserAccountService(_unitOfWork);
                 var logger = _serviceProvider.GetService<ILogger<AccountCreateViewModel>>();
-                
+
                 var viewModel = new AccountCreateViewModel(
-                    SelectedEmployee, 
-                    userAccountService, 
+                    SelectedEmployee,
+                    userAccountService,
                     _notificationService,
                     logger);
 
                 var result = _dialogService.ShowDialog(viewModel);
-                
+
                 if (result == true)
                 {
                     // Refresh employee list or update UI as needed
@@ -400,7 +421,7 @@ namespace HotelManager.ViewModels.Admin
 
         private void Reports()
         {
-            MessageBox.Show("Reports feature will be implemented in future versions.\n\nYou will be able to view:\n• Employee statistics\n• Room occupancy reports\n• Revenue analytics\n• Performance metrics", 
+            MessageBox.Show("Reports feature will be implemented in future versions.\n\nYou will be able to view:\n• Employee statistics\n• Room occupancy reports\n• Revenue analytics\n• Performance metrics",
                 "Reports", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -420,6 +441,33 @@ namespace HotelManager.ViewModels.Admin
             EmployeeHireDate = DateTime.Today;
         }
 
+        private void PerformSearch()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                // Show full list if search is empty
+                Employees.Clear();
+                foreach (var emp in _allEmployees)
+                    Employees.Add(emp);
+                return;
+            }
+
+            string keyword = SearchText.Trim().ToLowerInvariant();
+
+            //Fileter employees based on search criteria
+            var filtered = _allEmployees.Where(emp =>
+                (emp.FullName != null && emp.FullName.ToLower().Contains(keyword)) ||
+                (emp.Email != null && emp.Email.ToLower().Contains(keyword)) ||
+                (emp.PhoneNumber != null && emp.PhoneNumber.ToLower().Contains(keyword)) ||
+                (emp.CCCD != null && emp.CCCD.ToLower().Contains(keyword)) ||
+                emp.Position.ToString().ToLower().Contains(keyword)
+            ).ToList();
+
+            Employees.Clear();
+            foreach (var emp in filtered)
+                Employees.Add(emp);
+
+        }
     }
 
 }
