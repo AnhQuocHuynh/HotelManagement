@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              SizeToContent="WidthAndHeight"
              WindowStartupLocation="CenterOwner"
-             ResizeMode="NoResize" d:DesignWidth="500" Height="648">
+             ResizeMode="NoResize" d:DesignWidth="500" Height="746">
     <Window.Resources>
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
     </Window.Resources>
