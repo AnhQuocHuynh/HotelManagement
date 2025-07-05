@@ -24,6 +24,16 @@ namespace HotelManager.ViewModels
         public Employee EditableEmployee { get; set; }
         private readonly Employee _originalEmp;
 
+        private readonly Dictionary<string, string> _errors = new();
+
+        public string FullNameError => GetError(nameof(EditableEmployee.FullName));
+        public string EmailError => GetError(nameof(EditableEmployee.Email));
+        public string PhoneNumberError => GetError(nameof(EditableEmployee.PhoneNumber));
+        public string CCCDError => GetError(nameof(EditableEmployee.CCCD));
+
+        private string GetError(string propertyName) =>
+            _errors.TryGetValue(propertyName, out var msg) ? msg : string.Empty;
+
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
@@ -50,19 +60,52 @@ namespace HotelManager.ViewModels
             CancelCommand = new RelayCommand(Cancel);
         }
 
+        private async Task<bool> ValidateAllAsync()
+        {
+            _errors.Clear();
+
+            var e = EditableEmployee;
+
+            if (string.IsNullOrWhiteSpace(e.FullName))
+                _errors[nameof(e.FullName)] = "Full name is required.";
+
+            if (string.IsNullOrWhiteSpace(e.Email))
+                _errors[nameof(e.Email)] = "Email is required.";
+            else if (!e.Email.IsValidEmail())
+                _errors[nameof(e.Email)] = "Invalid email format.";
+
+            if (string.IsNullOrWhiteSpace(e.PhoneNumber))
+                _errors[nameof(e.PhoneNumber)] = "Phone number is required.";
+            else if (!e.PhoneNumber.IsValidPhoneNumber())
+                _errors[nameof(e.PhoneNumber)] = "Invalid phone number format.";
+
+            if (string.IsNullOrWhiteSpace(e.CCCD))
+                _errors[nameof(e.CCCD)] = "ID number (CCCD) is required.";
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(e.CCCD, @"^\d{12}$"))
+                _errors[nameof(e.CCCD)] = "CCCD must be exactly 12 digits.";
+
+            // Uniqueness check (excluding current)
+            var all = await _employeeService.GetAllAsync();
+
+            if (all.Any(emp => emp.Id != _originalEmp.Id && emp.Email.Equals(e.Email, StringComparison.OrdinalIgnoreCase)))
+                _errors[nameof(e.Email)] = "This email is already in use.";
+
+            if (all.Any(emp => emp.Id != _originalEmp.Id && emp.CCCD == e.CCCD))
+                _errors[nameof(e.CCCD)] = "This ID number (CCCD) is already in use.";
+
+            // Notify bindings
+            OnPropertyChanged(nameof(FullNameError));
+            OnPropertyChanged(nameof(EmailError));
+            OnPropertyChanged(nameof(PhoneNumberError));
+            OnPropertyChanged(nameof(CCCDError));
+
+            return !_errors.Any();
+        }
+
         private async Task SaveAsync()
         {
-            if (string.IsNullOrWhiteSpace(EditableEmployee.FullName) ||
-                string.IsNullOrWhiteSpace(EditableEmployee.Email) ||
-                string.IsNullOrWhiteSpace(EditableEmployee.PhoneNumber))
+            if(!await ValidateAllAsync())
             {
-                MessageBox.Show("Fields cannot be empty.");
-                return;
-            }
-
-            if (!EditableEmployee.Email.IsValidEmail())
-            {
-                MessageBox.Show("Invalid email format.");
                 return;
             }
 
