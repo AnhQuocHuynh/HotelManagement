@@ -12,8 +12,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using HotelManager.Services.Manager;
 using HotelManager.ViewModels.ManagerViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 
 namespace HotelManager.Views.ManagerViews
 {
@@ -22,6 +24,8 @@ namespace HotelManager.Views.ManagerViews
     /// </summary>
     public partial class RevenueReportChartView : UserControl
     {
+        private RevenueReportChartViewModel ViewModel => DataContext as RevenueReportChartViewModel;
+
         public RevenueReportChartView()
         {
             InitializeComponent();
