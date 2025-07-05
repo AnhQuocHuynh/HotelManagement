@@ -13,6 +13,7 @@ using HotelManager.Interfaces;
 using HotelManager.Services;
 using MaterialDesignThemes.Wpf;
 using HotelManager.Repositories;
+using HotelManager.ViewModels.ManagerViewModels.Reports;
 
 namespace HotelManager;
 
@@ -121,8 +122,8 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.EmployeeEditViewModel>();
                 services.AddTransient<HotelManager.ViewModels.RoomInfoEditViewModel>();
                 services.AddTransient<HotelManager.ViewModels.Common.LoginViewModel>();
-                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.RevenueReportChartViewModel>();
-                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.ReceptionistActivityReportChartViewModel>();
+                services.AddTransient<RevenueReportChartViewModel>();
+                services.AddTransient<ReceptionistActivityReportChartViewModel>();
 
                 services.AddSingleton<ICurrentUserProvider, WpfCurrentUserProvider>();
 

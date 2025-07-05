@@ -27,7 +27,7 @@ using LiveChartsCore.SkiaSharpView.SKCharts;
 
 
 
-namespace HotelManager.ViewModels.ManagerViewModels
+namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
     public class RevenueReportChartViewModel : BaseViewModel
     {
@@ -288,7 +288,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
         void RoomTypeInit()
         {
-            RoomTypes = new ObservableCollection<Object>
+            RoomTypes = new ObservableCollection<object>
             {
                 "All",
                 RoomType.Deluxe,
@@ -384,7 +384,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             var revenueValues = labels.Select((label, index) =>
             {
                 var data = _chartData.TryGetValue(label, out var value) ? value : (0m, 0);
-                return new ObservablePoint(index, (double)(value.revenue));
+                return new ObservablePoint(index, (double)value.revenue);
             }).ToList();
 
             var invoiceCountValues = labels.Select((label, index) =>
@@ -462,7 +462,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
         new Axis
         {
             Name = "Invoice Count",
-            Position = LiveChartsCore.Measure.AxisPosition.End,
+            Position = AxisPosition.End,
             LabelsPaint = new SolidColorPaint(SKColors.DarkRed),
             TextSize = 12,
             Labeler = value => value.ToString("N0"),

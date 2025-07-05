@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using HotelManager.Services.Manager;
-using HotelManager.ViewModels.ManagerViewModels;
+using HotelManager.ViewModels.ManagerViewModels.Reports;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 

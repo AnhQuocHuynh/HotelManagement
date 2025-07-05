@@ -23,7 +23,7 @@ using HotelManager.ViewModels.ManagerViewModels.UIModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 
-namespace HotelManager.ViewModels.ManagerViewModels
+namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
     public class ReceptionistActivityReportChartViewModel : BaseViewModel
     {
@@ -277,7 +277,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
         void RoomTypeInit()
         {
-            RoomTypes = new ObservableCollection<Object>
+            RoomTypes = new ObservableCollection<object>
             {
                 "All",
                 RoomType.Deluxe,
