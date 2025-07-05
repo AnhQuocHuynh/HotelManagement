@@ -10,6 +10,11 @@
              xmlns:vm="clr-namespace:HotelManager.ViewModels.ManagerViewModels.Reports"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              Background="White">
+
+    <UserControl.DataContext>
+        <vm:CleanerActivityReportChartViewModel />
+    </UserControl.DataContext>
+
     <Grid>
 
         <Grid.RowDefinitions>
@@ -81,6 +86,21 @@
                     Margin="10,0,0,0"
                     SelectedDate="{Binding EndDate, Mode=TwoWay}"/>
 
+            <Button x:Name="FilterButton" 
+                    Content="Apply"
+                    Grid.Column="3"
+                Command="{Binding ApplyFilterCommand}"
+                Foreground="Navy"
+                Background="{StaticResource Primary100Brush}"
+                Margin="10,0,0,0"/>
+
+            <Button x:Name="exportButton" 
+                    Content="Export"
+                    Grid.Column="4"
+                Command="{Binding ExportChartAndDataCommand}"
+                Foreground="Navy"
+                Background="{StaticResource Primary100Brush}"
+                Margin="10,0,0,0"/>
 
         </Grid>
 

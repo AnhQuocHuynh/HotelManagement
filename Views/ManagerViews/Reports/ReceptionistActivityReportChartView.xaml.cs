@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 using HotelManager.ViewModels.ManagerViewModels.Reports;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace HotelManager.Views.ManagerViews
+namespace HotelManager.Views.ManagerViews.Reports
 {
     /// <summary>
     /// Interaction logic for ReceptionistService.xaml

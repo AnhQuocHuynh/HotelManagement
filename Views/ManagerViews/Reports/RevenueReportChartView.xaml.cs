@@ -17,15 +17,13 @@ using HotelManager.ViewModels.ManagerViewModels.Reports;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 
-namespace HotelManager.Views.ManagerViews
+namespace HotelManager.Views.ManagerViews.Reports
 {
     /// <summary>
     /// Interaction logic for RevenueBarChartView.xaml
     /// </summary>
     public partial class RevenueReportChartView : UserControl
     {
-        private RevenueReportChartViewModel ViewModel => DataContext as RevenueReportChartViewModel;
-
         public RevenueReportChartView()
         {
             InitializeComponent();
