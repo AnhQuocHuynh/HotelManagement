@@ -137,7 +137,7 @@
                   SelectedItem="{Binding SelectedRoomType}"/>
 
             <Button x:Name="exportButton" 
-                    Content="get data"
+                    Content="Export"
                     Grid.Column="5"
                 Command="{Binding ExportChartAndDataCommand}"
                 Foreground="Navy"
