@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -53,6 +54,13 @@ namespace HotelManager.ViewModels.StaffViewModels
 
         void changeContentControl(string option)
         {
+            // Dispose of the old view's DataContext if it implements IDisposable
+            // prevent memory leaks
+            if (CurrentContent is FrameworkElement oldView && oldView.DataContext is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
             switch (option)
             {
                 case "View revenue report":
