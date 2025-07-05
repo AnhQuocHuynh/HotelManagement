@@ -43,7 +43,7 @@ namespace HotelManager.Data
                     Email = "admin@hotelmanager.com",
                     PhoneNumber = "0900000000",
                     HireDate = DateTime.Now.AddYears(-2),
-                    CCCD = "000000001"
+                    CCCD = "000000000001"
                 };
                 context.Employees.Add(adminEmp);
 
@@ -74,7 +74,7 @@ namespace HotelManager.Data
                     Email = "manager@hotelmanager.com", 
                     PhoneNumber = "0900000001",
                     HireDate = DateTime.Now.AddYears(-1),
-                    CCCD = "000000002"
+                    CCCD = "000000000002"
                 };
                 context.Employees.Add(managerEmp);
 
@@ -104,7 +104,7 @@ namespace HotelManager.Data
                     Email = "cleaner@hotelmanager.com",
                     PhoneNumber = "0900000002", 
                     HireDate = DateTime.Now.AddMonths(-6),
-                    CCCD = "000000003"
+                    CCCD = "000000000003"
                 };
                 context.Employees.Add(cleanerEmp);
 
@@ -134,7 +134,7 @@ namespace HotelManager.Data
                     Email = "technician@hotelmanager.com",
                     PhoneNumber = "0900000003",
                     HireDate = DateTime.Now.AddMonths(-8),
-                    CCCD = "000000004"
+                    CCCD = "000000000004"
                 };
                 context.Employees.Add(technicianEmp);
 
@@ -171,7 +171,7 @@ namespace HotelManager.Data
                             Email = $"{username}@hotelmanager.com",
                             PhoneNumber = $"090000001{i}", // 0900000011 -> 0900000017
                             HireDate = DateTime.Now.AddMonths(-i),
-                            CCCD = $"00000000{i+4}"
+                            CCCD = $"00000000001{i}"
                         };
                         context.Employees.Add(receptionistEmp);
 
