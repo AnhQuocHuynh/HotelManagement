@@ -1,4 +1,5 @@
-﻿using HotelManager.Helpers;
+﻿using HotelManager.Core.Models;
+using HotelManager.Helpers;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -96,61 +97,88 @@ namespace HotelManager.Data
             // Cleaner Staff
             if (!context.UserAccounts.Any(u => u.Username == "cleaner1"))
             {
-                System.Diagnostics.Debug.WriteLine("Creating cleaner1 account...");
-                var cleanerEmp = new Employee
+                for (int i = 1; i <= 5; i++)
                 {
-                    FullName = "Cleaner User",
-                    Position = EmployeePosition.Cleaner,
-                    Email = "cleaner@hotelmanager.com",
-                    PhoneNumber = "0900000002", 
-                    HireDate = DateTime.Now.AddMonths(-6),
-                    CCCD = "000000000003"
-                };
-                context.Employees.Add(cleanerEmp);
+                    string username = $"cleaner{i}";
 
-                context.UserAccounts.Add(new UserAccount
-                {
-                    Username = "cleaner1",
-                    PasswordHash = HashHelper.HashPassword("cleaner1"),
-                    Role = UserRole.Staff,
-                    Employee = cleanerEmp,
-                    CreatedAt = DateTime.Now,
-                    IsActive = true
-                });
+                    if (!context.UserAccounts.Any(u => u.Username == username))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Creating {username} account...");
+
+                        var cleanerEmp = new Employee
+                        {
+                            FullName = $"Cleaner User {i}",
+                            Position = EmployeePosition.Cleaner,
+                            Email = $"{username}@hotelmanager.com",
+                            PhoneNumber = $"090000000{i + 2}", // 0900000003 -> 0900000007
+                            HireDate = DateTime.Now.AddMonths(-i),
+                            CCCD = $"00000000000{i + 2}"
+                        };
+                        context.Employees.Add(cleanerEmp);
+
+                        context.UserAccounts.Add(new UserAccount
+                        {
+                            Username = username,
+                            PasswordHash = HashHelper.HashPassword(username),
+                            Role = UserRole.Staff,
+                            Employee = cleanerEmp,
+                            CreatedAt = DateTime.Now,
+                            IsActive = true
+                        });
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"{username} account already exists, skipping...");
+                    }
+                }
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("cleaner1 account already exists, skipping...");
+                System.Diagnostics.Debug.WriteLine("cleaners' accounts already exist, skipping...");
             }
 
-            // Technician Staff  
+
+            // Technician Staff
             if (!context.UserAccounts.Any(u => u.Username == "technician1"))
             {
-                System.Diagnostics.Debug.WriteLine("Creating technician1 account...");
-                var technicianEmp = new Employee
+                for (int i = 1; i <= 5; i++)
                 {
-                    FullName = "Technician User",
-                    Position = EmployeePosition.Technician,
-                    Email = "technician@hotelmanager.com",
-                    PhoneNumber = "0900000003",
-                    HireDate = DateTime.Now.AddMonths(-8),
-                    CCCD = "000000000004"
-                };
-                context.Employees.Add(technicianEmp);
+                    string username = $"technician{i}";
 
-                context.UserAccounts.Add(new UserAccount
-                {
-                    Username = "technician1", 
-                    PasswordHash = HashHelper.HashPassword("technician1"),
-                    Role = UserRole.Staff,
-                    Employee = technicianEmp,
-                    CreatedAt = DateTime.Now,
-                    IsActive = true
-                });
+                    if (!context.UserAccounts.Any(u => u.Username == username))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Creating {username} account...");
+
+                        var technicianEmp = new Employee
+                        {
+                            FullName = $"Technician User {i}",
+                            Position = EmployeePosition.Technician,
+                            Email = $"{username}@hotelmanager.com",
+                            PhoneNumber = $"090000001{i + 7}", // 0900000018 -> 0900000022
+                            HireDate = DateTime.Now.AddMonths(-i - 5),
+                            CCCD = $"00000000002{i}"
+                        };
+                        context.Employees.Add(technicianEmp);
+
+                        context.UserAccounts.Add(new UserAccount
+                        {
+                            Username = username,
+                            PasswordHash = HashHelper.HashPassword(username),
+                            Role = UserRole.Staff,
+                            Employee = technicianEmp,
+                            CreatedAt = DateTime.Now,
+                            IsActive = true
+                        });
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"{username} account already exists, skipping...");
+                    }
+                }
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("technician1 account already exists, skipping...");
+                System.Diagnostics.Debug.WriteLine("technicians' accounts already exist, skipping...");
             }
 
             // Receptionist Staff
@@ -272,26 +300,35 @@ namespace HotelManager.Data
 
             context.SaveChanges();
 
-
-
+            //cleanings
             if (!context.Cleanings.Any())
             {
                 var cleaners = context.Employees.Where(e => e.Position == EmployeePosition.Cleaner).ToList();
                 var rooms = context.Rooms.ToList();
                 var random = new Random();
 
-                for (int i = 0; i < 50; i++)
+                // Phân chia cleaning records đều giữa cleaners và các loại phòng
+                int cleaningCount = 50;
+                int cleanerCount = cleaners.Count;
+                int roomCount = rooms.Count;
+
+                for (int i = 0; i < cleaningCount; i++)
                 {
-                    var cleaner = cleaners[random.Next(cleaners.Count)];
-                    var room = rooms[random.Next(rooms.Count)];
-                    var cleaningDate = DateTime.Today.AddDays(-random.Next(0, 30)); // cleaned trong 30 ngày qua
+                    // Xoay vòng cleaners (đảm bảo mỗi cleaner đều có việc)
+                    var cleaner = cleaners[i % cleanerCount];
+
+                    // Xoay vòng rooms, nhảy từng step để trải đều các loại phòng
+                    var room = rooms[(i * 3 + random.Next(0, 3)) % roomCount];
+
+                    // Tạo cleaning date phân bổ từ hôm nay lùi lại 30 ngày, mỗi cleaning cách nhau khoảng n/50 ngày
+                    var cleaningDate = DateTime.Today.AddDays(-(i * (30 / cleaningCount)) - random.Next(0, 3));
 
                     var cleaning = new Cleaning
                     {
                         CleaningDate = cleaningDate,
                         EmployeeId = cleaner.Id,
                         RoomNumber = room.RoomNumber,
-                        Notes = "Routine cleaning"
+                        Notes = $"Routine cleaning by {cleaner.FullName}"
                     };
 
                     context.Cleanings.Add(cleaning);
@@ -306,8 +343,75 @@ namespace HotelManager.Data
                 System.Diagnostics.Debug.WriteLine("Cleaning records already exist, skipping...");
             }
 
+            
+            // maintenance reports
+            if (!context.MaintenanceReports.Any())
+            {
+                var rooms = context.Rooms.ToList();
+                var random = new Random();
+                int reportCount = 30;
+
+                var maintenanceReports = new List<MaintenanceReport>();
+
+                for (int i = 0; i < reportCount; i++)
+                {
+                    var room = rooms[(i * 2 + random.Next(0, 2)) % rooms.Count];
+                    var reportedDate = DateTime.Today.AddDays(-random.Next(0, 60));
+
+                    var report = new MaintenanceReport
+                    {
+                        RoomNumber = room.RoomNumber,
+                        Description = "Reported issue: " + (random.Next(0, 2) == 0 ? "Leaking pipe" : "Broken AC"),
+                        ReportedDate = reportedDate
+                    };
+                    maintenanceReports.Add(report);
+                    context.MaintenanceReports.Add(report);
+                }
+
+                context.SaveChanges();
+                System.Diagnostics.Debug.WriteLine($"Seeded {context.MaintenanceReports.Count()} maintenance reports.");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("MaintenanceReports already exist, skipping...");
+            }
 
 
+            // maintenances
+            if (!context.Maintenances.Any())
+            {
+                var technicians = context.Employees.Where(e => e.Position == EmployeePosition.Technician).ToList();
+                var reports = context.MaintenanceReports.Include(mr => mr.Room).ToList();
+                var random = new Random();
+                int maintenanceCount = 50;
+
+                for (int i = 0; i < maintenanceCount; i++)
+                {
+                    var report = reports[i % reports.Count];
+                    var technician = technicians[random.Next(technicians.Count)];
+
+                    var repairDate = report.ReportedDate.AddDays(random.Next(1, 10));
+                    var cost = random.Next(100, 1000);
+
+                    var maintenance = new Maintenance
+                    {
+                        MaintenanceReportId = report.Id,
+                        EmployeeId = technician.Id,
+                        RepairDate = repairDate,
+                        Cost = (decimal)cost,
+                        Notes = $"Repaired by {technician.FullName}"
+                    };
+
+                    context.Maintenances.Add(maintenance);
+                }
+
+                context.SaveChanges();
+                System.Diagnostics.Debug.WriteLine($"Seeded {context.Maintenances.Count()} maintenance records.");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Maintenances already exist, skipping...");
+            }
 
         }
 

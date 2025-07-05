@@ -2,6 +2,7 @@
 using HotelManager.Models;
 using HotelManager.Config;
 using Microsoft.Extensions.Configuration;
+using HotelManager.Core.Models;
 
 namespace HotelManager.Data
 {
@@ -34,6 +35,7 @@ namespace HotelManager.Data
         public DbSet<UserAccount> UserAccounts { get; set; }
         public DbSet<MaintenanceReport> MaintenanceReports { get; set; }
         public DbSet<Cleaning> Cleanings { get; set; }
+        public DbSet<Maintenance> Maintenances { get; set; }
 
 
 
@@ -147,6 +149,7 @@ namespace HotelManager.Data
                       .WithOne(e => e.UserAccount)
                       .HasForeignKey<UserAccount>(u => u.EmployeeId);
             });
+
             modelBuilder.Entity<MaintenanceReport>(entity =>
             {
                 entity.HasKey(m => m.Id);
@@ -159,6 +162,7 @@ namespace HotelManager.Data
                       .HasForeignKey(m => m.RoomNumber)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+
             modelBuilder.Entity<Cleaning>(entity =>
             {
                 entity.HasKey(c => c.Id);
@@ -175,6 +179,24 @@ namespace HotelManager.Data
                       .HasForeignKey(c => c.EmployeeId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+            modelBuilder.Entity<Maintenance>(entity =>
+            {
+                entity.HasKey(m => m.Id);
+
+                entity.Property(m => m.RepairDate).IsRequired();
+                entity.Property(m => m.Cost).HasColumnType("decimal(18,2)").IsRequired();
+
+                entity.HasOne(m => m.MaintenanceReport)
+                      .WithMany(r => r.Maintenances)
+                      .HasForeignKey(m => m.MaintenanceReportId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(m => m.Employee)
+                      .WithMany()
+                      .HasForeignKey(m => m.EmployeeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
 
 
         }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HotelManager.Models.Enums;
 using System.ComponentModel.DataAnnotations;
+using HotelManager.Core.Models;
 
 namespace HotelManager.Models
 {
@@ -22,6 +23,7 @@ namespace HotelManager.Models
         [RegularExpression(@"^\d{12}$", ErrorMessage = "CCCD chỉ chứa 12 chữ số")]
         public string CCCD { get; set; } = string.Empty;
         public ICollection<Cleaning> Cleanings { get; set; }
+        public ICollection<Maintenance> Maintenances { get; set; }
 
     }
 }
