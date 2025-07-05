@@ -129,6 +129,9 @@ public partial class App : Application
                 // Interface mappings for staff services
                 services.AddScoped<HotelManager.Interfaces.ICleanRoomService, HotelManager.Services.CleanRoomService>();
                 services.AddScoped<HotelManager.Interfaces.IMaintenanceService, HotelManager.Services.MaintenanceService>();
+                
+                // Register IService<Room> interface
+                services.AddScoped<HotelManager.Interfaces.IService<HotelManager.Models.Room>, HotelManager.Services.RoomService>();
 
                 // Register new services for Phase 4
                 services.AddSingleton<ISnackbarMessageQueue>(provider => new SnackbarMessageQueue(TimeSpan.FromSeconds(3)));
