@@ -45,7 +45,7 @@ namespace HotelManager.ViewModels.Admin
         public ICommand ReportsCommand { get; set; }
         public ICommand RefreshCommand { get; set; }
         public ICommand ClearFormCommand { get; set; }
-        public ICommand SearchCommand { get; }
+        public ICommand SearchCommand { get; set; }
 
         private string _searchText;
         public string SearchText
@@ -163,16 +163,8 @@ namespace HotelManager.ViewModels.Admin
             _unitOfWork = unitOfWork;
             _notificationService = notificationService;
             _logger = logger;
-            AddCommand = new AsyncRelayCommand<Employee>(AddAsync);
-            UpdateCommand = new RelayCommand<Employee>(Update);
-            DeleteCommand = new AsyncRelayCommand<Employee>(DeleteAsync);
-            AddNewEmployeeCommand = new RelayCommand(AddNewEmployee);
-            LogoutCommand = new RelayCommand(Logout);
-            CreateAccountCommand = new RelayCommand(CreateAccount, CanCreateAccount);
-            ReportsCommand = new RelayCommand(Reports);
-            RefreshCommand = new RelayCommand(Refresh);
-            ClearFormCommand = new RelayCommand(ClearForm);
-            SearchCommand = new RelayCommand(PerformSearch);
+
+            InitializeCommands();
 
             LoadEmployees();
 
@@ -213,6 +205,19 @@ namespace HotelManager.ViewModels.Admin
             _serviceProvider = App.ServiceProvider;
             _unitOfWork = App.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
+            InitializeCommands();
+
+            LoadEmployees();
+
+            var user = AppSession.GetCurrentUserAccount();
+            if (user != null)
+            {
+                Greeting = $"Hello, {user.Username}";
+            }
+        }
+
+        private void InitializeCommands()
+        {
             AddCommand = new AsyncRelayCommand<Employee>(AddAsync);
             UpdateCommand = new RelayCommand<Employee>(Update);
             DeleteCommand = new AsyncRelayCommand<Employee>(DeleteAsync);
@@ -224,13 +229,6 @@ namespace HotelManager.ViewModels.Admin
             ClearFormCommand = new RelayCommand(ClearForm);
             SearchCommand = new RelayCommand(PerformSearch);
 
-            LoadEmployees();
-
-            var user = AppSession.GetCurrentUserAccount();
-            if (user != null)
-            {
-                Greeting = $"Hello, {user.Username}";
-            }
         }
 
         public async void LoadEmployees()
