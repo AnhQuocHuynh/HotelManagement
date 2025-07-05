@@ -19,10 +19,11 @@ using HotelManager.Services.Manager;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using HotelManager.Data;
+using HotelManager.ViewModels.ManagerViewModels.UIModel;
 
 namespace HotelManager.ViewModels.ManagerViewModels
 {
-    internal class ReceptionistActivityReportChartViewModel : BaseViewModel
+    public class ReceptionistActivityReportChartViewModel : BaseViewModel
     {
         ReceptionistService _receptionistService;
 

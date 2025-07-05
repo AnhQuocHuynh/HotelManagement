@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HotelManager.ViewModels.ManagerViewModels
+namespace HotelManager.ViewModels.ManagerViewModels.UIModel
 {
     public class ReceptionistChartData
     {

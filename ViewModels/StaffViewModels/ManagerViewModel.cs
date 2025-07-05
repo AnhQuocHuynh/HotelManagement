@@ -1,10 +1,12 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -41,6 +43,9 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
         }
 
+        // commands
+        public IRelayCommand ShowEmployeeListCommand { get; }
+
         public ManagerViewModel()
         {
             Options = new ObservableCollection<string>
@@ -50,7 +55,22 @@ namespace HotelManager.ViewModels.StaffViewModels
             };
             // Set a default selected option
             SelectedOption = Options.FirstOrDefault();
+
+            // init command
+            ShowEmployeeListCommand = new RelayCommand(ShowEmployeeList);
         }
+
+        private void ShowEmployeeList()
+        {
+            // Dispose old content nếu có
+            if (CurrentContent is FrameworkElement oldView && oldView.DataContext is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
+            CurrentContent = new Views.ManagerViews.EmployeesListView();
+        }
+
 
         void changeContentControl(string option)
         {
