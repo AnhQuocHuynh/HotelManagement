@@ -323,14 +323,8 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Footer -->
-                <StackPanel Grid.Row="3" HorizontalAlignment="Center" Margin="0,20,0,0">
-                    <TextBlock Text="© 2024 Hotel Management System" 
-                               Style="{StaticResource BodySmall}"
-                               Foreground="White" 
-                               Opacity="0.6"
-                               HorizontalAlignment="Center"/>
-                </StackPanel>
+                
+                
             </Grid>
         </Border>
     </Grid>
