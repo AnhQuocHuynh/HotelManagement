@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1400" 
@@ -105,7 +106,13 @@
                     <!-- Pending Reports Card -->
                     <materialDesign:Card Margin="0,0,16,0" 
                                         Effect="{StaticResource Elevation2}"
-                                        Background="{StaticResource Error100Brush}">
+                                        Background="{StaticResource Error100Brush}"
+                                        Cursor="Hand">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonUp">
+                                <i:InvokeCommandAction Command="{Binding FilterPendingCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                         <StackPanel Margin="24" HorizontalAlignment="Center">
                             <materialDesign:PackIcon Kind="AlertCircleOutline" 
                                                    Width="40" Height="40" 
@@ -123,7 +130,7 @@
                     </materialDesign:Card>
 
                     <!-- In Progress Card 
-                    
+
                     <materialDesign:Card Margin="0,0,16,0" 
                                         Effect="{StaticResource Elevation2}"
                                         Background="{StaticResource Warning100Brush}">
@@ -146,8 +153,15 @@
                     -->
 
                     <!-- Completed Card -->
-                    <materialDesign:Card Effect="{StaticResource Elevation2}"
-                                        Background="{StaticResource Success100Brush}">
+                    <materialDesign:Card Margin="0,0,16,0"
+                                        Effect="{StaticResource Elevation2}"
+                                        Background="{StaticResource Success100Brush}"
+                                        Cursor="Hand">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonUp">
+                                <i:InvokeCommandAction Command="{Binding FilterCompletedCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                         <StackPanel Margin="24" HorizontalAlignment="Center">
                             <materialDesign:PackIcon Kind="CheckCircleOutline" 
                                                    Width="40" Height="40" 
@@ -163,7 +177,36 @@
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
                     </materialDesign:Card>
+                    
+                    <!-- Clear Filter -->
+                    <materialDesign:Card Margin="0,0,16,0" 
+                                        Effect="{StaticResource Elevation2}"
+                                        Background="{StaticResource SurfaceBrush}"
+                                        Cursor="Hand">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonUp">
+                                <i:InvokeCommandAction Command="{Binding ClearFilterCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <StackPanel Margin="24" HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="CloseCircleOutline" 
+                                                   Width="40" Height="40" 
+                                                   Foreground="{StaticResource OnSurfaceBrush}"
+                                                   HorizontalAlignment="Center"/>
+                            <TextBlock Text="Clear Filter" 
+                                     Style="{StaticResource TitleLarge}" 
+                                     HorizontalAlignment="Center" 
+                                     Margin="0,16,0,0"/>
+                            <TextBlock Text="Show All Reports" 
+                                     Style="{StaticResource BodyMedium}" 
+                                     Foreground="{StaticResource OnSurface600Brush}"
+                                     HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </materialDesign:Card>
+
                 </UniformGrid>
+                
+                
 
                 <!-- Maintenance Reports Section -->
                 <materialDesign:Card Grid.Row="1" Effect="{StaticResource Elevation2}">
