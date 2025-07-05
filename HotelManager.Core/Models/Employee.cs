@@ -21,5 +21,7 @@ namespace HotelManager.Models
         [StringLength(12, MinimumLength = 12, ErrorMessage = "CCCD phải gồm 12 ký tự")]
         [RegularExpression(@"^\d{12}$", ErrorMessage = "CCCD chỉ chứa 12 chữ số")]
         public string CCCD { get; set; } = string.Empty;
+        public ICollection<Cleaning> Cleanings { get; set; }
+
     }
 }

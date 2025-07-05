@@ -33,6 +33,8 @@ namespace HotelManager.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<UserAccount> UserAccounts { get; set; }
         public DbSet<MaintenanceReport> MaintenanceReports { get; set; }
+        public DbSet<Cleaning> Cleanings { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -157,6 +159,23 @@ namespace HotelManager.Data
                       .HasForeignKey(m => m.RoomNumber)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+            modelBuilder.Entity<Cleaning>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+
+                entity.Property(c => c.CleaningDate).IsRequired();
+
+                entity.HasOne(c => c.Room)
+                      .WithMany(r => r.Cleanings)
+                      .HasForeignKey(c => c.RoomNumber)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(c => c.Employee)
+                      .WithMany(e => e.Cleanings)
+                      .HasForeignKey(c => c.EmployeeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
 
         }
     }

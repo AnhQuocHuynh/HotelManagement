@@ -273,6 +273,44 @@ namespace HotelManager.Data
             context.SaveChanges();
 
 
+
+            if (!context.Cleanings.Any())
+            {
+                var cleaners = context.Employees.Where(e => e.Position == EmployeePosition.Cleaner).ToList();
+                var rooms = context.Rooms.ToList();
+                var random = new Random();
+
+                for (int i = 0; i < 50; i++)
+                {
+                    var cleaner = cleaners[random.Next(cleaners.Count)];
+                    var room = rooms[random.Next(rooms.Count)];
+                    var cleaningDate = DateTime.Today.AddDays(-random.Next(0, 30)); // cleaned trong 30 ngày qua
+
+                    var cleaning = new Cleaning
+                    {
+                        CleaningDate = cleaningDate,
+                        EmployeeId = cleaner.Id,
+                        RoomNumber = room.RoomNumber,
+                        Notes = "Routine cleaning"
+                    };
+
+                    context.Cleanings.Add(cleaning);
+                }
+
+                context.SaveChanges();
+
+                System.Diagnostics.Debug.WriteLine($"Seeded {context.Cleanings.Count()} cleaning records.");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Cleaning records already exist, skipping...");
+            }
+
+
+
+
         }
+
+
     }
 }
