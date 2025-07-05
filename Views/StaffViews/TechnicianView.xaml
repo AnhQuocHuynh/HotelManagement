@@ -46,358 +46,368 @@
         <SolidColorBrush x:Key="OnSurface600Brush" Color="#757575"/>
     </UserControl.Resources>
 
-    <materialDesign:Card Effect="{StaticResource Elevation3}">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="69*"/>
-                <ColumnDefinition Width="71*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+    <Grid Background="{StaticResource SurfaceBrush}" Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <!-- Header Section -->
-            <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" Margin="0,-35,0,722" Grid.RowSpan="2" Grid.ColumnSpan="2">
-                <Grid Margin="24">
+        <!-- Header Card -->
+        <materialDesign:Card Grid.Row="0" Margin="0,0,0,24" Effect="{StaticResource Elevation2}">
+            <Border Background="{StaticResource PrimaryGradient}" MinHeight="80" Padding="0,8">
+                <Grid Margin="16,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
-                    <!-- Technician Title and Info -->
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock Text="Technician Dashboard" 
-                                   Style="{StaticResource HeadlineLarge}" 
-                                   Foreground="White" Height="47"/>
-                        <TextBlock Text="Manage maintenance reports and repairs" 
-                                   Style="{StaticResource BodyMedium}" 
-                                   Foreground="{StaticResource OnPrimary200Brush}" 
+                        <TextBlock Text="Technician Dashboard"
+                                   Style="{StaticResource HeadlineLarge}"
+                                   Foreground="White"/>
+                        <TextBlock Text="Manage maintenance reports and repairs"
+                                   Style="{StaticResource BodyMedium}"
+                                   Foreground="{StaticResource OnPrimary200Brush}"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
-
-                    <!-- Logout Button -->
-                    <Button Grid.Column="1" 
+                    <Button Grid.Column="1"
                             Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                             Style="{StaticResource TextButton}"
                             Background="{StaticResource ErrorBrush}"
-                           Foreground="White" 
-                            VerticalAlignment="Center">
+                            Foreground="White"
+                            VerticalAlignment="Center"
+                            Margin="16,0,0,0"
+                            MinWidth="100">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Logout" 
-                                                   Width="20" Height="20" 
-                                                   Margin="0,0,8,0"/>
+                            <materialDesign:PackIcon Kind="Logout"
+                                               Width="20" Height="20"
+                                               Margin="0,0,8,0"/>
                             <TextBlock Text="Logout" FontWeight="Medium"/>
                         </StackPanel>
                     </Button>
                 </Grid>
             </Border>
+        </materialDesign:Card>
 
-            <!-- Content Area -->
-            <Grid Grid.Row="1" Margin="24,100,24,24" Grid.ColumnSpan="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+        <!-- Content Area -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <Grid Margin="16,5,16,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="169*"/>
+                        <ColumnDefinition Width="173*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                <!-- Stats Section -->
-                <UniformGrid Grid.Row="0" Rows="1" Columns="3" 
-                           Margin="0,24,0,32">
-                    <!-- Pending Reports Card -->
-                    <materialDesign:Card Margin="0,0,16,0" 
-                                        Effect="{StaticResource Elevation2}"
-                                        Background="{StaticResource Error100Brush}"
-                                        Cursor="Hand">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="MouseLeftButtonUp">
-                                <i:InvokeCommandAction Command="{Binding FilterPendingCommand}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                        <StackPanel Margin="24" HorizontalAlignment="Center">
-                            <materialDesign:PackIcon Kind="AlertCircleOutline" 
-                                                   Width="40" Height="40" 
-                                                   Foreground="{StaticResource ErrorBrush}"
-                                                   HorizontalAlignment="Center"/>
-                            <TextBlock Text="Pending" 
-                                     Style="{StaticResource TitleLarge}" 
-                                     HorizontalAlignment="Center" 
-                                     Margin="0,16,0,0"/>
-                            <TextBlock Text="Reports to Review" 
-                                     Style="{StaticResource BodyMedium}" 
-                                     Foreground="{StaticResource OnSurface600Brush}"
-                                     HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </materialDesign:Card>
-
-                    <!-- In Progress Card 
-
-                    <materialDesign:Card Margin="0,0,16,0" 
-                                        Effect="{StaticResource Elevation2}"
-                                        Background="{StaticResource Warning100Brush}">
-                        <StackPanel Margin="24" HorizontalAlignment="Center">
-                            <materialDesign:PackIcon Kind="ProgressClock" 
-                                                   Width="40" Height="40" 
-                                                   Foreground="{StaticResource WarningBrush}"
-                                                   HorizontalAlignment="Center"/>
-                            <TextBlock Text="In Progress" 
-                                     Style="{StaticResource TitleLarge}" 
-                                     HorizontalAlignment="Center" 
-                                     Margin="0,16,0,0"/>
-                            <TextBlock Text="Active Repairs" 
-                                     Style="{StaticResource BodyMedium}" 
-                                     Foreground="{StaticResource OnSurface600Brush}"
-                                     HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </materialDesign:Card>
-                    
-                    -->
-
-                    <!-- Completed Card -->
-                    <materialDesign:Card Margin="0,0,16,0"
-                                        Effect="{StaticResource Elevation2}"
-                                        Background="{StaticResource Success100Brush}"
-                                        Cursor="Hand">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="MouseLeftButtonUp">
-                                <i:InvokeCommandAction Command="{Binding FilterCompletedCommand}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                        <StackPanel Margin="24" HorizontalAlignment="Center">
-                            <materialDesign:PackIcon Kind="CheckCircleOutline" 
-                                                   Width="40" Height="40" 
-                                                   Foreground="{StaticResource SuccessBrush}"
-                                                   HorizontalAlignment="Center"/>
-                            <TextBlock Text="Completed" 
-                                     Style="{StaticResource TitleLarge}" 
-                                     HorizontalAlignment="Center" 
-                                     Margin="0,16,0,0"/>
-                            <TextBlock Text="Resolved Issues" 
-                                     Style="{StaticResource BodyMedium}" 
-                                     Foreground="{StaticResource OnSurface600Brush}"
-                                     HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </materialDesign:Card>
-                    
-                    <!-- Clear Filter -->
-                    <materialDesign:Card Margin="0,0,16,0" 
-                                        Effect="{StaticResource Elevation2}"
-                                        Background="{StaticResource SurfaceBrush}"
-                                        Cursor="Hand">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="MouseLeftButtonUp">
-                                <i:InvokeCommandAction Command="{Binding ClearFilterCommand}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                        <StackPanel Margin="24" HorizontalAlignment="Center">
-                            <materialDesign:PackIcon Kind="CloseCircleOutline" 
-                                                   Width="40" Height="40" 
-                                                   Foreground="{StaticResource OnSurfaceBrush}"
-                                                   HorizontalAlignment="Center"/>
-                            <TextBlock Text="Clear Filter" 
-                                     Style="{StaticResource TitleLarge}" 
-                                     HorizontalAlignment="Center" 
-                                     Margin="0,16,0,0"/>
-                            <TextBlock Text="Show All Reports" 
-                                     Style="{StaticResource BodyMedium}" 
-                                     Foreground="{StaticResource OnSurface600Brush}"
-                                     HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </materialDesign:Card>
-
-                </UniformGrid>
-                
-                
-
-                <!-- Maintenance Reports Section -->
-                <materialDesign:Card Grid.Row="1" Effect="{StaticResource Elevation2}">
-                    <StackPanel Margin="24">
-                        <Grid Margin="0,0,0,24">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="ToolboxOutline" 
-                                                       Width="28" Height="28" 
-                                                       Foreground="{StaticResource Primary500Brush}"
-                                                       VerticalAlignment="Center"/>
-                                <TextBlock Text="Maintenance Reports" 
-                                         Style="{StaticResource HeadlineMedium}"
-                                         Margin="16,0,0,0"
-                                         VerticalAlignment="Center"/>
+                    <!-- Stats Section -->
+                    <UniformGrid Grid.Row="0" Rows="1" Columns="3" 
+                               Margin="0,24,0,32" Grid.ColumnSpan="2">
+                        <!-- Pending Reports Card -->
+                        <materialDesign:Card Margin="0,0,16,0" 
+                                            Effect="{StaticResource Elevation2}"
+                                            Background="{StaticResource Error100Brush}"
+                                            Cursor="Hand">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonUp">
+                                    <i:InvokeCommandAction Command="{Binding FilterPendingCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <StackPanel Margin="24" HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="AlertCircleOutline" 
+                                                       Width="40" Height="40" 
+                                                       Foreground="{StaticResource ErrorBrush}"
+                                                       HorizontalAlignment="Center"/>
+                                <TextBlock Text="Pending" 
+                                         Style="{StaticResource TitleLarge}" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,16,0,0"/>
+                                <TextBlock Text="Reports to Review" 
+                                         Style="{StaticResource BodyMedium}" 
+                                         Foreground="{StaticResource OnSurface600Brush}"
+                                         HorizontalAlignment="Center"/>
                             </StackPanel>
-                        </Grid>
+                        </materialDesign:Card>
 
-                        <DataGrid ItemsSource="{Binding MaintenanceReports}" 
-                      AutoGenerateColumns="False" 
-                                Style="{StaticResource ModernDataGrid}"
-                      CanUserAddRows="False"
-                      CanUserDeleteRows="False"
-                      IsReadOnly="False">
-                            <DataGrid.Columns>
-                                <!-- ID Column -->
-                                <DataGridTemplateColumn Header="ID" Width="60">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Border Background="{StaticResource Primary100Brush}" 
-                                                  CornerRadius="{StaticResource CornerRadiusXS}"
-                                                  Padding="8,4">
-                                                <TextBlock Text="{Binding Id}" 
-                                                         Style="{StaticResource LabelLarge}"
-                                                         FontWeight="Bold"
-                                                         Foreground="{StaticResource Primary700Brush}"
-                                                         HorizontalAlignment="Center"/>
-                                            </Border>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
+                        <!-- In Progress Card 
 
-                                <!-- Room Column -->
-                                <DataGridTemplateColumn Header="Room" Width="80">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <materialDesign:PackIcon Kind="Door" 
-                                                                       Width="16" Height="16" 
-                                                                       Foreground="{StaticResource Secondary500Brush}"/>
-                                                <TextBlock Text="{Binding RoomNumber}" 
-                                                         Style="{StaticResource BodyLarge}" 
-                                                         Margin="8,0,0,0" 
-                                                         FontWeight="Medium"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
+                        <materialDesign:Card Margin="0,0,16,0" 
+                                            Effect="{StaticResource Elevation2}"
+                                            Background="{StaticResource Warning100Brush}">
+                            <StackPanel Margin="24" HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="ProgressClock" 
+                                                       Width="40" Height="40" 
+                                                       Foreground="{StaticResource WarningBrush}"
+                                                       HorizontalAlignment="Center"/>
+                                <TextBlock Text="In Progress" 
+                                         Style="{StaticResource TitleLarge}" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,16,0,0"/>
+                                <TextBlock Text="Active Repairs" 
+                                         Style="{StaticResource BodyMedium}" 
+                                         Foreground="{StaticResource OnSurface600Brush}"
+                                         HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+                        
+                        -->
 
-                                <!-- Description Column -->
-                                <DataGridTextColumn Header="Description" 
-                                                  Binding="{Binding Description}" 
-                                                  Width="2*"/>
+                        <!-- Completed Card -->
+                        <materialDesign:Card Margin="0,0,16,0"
+                                            Effect="{StaticResource Elevation2}"
+                                            Background="{StaticResource Success100Brush}"
+                                            Cursor="Hand">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonUp">
+                                    <i:InvokeCommandAction Command="{Binding FilterCompletedCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <StackPanel Margin="24" HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="CheckCircleOutline" 
+                                                       Width="40" Height="40" 
+                                                       Foreground="{StaticResource SuccessBrush}"
+                                                       HorizontalAlignment="Center"/>
+                                <TextBlock Text="Completed" 
+                                         Style="{StaticResource TitleLarge}" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,16,0,0"/>
+                                <TextBlock Text="Resolved Issues" 
+                                         Style="{StaticResource BodyMedium}" 
+                                         Foreground="{StaticResource OnSurface600Brush}"
+                                         HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </materialDesign:Card>
 
-                                <!-- Report Date Column -->
-                                <DataGridTemplateColumn Header="Reported" Width="120">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding ReportedDate, StringFormat=dd/MM/yyyy}" 
-                                                         Style="{StaticResource BodyMedium}"/>
-                                                <TextBlock Text="{Binding ReportedDate, StringFormat=HH:mm}" 
-                                                         Style="{StaticResource BodySmall}"
-                                                         Foreground="{StaticResource OnSurface600Brush}"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
+                        <!-- Clear Filter -->
+                        <materialDesign:Card Margin="0,0,16,0" 
+                                            Effect="{StaticResource Elevation2}"
+                                            Background="{StaticResource SurfaceBrush}"
+                                            Cursor="Hand">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonUp">
+                                    <i:InvokeCommandAction Command="{Binding ClearFilterCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <StackPanel Margin="24" HorizontalAlignment="Center">
+                                <materialDesign:PackIcon Kind="CloseCircleOutline" 
+                                                       Width="40" Height="40" 
+                                                       Foreground="{StaticResource OnSurfaceBrush}"
+                                                       HorizontalAlignment="Center"/>
+                                <TextBlock Text="Overview " 
+                                         Style="{StaticResource TitleLarge}" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,16,0,0" TextAlignment="Center"/>
+                                <TextBlock Text="Show All Reports" 
+                                         Style="{StaticResource BodyMedium}" 
+                                         Foreground="{StaticResource OnSurface600Brush}"
+                                         HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </materialDesign:Card>
 
-                                <!-- Report Images Column -->
-                                <DataGridTemplateColumn Header="Report Images" Width="*">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Button Style="{StaticResource IconButton}"
-                                                    ToolTip="View Report Images"
-                                                    Command="{Binding DataContext.ViewReportImageCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    CommandParameter="{Binding}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <materialDesign:PackIcon Kind="ImageMultiple" Width="16" Height="16"/>
-                                                    <TextBlock Text="View" Margin="4,0,0,0" Style="{StaticResource BodySmall}"/>
+                    </UniformGrid>
+
+
+
+                    <!-- Maintenance Reports Section -->
+                    <materialDesign:Card Grid.Row="1" Effect="{StaticResource Elevation2}" Grid.ColumnSpan="2">
+                        <StackPanel Margin="24">
+                            <Grid Margin="0,0,0,24">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="ToolboxOutline" 
+                                                           Width="28" Height="28" 
+                                                           Foreground="{StaticResource Primary500Brush}"
+                                                           VerticalAlignment="Center"/>
+                                    <TextBlock Text="Maintenance Reports" 
+                                             Style="{StaticResource HeadlineMedium}"
+                                             Margin="16,0,0,0"
+                                             VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <DataGrid ItemsSource="{Binding MaintenanceReports}" 
+                                      AutoGenerateColumns="False" 
+                                      Style="{StaticResource ModernDataGrid}"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      IsReadOnly="False">
+                                <DataGrid.Columns>
+                                    <!-- ID Column -->
+                                    <DataGridTemplateColumn Header="ID" Width="60">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{StaticResource Primary100Brush}" 
+                                                      CornerRadius="{StaticResource CornerRadiusXS}"
+                                                      Padding="8,4">
+                                                    <TextBlock Text="{Binding Id}" 
+                                                             Style="{StaticResource LabelLarge}"
+                                                             FontWeight="Bold"
+                                                             Foreground="{StaticResource Primary700Brush}"
+                                                             HorizontalAlignment="Center"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- Room Column -->
+                                    <DataGridTemplateColumn Header="Room" Width="80">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <materialDesign:PackIcon Kind="Door" 
+                                                                           Width="16" Height="16" 
+                                                                           Foreground="{StaticResource Secondary500Brush}"/>
+                                                    <TextBlock Text="{Binding RoomNumber}" 
+                                                             Style="{StaticResource BodyLarge}" 
+                                                             Margin="8,0,0,0" 
+                                                             FontWeight="Medium"/>
                                                 </StackPanel>
-                                            </Button>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
 
-                                <!-- Completion Date Column -->
-                                <DataGridTemplateColumn Header="Completed" Width="120">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding CompletedDate, StringFormat=dd/MM/yyyy}" 
-                                                         Style="{StaticResource BodyMedium}"/>
-                                                <TextBlock Text="{Binding CompletedDate, StringFormat=HH:mm}" 
-                                                         Style="{StaticResource BodySmall}"
-                                                         Foreground="{StaticResource OnSurface600Brush}"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
+                                    <!-- Description Column -->
+                                    <DataGridTextColumn Header="Description" 
+                                                      Binding="{Binding Description}" 
+                                                      Width="2*"/>
 
-                                <!-- Completion Proof Images Column -->
-                                <DataGridTemplateColumn Header="Proof Images" Width="*">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Button Style="{StaticResource IconButton}"
-                                                    ToolTip="View Completion Images"
-                                                    Command="{Binding DataContext.ViewCompletionImageCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    CommandParameter="{Binding}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <materialDesign:PackIcon Kind="Camera" Width="16" Height="16"/>
-                                                    <TextBlock Text="View" Margin="4,0,0,0" Style="{StaticResource BodySmall}"/>
+                                    <!-- Report Date Column -->
+                                    <DataGridTemplateColumn Header="Reported" Width="120">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding ReportedDate, StringFormat=dd/MM/yyyy}" 
+                                                             Style="{StaticResource BodyMedium}"/>
+                                                    <TextBlock Text="{Binding ReportedDate, StringFormat=HH:mm}" 
+                                                             Style="{StaticResource BodySmall}"
+                                                             Foreground="{StaticResource OnSurface600Brush}"/>
                                                 </StackPanel>
-                                            </Button>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
 
-                                <!-- Status Toggle Column -->
-                                <DataGridTemplateColumn Header="Status" Width="*">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Button Command="{Binding DataContext.ToggleResolvedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
-                                                  CommandParameter="{Binding}"
-                                                  Style="{StaticResource StatusButtonStyle}">
-                                                <Button.Content>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <materialDesign:PackIcon Width="16" Height="16" VerticalAlignment="Center">
-                                                            <materialDesign:PackIcon.Style>
-                                                                <Style TargetType="materialDesign:PackIcon">
-                                                                    <Setter Property="Kind" Value="ProgressClock"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsResolved}" Value="True">
-                                                                            <Setter Property="Kind" Value="CheckCircle"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </materialDesign:PackIcon.Style>
-                                                        </materialDesign:PackIcon>
-                                                        <TextBlock Margin="8,0,0,0" VerticalAlignment="Center">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Setter Property="Text" Value="Need Repair"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsResolved}" Value="True">
-                                                                            <Setter Property="Text" Value="Completed"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
+                                    <!-- Report Images Column -->
+                                    <DataGridTemplateColumn Header="Report Images" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource IconButton}"
+                                                        ToolTip="View Report Images"
+                                                        Command="{Binding DataContext.ViewReportImageCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding}"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <materialDesign:PackIcon Kind="ImageMultiple" Width="16" Height="16"/>
+                                                        <TextBlock Text="View" Margin="4,0,0,0" Style="{StaticResource BodySmall}"/>
                                                     </StackPanel>
-                                                </Button.Content>
-                                            </Button>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
 
-                                <!-- Upload Proof Column -->
-                                <DataGridTemplateColumn Header="Upload Proof" Width="*">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Button Command="{Binding DataContext.SelectCompletionImageCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
-                                        CommandParameter="{Binding}"
-                                                  Style="{StaticResource OutlinedButton}"
-                                                  BorderBrush="{StaticResource Secondary500Brush}"
-                                                  Foreground="{StaticResource Secondary500Brush}"
-                                                  Visibility="{Binding IsResolved, Converter={StaticResource BoolToVisConverter}}"
-                                                  ToolTip="Upload completion proof images">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <materialDesign:PackIcon Kind="Upload" Width="14" Height="14"/>
-                                                    <TextBlock Text="Upload" Margin="4,0,0,0" Style="{StaticResource BodySmall}"/>
+                                    <!-- Completion Date Column -->
+                                    <DataGridTemplateColumn Header="Completed" Width="120">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding CompletedDate, StringFormat=dd/MM/yyyy}" 
+                                                             Style="{StaticResource BodyMedium}" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding CompletedDate, StringFormat=HH:mm}" 
+                                                             Style="{StaticResource BodySmall}"
+                                                             Foreground="{StaticResource OnSurface600Brush}" HorizontalAlignment="Center"/>
                                                 </StackPanel>
-                                            </Button>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </StackPanel>
-                </materialDesign:Card>
-            </Grid>
-        </Grid>
-    </materialDesign:Card>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- Completion Proof Images Column -->
+                                    <DataGridTemplateColumn Header="Proof Images" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource IconButton}"
+                                                        ToolTip="View Completion Images"
+                                                        Command="{Binding DataContext.ViewCompletionImageCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding}"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <materialDesign:PackIcon Kind="Camera" Width="16" Height="16"/>
+                                                        <TextBlock Text="View" Margin="4,0,0,0" Style="{StaticResource BodySmall}"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- Status Toggle Column -->
+                                    <DataGridTemplateColumn Header="Status" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Command="{Binding DataContext.ToggleResolvedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                      CommandParameter="{Binding}"
+                                                      Style="{StaticResource StatusButtonStyle}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center">
+                                                    <Button.Content>
+                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                            <materialDesign:PackIcon Width="16" Height="16" VerticalAlignment="Center">
+                                                                <materialDesign:PackIcon.Style>
+                                                                    <Style TargetType="materialDesign:PackIcon">
+                                                                        <Setter Property="Kind" Value="ProgressClock"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsResolved}" Value="True">
+                                                                                <Setter Property="Kind" Value="CheckCircle"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </materialDesign:PackIcon.Style>
+                                                            </materialDesign:PackIcon>
+                                                            <TextBlock Margin="8,0,0,0" VerticalAlignment="Center">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Text" Value="Need Repair"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsResolved}" Value="True">
+                                                                                <Setter Property="Text" Value="Completed"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </StackPanel>
+                                                    </Button.Content>
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- Upload Proof Column -->
+                                    <DataGridTemplateColumn Header="Upload Proof" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Command="{Binding DataContext.SelectCompletionImageCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource OutlinedButton}"
+                                                    BorderBrush="{StaticResource Secondary500Brush}"
+                                                    Foreground="{StaticResource Secondary500Brush}"
+                                                    Visibility="{Binding IsResolved, Converter={StaticResource BoolToVisConverter}}"
+                                                    ToolTip="Upload completion proof images"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                        <materialDesign:PackIcon Kind="Upload" Width="14" Height="14"/>
+                                                        <TextBlock Text="Upload" Margin="4,0,0,0" Style="{StaticResource BodySmall}"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </materialDesign:Card>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

@@ -49,14 +49,13 @@
 
                 <!-- Modern Title Bar -->
                 <Border x:Name="TitleBar" Grid.Row="0" 
-                        Background="{StaticResource PrimaryGradient}"
-                        Height="64">
+                        Background="{StaticResource PrimaryGradient}">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Visibility" Value="Visible"/>
                         </Style>
                     </Border.Style>
-                    <Grid>
+                    <Grid Margin="0,-22,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
@@ -76,9 +75,7 @@
                             <TextBlock Text="Hotel Management" 
                                        Style="{StaticResource TitleLarge}"
                                        Foreground="White" 
-                                       FontWeight="SemiBold"
-                                       VerticalAlignment="Center" 
-                                       Margin="12,0,0,0"/>
+                                       FontWeight="SemiBold"/>
                         </StackPanel>
 
                         <!-- Title/Breadcrumb Area -->
@@ -103,10 +100,7 @@
                                     ToolTip="Notifications"
                                     Background="Transparent"
                                     Margin="0,0,8,0">
-                                <materialDesign:PackIcon Kind="Bell" 
-                                                         Foreground="White" 
-                                                         Width="20" 
-                                                         Height="20"/>
+                                
                             </Button>
 
                             <!-- Settings -->
@@ -114,10 +108,7 @@
                                     ToolTip="Settings"
                                     Background="Transparent"
                                     Margin="0,0,16,0">
-                                <materialDesign:PackIcon Kind="Settings" 
-                                                         Foreground="White" 
-                                                         Width="20" 
-                                                         Height="20"/>
+                                
                             </Button>
 
                             <!-- User Profile -->
@@ -200,11 +191,7 @@
                                     Orientation="Horizontal" 
                                     VerticalAlignment="Center" 
                                     Margin="8">
-                            <materialDesign:PackIcon Kind="Account" 
-                                                     Width="16" 
-                                                     Height="16" 
-                                                     Foreground="{StaticResource OnSurfaceVariantBrush}"
-                                                     VerticalAlignment="Center"/>
+                            
                             <TextBlock Text="{Binding CurrentUser}" 
                                        Style="{StaticResource BodyMedium}"
                                        Foreground="{StaticResource OnSurfaceVariantBrush}"
