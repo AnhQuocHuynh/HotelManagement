@@ -42,21 +42,7 @@
                                         Margin="0,0,24,0" 
                                         VerticalAlignment="Center"
                                         Background="{StaticResource Primary200Brush}">
-            <ComboBox x:Name="comboBox_Options"
-                                  MinWidth="200"
-                      ItemsSource="{Binding Options}"
-                                  SelectedItem="{Binding SelectedOption}"
-                                  materialDesign:HintAssist.Hint="Select View"
-                                  materialDesign:HintAssist.IsFloating="True"
-                                  Style="{StaticResource MaterialDesignFilledComboBox}"
-                                  Background="Transparent"
-                                  Foreground="Navy" SelectionChanged="comboBox_Options_SelectionChanged">
-                            <ComboBox.Resources>
-                                <Style TargetType="ComboBoxItem">
-                                    <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>
-                                </Style>
-                            </ComboBox.Resources>
-                        </ComboBox>
+
                     </materialDesign:Card>
 
                     <!-- Logout Button -->
@@ -82,7 +68,7 @@
                             <Storyboard FillBehavior="HoldEnd">
                                 <DoubleAnimation Storyboard.TargetName="StatsContainer"
                                  Storyboard.TargetProperty="MaxHeight"
-                                 To="300"
+                                 To="320"
                                  Duration="0:0:0.4">
                                     <DoubleAnimation.EasingFunction>
                                         <CubicEase EasingMode="EaseOut"/>
@@ -172,93 +158,130 @@
                         </materialDesign:Card>
 
                         <!-- Reports Card -->
-                        <materialDesign:Card Margin="0,0,16,0" 
-                        Effect="{StaticResource Elevation2}"
-                        Background="{StaticResource Secondary100Brush}">
-                            <materialDesign:Card.Triggers>
-                                <EventTrigger RoutedEvent="MouseEnter">
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                       To="1.02" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                       To="1.02" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                                <EventTrigger RoutedEvent="MouseLeave">
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                       To="1.0" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                       To="1.0" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                            </materialDesign:Card.Triggers>
-                            <materialDesign:Card.RenderTransform>
-                                <ScaleTransform/>
-                            </materialDesign:Card.RenderTransform>
-                            <StackPanel Margin="24" HorizontalAlignment="Center">
-                                <materialDesign:PackIcon Kind="ChartLine"                 
-                                   Width="40" Height="40" 
-                                   Foreground="{DynamicResource Primary500Brush}"
-                                   HorizontalAlignment="Center"/>
-                                <TextBlock Text="Reports" 
-                     Style="{StaticResource TitleLarge}" 
-                     HorizontalAlignment="Center" 
-                     Margin="0,16,0,0"/>
-                                <TextBlock Text="Revenue &amp; Analytics" 
-                     Style="{StaticResource BodyMedium}" 
-                     Foreground="{DynamicResource OnSurface600Brush}"
-                     HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </materialDesign:Card>
+                        <Button x:Name="ReportsCardButton"
+                                Command="{Binding ShowReportsCommand}"
+                                Background="Transparent"
+                                BorderBrush="{x:Null}"
+                                Style="{x:Null}"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"
+                                Padding="0"
+                                Margin="0">
+
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </Button.Template>
+
+                            <materialDesign:Card Margin="0,0,16,0" 
+                                                 Effect="{StaticResource Elevation2}"
+                                                 Background="{StaticResource Secondary100Brush}">
+                                <materialDesign:Card.Triggers>
+                                    <EventTrigger RoutedEvent="MouseEnter">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                                 To="1.02" Duration="0:0:0.2"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                                 To="1.02" Duration="0:0:0.2"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                    <EventTrigger RoutedEvent="MouseLeave">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                                 To="1.0" Duration="0:0:0.2"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                                 To="1.0" Duration="0:0:0.2"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </materialDesign:Card.Triggers>
+                                <materialDesign:Card.RenderTransform>
+                                    <ScaleTransform/>
+                                </materialDesign:Card.RenderTransform>
+                                <StackPanel Margin="24" HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="ChartLine"                 
+                                                             Width="40" Height="40" 
+                                                             Foreground="{DynamicResource Primary500Brush}"
+                                                             HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Reports" 
+                                               Style="{StaticResource TitleLarge}" 
+                                               HorizontalAlignment="Center" 
+                                               Margin="0,16,0,0"/>
+                                    <TextBlock Text="Revenue &amp; Analytics" 
+                                               Style="{StaticResource BodyMedium}" 
+                                               Foreground="{DynamicResource OnSurface600Brush}"
+                                               HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </materialDesign:Card>
+
+                        </Button>
 
                         <!-- Management Card -->
-                        <materialDesign:Card Effect="{StaticResource Elevation2}"
-                        Background="{DynamicResource Warning100Brush}">
-                            <materialDesign:Card.Triggers>
-                                <EventTrigger RoutedEvent="MouseEnter">
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                        <Button x:Name="managementCardButton"
+                                Command="{Binding ShowEmployeeListCommand}"
+                                Background="Transparent"
+                                BorderBrush="{x:Null}"
+                                Style="{x:Null}"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"
+                                Padding="0"
+                                Margin="0">
+
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </Button.Template>
+
+                            <materialDesign:Card Effect="{StaticResource Elevation2}"
+                                             Background="{DynamicResource Warning100Brush}">
+                                <materialDesign:Card.Triggers>
+                                    <EventTrigger RoutedEvent="MouseEnter">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
                                        To="1.02" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
                                        To="1.02" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                                <EventTrigger RoutedEvent="MouseLeave">
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                    <EventTrigger RoutedEvent="MouseLeave">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
                                        To="1.0" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
                                        To="1.0" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                            </materialDesign:Card.Triggers>
-                            <materialDesign:Card.RenderTransform>
-                                <ScaleTransform/>
-                            </materialDesign:Card.RenderTransform>
-                            <StackPanel Margin="24" HorizontalAlignment="Center">
-                                <materialDesign:PackIcon Kind="AccountMultiple" 
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </materialDesign:Card.Triggers>
+                                <materialDesign:Card.RenderTransform>
+                                    <ScaleTransform/>
+                                </materialDesign:Card.RenderTransform>
+                                <StackPanel Margin="24" HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="AccountMultiple" 
                                    Width="40" Height="40" 
                                     Foreground="{StaticResource AccentBrush}"
                                    HorizontalAlignment="Center"/>
-                                <TextBlock Text="Management" 
+                                    <TextBlock Text="Management" 
                      Style="{StaticResource TitleLarge}" 
                      HorizontalAlignment="Center" 
                      Margin="0,16,0,0"/>
-                                <TextBlock Text="Staff &amp; Operations" 
+                                    <TextBlock Text="Staff &amp; Operations" 
                      Style="{StaticResource BodyMedium}" 
                      Foreground="{DynamicResource OnSurface600Brush}" 
                      HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </materialDesign:Card>
+                                </StackPanel>
+                            </materialDesign:Card>
+
+                        </Button>
+
                     </UniformGrid>
 
                     <!-- hover trigger -->
@@ -268,7 +291,7 @@
                                 <Storyboard FillBehavior="HoldEnd">
                                     <DoubleAnimation Storyboard.TargetName="StatsContainer"
                                  Storyboard.TargetProperty="MaxHeight"
-                                 To="300"
+                                 To="320"
                                  Duration="0:0:0.4">
                                         <DoubleAnimation.EasingFunction>
                                             <CubicEase EasingMode="EaseOut"/>

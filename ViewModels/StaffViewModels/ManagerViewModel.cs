@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -6,26 +7,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
+
 namespace HotelManager.ViewModels.StaffViewModels
 {
     public class ManagerViewModel : BaseViewModel
     {
-        public ObservableCollection<string> Options { get; set; }
-
-        private string _selectedOption;
-        public string SelectedOption
-        {
-            get => _selectedOption;
-            set
-            {
-                if (_selectedOption != value)
-                {
-                    _selectedOption = value;
-                    OnPropertyChanged(nameof(SelectedOption));
-                    changeContentControl(_selectedOption);
-                }
-            }
-        }
+        private String CurrentView { get; set; }
 
         private Object _currentContent;
         public Object CurrentContent
@@ -41,38 +28,48 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
         }
 
+        // commands
+        public IRelayCommand ShowEmployeeListCommand { get; }
+        public IRelayCommand ShowReportsCommand { get; }
+
+
         public ManagerViewModel()
         {
-            Options = new ObservableCollection<string>
-            {
-                "View revenue report",
-                "View receptionist activity report"
-            };
-            // Set a default selected option
-            SelectedOption = Options.FirstOrDefault();
+            // init command
+            ShowEmployeeListCommand = new RelayCommand(ShowEmployeeList);
+            ShowReportsCommand = new RelayCommand(ShowReports);
+
+            ShowReports();
         }
 
-        void changeContentControl(string option)
+        private void ShowEmployeeList()
         {
-            // Dispose of the old view's DataContext if it implements IDisposable
-            // prevent memory leaks
+            if (CurrentView == "EmployeeList")
+                return;
+
+            // Dispose old content nếu có
             if (CurrentContent is FrameworkElement oldView && oldView.DataContext is IDisposable disposable)
             {
                 disposable.Dispose();
             }
 
-            switch (option)
+            CurrentContent = new Views.ManagerViews.EmployeesListView();
+            CurrentView = "EmployeeList";
+        }
+
+        private void ShowReports()
+        {
+            if (CurrentView == "Reports")
+                return;
+
+            // Dispose old content nếu có
+            if (CurrentContent is FrameworkElement oldView && oldView.DataContext is IDisposable disposable)
             {
-                case "View revenue report":
-                    CurrentContent = new Views.ManagerViews.RevenueReportChartView();
-                    break;
-                case "View receptionist activity report":
-                    CurrentContent = new Views.ManagerViews.ReceptionistActivityReportChartView();
-                    break;
-                default:
-                    CurrentContent = new Views.ManagerViews.RevenueReportChartView();
-                    break;
+                disposable.Dispose();
             }
+
+            CurrentContent = new Views.ManagerViews.ReportsBaseView();
+            CurrentView = "Reports";
         }
     }
 }
