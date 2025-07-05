@@ -111,45 +111,18 @@
                                         Orientation="Horizontal" 
                                         HorizontalAlignment="Center" 
                                         VerticalAlignment="Center">
-                                <Border Background="White" 
-                                        CornerRadius="{StaticResource RadiusS}" 
-                                        Padding="12,8" 
-                                        Margin="8,0"
-                                        Opacity="0.9">
+                                <Button Command="{Binding ShowBookingsCommand}" Style="{StaticResource OutlinedButton}" Margin="8,0" Background="White">
                                     <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon Kind="CalendarCheck" 
-                                                                 Foreground="{StaticResource PrimaryBrush}" 
-                                                                 Width="20" 
-                                                                 Height="20" 
-                                                                 VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding TotalBookings, StringFormat='{}{0} Bookings'}" 
-                                                   Style="{StaticResource LabelLarge}"
-                                                   Foreground="{StaticResource PrimaryBrush}" 
-                                                   FontWeight="SemiBold"
-                                                   Margin="8,0,0,0" 
-                                                   VerticalAlignment="Center"/>
+                                        <materialDesign:PackIcon Kind="CalendarCheck" Foreground="{StaticResource PrimaryBrush}" Width="20" Height="20" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding TotalBookings, StringFormat='{}{0} Bookings'}" Style="{StaticResource LabelLarge}" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
-                                </Border>
-                                
-                                <Border Background="White" 
-                                        CornerRadius="{StaticResource RadiusS}" 
-                                        Padding="12,8" 
-                                        Margin="8,0"
-                                        Opacity="0.9">
+                                </Button>
+                                <Button Command="{Binding ShowAvailableRoomsCommand}" Style="{StaticResource OutlinedButton}" Margin="8,0" Background="White">
                                     <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon Kind="BedKingOutline" 
-                                                                 Foreground="{StaticResource SuccessBrush}" 
-                                                                 Width="20" 
-                                                                 Height="20" 
-                                                                 VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding AvailableRoomsCount, StringFormat='{}{0} Rooms Available'}" 
-                                                   Style="{StaticResource LabelLarge}"
-                                                   Foreground="{StaticResource SuccessBrush}" 
-                                                   FontWeight="SemiBold"
-                                                   Margin="8,0,0,0" 
-                                                   VerticalAlignment="Center"/>
+                                        <materialDesign:PackIcon Kind="BedKingOutline" Foreground="{StaticResource SuccessBrush}" Width="20" Height="20" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding AvailableRoomsCount, StringFormat='{}{0} Rooms Available'}" Style="{StaticResource LabelLarge}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
-                                </Border>
+                                </Button>
                             </StackPanel>
 
                             <!-- Action Buttons -->

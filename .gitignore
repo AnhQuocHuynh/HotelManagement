@@ -63,3 +63,4 @@ appsettings.*.json
 /HotelManager.csproj
 
 HotelManager.Core/Config/DatabaseConfig.cs
+HotelManager.Core/Config/DatabaseConfig.cs
