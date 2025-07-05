@@ -43,7 +43,8 @@ namespace HotelManager.ViewModels
             // Subscribe to login success event
             ViewModels.Common.LoginViewModel.OnLoginSuccess += NavigateBasedOnUserRole;
 
-            CurrentView = new Views.Common.LoginView();
+            //CurrentView = new Views.Common.LoginView();
+            CurrentView = new Views.StaffViews.CleanerView();
         }
 
         // Navigation method based on user role
