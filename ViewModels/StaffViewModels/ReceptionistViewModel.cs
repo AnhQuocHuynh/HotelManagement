@@ -120,7 +120,6 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 _searchText = value;
                 OnPropertyChanged(nameof(SearchText));
-                PerformSearch();
             }
         }
 
@@ -484,22 +483,27 @@ namespace HotelManager.ViewModels.StaffViewModels
 
         private void PerformSearch()
         {
-            if(string.IsNullOrWhiteSpace(SearchText))
+            if (string.IsNullOrWhiteSpace(SearchText))
             {
                 Bookings.Clear();
-                foreach (var booking in _allBookings)             
-                    Bookings.Add(booking);              
+                foreach (var booking in _allBookings)
+                    Bookings.Add(booking);
                 return;
             }
 
             string searchText = SearchText.Trim().ToLowerInvariant();
             var filteredBookings = _allBookings
-                .Where(b => b.Customer.FullName.ToLowerInvariant().Contains(searchText) ||
-                            b.Customer.CCCD.ToLowerInvariant().Contains(searchText) ||
-                            b.Customer.PhoneNumber.Contains(searchText) ||
-                            b.RoomNumber.Contains(searchText) ||
-                            b.Status.ToString().ToLowerInvariant().Contains(searchText))
-                .ToList();
+            .Where(b =>
+                b.Customer.FullName.ToLowerInvariant().Contains(searchText) ||
+                b.Customer.CCCD.ToLowerInvariant().Contains(searchText) ||
+                b.Customer.PhoneNumber.Contains(searchText) ||
+                b.RoomNumber.ToLowerInvariant().Contains(searchText) ||
+                b.Status.ToString().ToLowerInvariant().Contains(searchText) ||
+                b.Customer.Type.ToString().ToLowerInvariant().Contains(searchText) ||
+                b.RoomType.ToString().ToLowerInvariant().Contains(searchText)
+            )
+            .ToList();
+
             Bookings.Clear();
             foreach (var booking in filteredBookings)
                 Bookings.Add(booking);

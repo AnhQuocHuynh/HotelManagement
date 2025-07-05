@@ -357,7 +357,8 @@
                                          Width="250"
                                          Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                     <TextBox.InputBindings>
-                                        <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                                        <KeyBinding Key="Enter"
+                                                    Command="{Binding SearchCommand}"/>
                                     </TextBox.InputBindings>
                                 </TextBox>
                                 
