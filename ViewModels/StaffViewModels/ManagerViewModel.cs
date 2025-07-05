@@ -12,7 +12,7 @@ namespace HotelManager.ViewModels.StaffViewModels
 {
     public class ManagerViewModel : BaseViewModel
     {
-
+        private String CurrentView { get; set; }
 
         private Object _currentContent;
         public Object CurrentContent
@@ -44,6 +44,9 @@ namespace HotelManager.ViewModels.StaffViewModels
 
         private void ShowEmployeeList()
         {
+            if (CurrentView == "EmployeeList")
+                return;
+
             // Dispose old content nếu có
             if (CurrentContent is FrameworkElement oldView && oldView.DataContext is IDisposable disposable)
             {
@@ -51,10 +54,14 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
 
             CurrentContent = new Views.ManagerViews.EmployeesListView();
+            CurrentView = "EmployeeList";
         }
 
         private void ShowReports()
         {
+            if (CurrentView == "Reports")
+                return;
+
             // Dispose old content nếu có
             if (CurrentContent is FrameworkElement oldView && oldView.DataContext is IDisposable disposable)
             {
@@ -62,6 +69,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
 
             CurrentContent = new Views.ManagerViews.ReportsBaseView();
+            CurrentView = "Reports";
         }
     }
 }
