@@ -15,4 +15,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Config/DatabaseConfig.example.cs" />
+  </ItemGroup>
+
 </Project>
