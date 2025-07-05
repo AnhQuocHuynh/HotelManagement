@@ -30,7 +30,7 @@ namespace HotelManager.Services
 
         public async Task<List<Booking>> GetAllAsync()
         {
-            return (await _unitOfWork.Bookings.GetAllAsync()).ToList();
+            return (await _dbContext.Bookings.Include(b => b.Customer).ToListAsync());
         }
 
         public async Task CreateAsync(Booking booking)
