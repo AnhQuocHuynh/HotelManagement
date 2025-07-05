@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using HotelManager.ViewModels;
+using HotelManager.ViewModels.Admin;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.Views
 {
@@ -23,6 +25,12 @@ namespace HotelManager.Views
         public AdminView()
         {
             InitializeComponent();
+            
+            // Set DataContext using DI
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<AdminViewModel>();
+            }
         }
     }
 }

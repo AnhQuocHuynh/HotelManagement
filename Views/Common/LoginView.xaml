@@ -62,9 +62,7 @@
         </Storyboard>
     </UserControl.Resources>
 
-    <UserControl.DataContext>
-        <vm:LoginViewModel />
-    </UserControl.DataContext>
+
 
     <UserControl.Triggers>
         <EventTrigger RoutedEvent="UserControl.Loaded">

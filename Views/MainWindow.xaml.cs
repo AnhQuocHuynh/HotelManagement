@@ -9,18 +9,24 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using HotelManager.ViewModels;
-using HotelManager.Utilities;
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// </summary>
+using Microsoft.Extensions.DependencyInjection;
+
 namespace HotelManager.Views
 {
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = ViewModelLocator.GetViewModel<MainViewModel>();
+            
+            // Set DataContext using DI
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<MainViewModel>();
+            }
         }
     }
 }

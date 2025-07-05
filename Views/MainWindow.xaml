@@ -19,9 +19,7 @@
         FontFamily="{StaticResource PrimaryFont}"
         Style="{DynamicResource MaterialDesignWindow}">
     
-    <Window.DataContext>
-        <vm:MainViewModel />
-    </Window.DataContext>
+
 
     <Window.Resources>
         <!-- Glassmorphism effect for backdrop -->

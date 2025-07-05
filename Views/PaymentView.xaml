@@ -19,9 +19,7 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
-    <UserControl.DataContext>
-        <vm:PaymentViewModel/>
-    </UserControl.DataContext>
+
 
     <UserControl.Resources>
         <!-- Style cho DatePicker trong DataGrid -->

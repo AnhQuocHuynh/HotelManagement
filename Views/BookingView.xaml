@@ -41,9 +41,7 @@
         </Style>
     </UserControl.Resources>
 
-    <UserControl.DataContext>
-        <vm:BookingViewModel />
-    </UserControl.DataContext>
+
 
     <materialDesign:Card Effect="{StaticResource Elevation3}">
         <Grid Background="{StaticResource SurfaceBrush}">

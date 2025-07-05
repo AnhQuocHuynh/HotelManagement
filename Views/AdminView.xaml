@@ -9,9 +9,7 @@
         mc:Ignorable="d"
         d:DesignHeight="900" d:DesignWidth="1400">
     
-    <UserControl.DataContext>
-        <vm:AdminViewModel />
-    </UserControl.DataContext>
+
 
     <UserControl.Resources>
         <!-- Stats Card Style -->

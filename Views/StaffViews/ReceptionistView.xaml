@@ -18,9 +18,7 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
-    <UserControl.DataContext>
-        <vm:ReceptionistViewModel/>
-    </UserControl.DataContext>
+
 
     <UserControl.Resources>
         <!-- ObjectDataProvider cho BookingStatus -->

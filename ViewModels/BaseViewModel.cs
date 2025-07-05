@@ -21,9 +21,11 @@ namespace HotelManager.ViewModels
 
         public ICommand LoadedCommand { get; protected set; }
 
+        [Obsolete("Use constructor with dependency injection instead", false)]
         public BaseViewModel()
         {
-            // Try to get services from DI container
+            // DEPRECATED: This constructor uses Service Locator anti-pattern
+            // Use the constructor with dependency injection instead
             try
             {
                 if (App.ServiceProvider != null)
