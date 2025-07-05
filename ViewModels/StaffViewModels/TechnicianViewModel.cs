@@ -31,6 +31,8 @@ namespace HotelManager.ViewModels.StaffViewModels
         // Command để cập nhật trạng thái sửa xong
         public ICommand ToggleResolvedCommand { get; }
         public ICommand SelectCompletionImageCommand { get; }
+        public ICommand ViewCompletionImageCommand { get; }
+        public ICommand ViewReportImageCommand { get; }
 
         public TechnicianViewModel(IMaintenanceService maintenanceService)
         {
@@ -39,6 +41,8 @@ namespace HotelManager.ViewModels.StaffViewModels
 
             ToggleResolvedCommand = new RelayCommand<MaintenanceReport>(ToggleResolved);
             SelectCompletionImageCommand = new RelayCommand<MaintenanceReport>(SelectCompletionImage);
+            ViewReportImageCommand = new RelayCommand<object>(ViewReportImage);
+            ViewCompletionImageCommand = new RelayCommand<object>(ViewCompletionImage);
 
             LoadMaintenanceReports();
         }
@@ -159,6 +163,52 @@ namespace HotelManager.ViewModels.StaffViewModels
                 });
                 
                 MessageBox.Show("Đã thêm ảnh minh chứng hoàn thành.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void ViewCompletionImage(object parameter)
+        {
+            if (parameter is MaintenanceReport report && !string.IsNullOrWhiteSpace(report.CompletionImagePath))
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = report.CompletionImagePath,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Không thể mở ảnh hoàn thành: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Không có đường dẫn ảnh hoàn thành để hiển thị.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void ViewReportImage(object parameter)
+        {
+            if (parameter is MaintenanceReport report && !string.IsNullOrWhiteSpace(report.ImagePath))
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = report.ImagePath,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Không thể mở ảnh báo cáo: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Không có đường dẫn ảnh báo cáo để hiển thị.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
     }

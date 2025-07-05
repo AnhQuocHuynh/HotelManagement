@@ -122,7 +122,8 @@
                         </StackPanel>
                     </materialDesign:Card>
 
-                    <!-- In Progress Card -->
+                    <!-- In Progress Card 
+                    
                     <materialDesign:Card Margin="0,0,16,0" 
                                         Effect="{StaticResource Elevation2}"
                                         Background="{StaticResource Warning100Brush}">
@@ -141,6 +142,8 @@
                                      HorizontalAlignment="Center"/>
                         </StackPanel>
                     </materialDesign:Card>
+                    
+                    -->
 
                     <!-- Completed Card -->
                     <materialDesign:Card Effect="{StaticResource Elevation2}"
@@ -222,7 +225,7 @@
                                 <!-- Description Column -->
                                 <DataGridTextColumn Header="Description" 
                                                   Binding="{Binding Description}" 
-                                                  Width="*"/>
+                                                  Width="2*"/>
 
                                 <!-- Report Date Column -->
                                 <DataGridTemplateColumn Header="Reported" Width="120">
@@ -240,11 +243,13 @@
                                 </DataGridTemplateColumn>
 
                                 <!-- Report Images Column -->
-                                <DataGridTemplateColumn Header="Report Images" Width="120">
+                                <DataGridTemplateColumn Header="Report Images" Width="*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Button Style="{StaticResource IconButton}"
-                                                  ToolTip="View Report Images">
+                                                    ToolTip="View Report Images"
+                                                    Command="{Binding DataContext.ViewReportImageCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <materialDesign:PackIcon Kind="ImageMultiple" Width="16" Height="16"/>
                                                     <TextBlock Text="View" Margin="4,0,0,0" Style="{StaticResource BodySmall}"/>
@@ -269,12 +274,14 @@
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
 
-                                <!-- Completion Images Column -->
-                                <DataGridTemplateColumn Header="Proof Images" Width="120">
+                                <!-- Completion Proof Images Column -->
+                                <DataGridTemplateColumn Header="Proof Images" Width="*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Button Style="{StaticResource IconButton}"
-                                                  ToolTip="View Completion Images">
+                                                    ToolTip="View Completion Images"
+                                                    Command="{Binding DataContext.ViewCompletionImageCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <materialDesign:PackIcon Kind="Camera" Width="16" Height="16"/>
                                                     <TextBlock Text="View" Margin="4,0,0,0" Style="{StaticResource BodySmall}"/>
@@ -285,7 +292,7 @@
                                 </DataGridTemplateColumn>
 
                                 <!-- Status Toggle Column -->
-                                <DataGridTemplateColumn Header="Status" Width="150">
+                                <DataGridTemplateColumn Header="Status" Width="*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Button Command="{Binding DataContext.ToggleResolvedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
@@ -325,7 +332,7 @@
                                 </DataGridTemplateColumn>
 
                                 <!-- Upload Proof Column -->
-                                <DataGridTemplateColumn Header="Upload Proof" Width="120">
+                                <DataGridTemplateColumn Header="Upload Proof" Width="*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Button Command="{Binding DataContext.SelectCompletionImageCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
