@@ -129,10 +129,26 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 await RefreshChartAsync();
             });
+
+            ExportChartAndDataCommand = new RelayCommand(ExportChartAndData);
         }
         public void Dispose()
         {
             _scope?.Dispose();
+        }
+
+        private void ExportChartAndData()
+        {
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "Excel files (*.xlsx)|*.xlsx",
+                FileName = "ReceptionistReport.xlsx"
+
+            };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                _exportService.ExportCleanerActivitiesToExcel(_chartData, saveFileDialog.FileName);
+            }
         }
 
 
@@ -190,7 +206,10 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
     new Axis
     {
         Name = "Số phòng đã dọn",
-        SeparatorsPaint = new SolidColorPaint(SKColors.LightGray)
+        SeparatorsPaint = new SolidColorPaint(SKColors.LightGray),
+                MinStep = 1,
+                MinLimit = 0,
+        Labeler = value => ((int)value).ToString()
     }
             };
 

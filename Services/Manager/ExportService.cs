@@ -159,5 +159,48 @@ namespace HotelManager.Services.Manager
         }
 
 
+        public void ExportCleanerActivitiesToExcel(
+            Dictionary<string, (int DeluxeCount, int StandardCount, int SuiteCount)> data,
+            string filePath)
+        {
+            ExcelPackage.License.SetNonCommercialPersonal("Bui Quoc Bao");
+
+            using var package = new ExcelPackage();
+            var ws = package.Workbook.Worksheets.Add("CleanerActivities");
+
+            // Tạo header
+            ws.Cells[1, 1].Value = "Cleaner";
+            ws.Cells[1, 2].Value = "Deluxe";
+            ws.Cells[1, 3].Value = "Standard";
+            ws.Cells[1, 4].Value = "Suite";
+            ws.Row(1).Style.Font.Bold = true;
+
+            // Ghi data
+            int row = 2;
+            foreach (var kvp in data)
+            {
+                ws.Cells[row, 1].Value = kvp.Key;
+                ws.Cells[row, 2].Value = kvp.Value.DeluxeCount;
+                ws.Cells[row, 3].Value = kvp.Value.StandardCount;
+                ws.Cells[row, 4].Value = kvp.Value.SuiteCount;
+                row++;
+            }
+
+            // Vẽ biểu đồ dạng Bar (thanh ngang)
+            var chart = ws.Drawings.AddChart("CleanerChart", eChartType.BarClustered) as ExcelChart;
+            chart.Title.Text = "Số phòng đã dọn theo loại";
+            chart.SetPosition(1, 0, 6, 0); // đặt chart bên phải data
+            chart.SetSize(800, 500);
+
+            chart.Series.Add(ws.Cells[2, 2, row - 1, 2], ws.Cells[2, 1, row - 1, 1]).Header = "Deluxe";
+            chart.Series.Add(ws.Cells[2, 3, row - 1, 3], ws.Cells[2, 1, row - 1, 1]).Header = "Standard";
+            chart.Series.Add(ws.Cells[2, 4, row - 1, 4], ws.Cells[2, 1, row - 1, 1]).Header = "Suite";
+
+            ws.Cells[ws.Dimension.Address].AutoFitColumns();
+
+            package.SaveAs(new FileInfo(filePath));
+        }
+
+
     }
 }
