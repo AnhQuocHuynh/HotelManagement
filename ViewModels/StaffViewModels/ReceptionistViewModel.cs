@@ -240,12 +240,9 @@ namespace HotelManager.ViewModels.StaffViewModels
                 if (string.IsNullOrWhiteSpace(CustomerFullName) ||
                     string.IsNullOrWhiteSpace(CustomerCCCD) ||
                     string.IsNullOrWhiteSpace(CustomerPhoneNumber) ||
-                    SelectedCustomerType == default ||
-                    SelectedRoomType == default ||
                     string.IsNullOrWhiteSpace(SelectedRoomNumber) ||
                     CheckInDate == null ||
-                    CheckOutDate == null ||
-                    SelectedStatus == default)
+                    CheckOutDate == null)
                 {
                     MessageBox.Show("Vui lòng điền đầy đủ thông tin.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -371,26 +368,31 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             try
             {
-                _logger?.LogDebug("Updating available rooms for type {RoomType}", SelectedRoomType);
-                if (SelectedRoomType != default)
+                _logger?.LogDebug("Updating available rooms for type: {RoomType}", SelectedRoomType);
+
+                if (!Enum.IsDefined(typeof(RoomType), SelectedRoomType))
                 {
-                    var rooms = await _roomService.GetAvailableRoomsByTypeAsync(SelectedRoomType);
-                    var roomNumbers = rooms.Select(r => r.RoomNumber).ToList();
-                    var roomCount = roomNumbers.Count;
-
-                    Application.Current.Dispatcher.Invoke((Action)(() =>
-                    {
-                        AvailableRooms = new ObservableCollection<string>(roomNumbers);
-                    }));
-                    AvailableRoomsCount = roomCount;
-
-                    _logger?.LogDebug("Found {RoomCount} available rooms", roomCount);
+                    AvailableRooms.Clear();
+                    AvailableRoomsCount = 0;
+                    return;
                 }
+
+                var availableRooms = await _roomService.GetAvailableRoomsByTypeAsync(SelectedRoomType);
+
+                var roomNumbers = availableRooms
+                    .Select(r => r.RoomNumber)
+                    .OrderBy(n => n)
+                    .ToList();
+
+                AvailableRooms = new ObservableCollection<string>(roomNumbers);
+                AvailableRoomsCount = roomNumbers.Count;
+
+                _logger?.LogInformation("Found {RoomCount} available rooms of type {RoomType}", roomNumbers.Count, SelectedRoomType);
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Error updating available rooms");
-                MessageBox.Show($"Lỗi khi cập nhật danh sách phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                _logger?.LogError(ex, "Error updating available rooms.");
+                MessageBox.Show("Lỗi khi tải danh sách phòng trống. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
