@@ -185,19 +185,22 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
     {
         Name = "Deluxe",
         Values = _chartData.Values.Select(x => x.DeluxeCount).ToArray(),
-        Fill = new SolidColorPaint(SKColors.SkyBlue)
+        Fill = new SolidColorPaint(SKColors.SkyBlue),
+        MaxBarWidth = 25,
     },
     new RowSeries<int>
     {
         Name = "Standard",
         Values = _chartData.Values.Select(x => x.StandardCount).ToArray(),
-        Fill = new SolidColorPaint(SKColors.Orange)
+        Fill = new SolidColorPaint(SKColors.Orange),
+        MaxBarWidth = 25,
     },
     new RowSeries<int>
     {
         Name = "Suite",
         Values = _chartData.Values.Select(x => x.SuiteCount).ToArray(),
-        Fill = new SolidColorPaint(SKColors.Purple)
+        Fill = new SolidColorPaint(SKColors.Purple),
+        MaxBarWidth = 25,
     }
             };
 

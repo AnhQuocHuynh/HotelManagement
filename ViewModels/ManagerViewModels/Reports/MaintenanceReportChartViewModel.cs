@@ -34,6 +34,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 "Each technician on time",
                 "Each room on time",
+                "Monthly by room type"
             };
             SelectedViewType = ViewTypeOptions.FirstOrDefault();
         }
@@ -80,6 +81,16 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 }
             }
         }
+
+
+        // char settings
+        private LiveChartsCore.Measure.ZoomAndPanMode _zoomMode = LiveChartsCore.Measure.ZoomAndPanMode.Y;
+        public LiveChartsCore.Measure.ZoomAndPanMode ZoomMode
+        {
+            get => _zoomMode;
+            set { _zoomMode = value; OnPropertyChanged(); }
+        }
+
 
         private ISeries[] _series;
         public ISeries[] Series
@@ -175,19 +186,22 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
     {
         Name = "Deluxe",
         Values = eachTechnicianData.Values.Select(x => x.DeluxeCount).ToArray(),
-        Fill = new SolidColorPaint(SKColors.SkyBlue)
+        Fill = new SolidColorPaint(SKColors.SkyBlue),
+        MaxBarWidth = 25,
     },
     new RowSeries<int>
     {
         Name = "Standard",
         Values = eachTechnicianData.Values.Select(x => x.StandardCount).ToArray(),
-        Fill = new SolidColorPaint(SKColors.Orange)
+        Fill = new SolidColorPaint(SKColors.Orange),
+        MaxBarWidth = 25,
     },
     new RowSeries<int>
     {
         Name = "Suite",
         Values = eachTechnicianData.Values.Select(x => x.SuiteCount).ToArray(),
-        Fill = new SolidColorPaint(SKColors.Purple)
+        Fill = new SolidColorPaint(SKColors.Purple),
+        MaxBarWidth = 25,
     }
             };
 
@@ -267,7 +281,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                     Name = $"{roomName} ({roomType})",
                     Values = values,
                     Fill = new SolidColorPaint(color),
-                    MaxBarWidth = 20 // cho đẹp hơn, tuỳ chỉnh
+                    MaxBarWidth = 25
                 });
             }
 
@@ -281,7 +295,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             SeparatorsPaint = new SolidColorPaint(SKColors.LightGray),
             MinStep = 1,
             MinLimit = 0,
-            Labeler = value => ((int)value).ToString()
+            Labeler = value => ((int)value).ToString(),
         }
             };
 
@@ -292,6 +306,73 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             Name = "Phòng",
             Labels = Labels,
             LabelsRotation = 0
+        }
+            };
+        }
+
+
+        // chart counting maintenance activities by room type each month
+        private Dictionary<string, (int Deluxe, int Standard, int Suite)> _monthlyData;
+        private async Task FetchMonthlyMaintenanceChartDataAsync()
+        {
+            var data = await maintenanceDataService.GetMonthlyMaintenanceCountsByRoomType(
+                StartDate,
+                EndDate
+            );
+
+            _monthlyData = data ?? new Dictionary<string, (int Deluxe, int Standard, int Suite)>();
+        }
+        private void UpdateChartMonthlyMaintenance()
+        {
+            if (_monthlyData == null || !_monthlyData.Any())
+            {
+                Series = Array.Empty<ISeries>();
+                Labels = Array.Empty<string>();
+                return;
+            }
+
+            Labels = _monthlyData.Keys.ToArray();
+
+            Series = new ISeries[]
+            {
+        new ColumnSeries<int>
+        {
+            Name = "Deluxe",
+            Values = _monthlyData.Values.Select(x => x.Deluxe).ToArray(),
+            Fill = new SolidColorPaint(SKColors.Gold)
+        },
+        new ColumnSeries<int>
+        {
+            Name = "Standard",
+            Values = _monthlyData.Values.Select(x => x.Standard).ToArray(),
+            Fill = new SolidColorPaint(SKColors.ForestGreen)
+        },
+        new ColumnSeries<int>
+        {
+            Name = "Suite",
+            Values = _monthlyData.Values.Select(x => x.Suite).ToArray(),
+            Fill = new SolidColorPaint(SKColors.CornflowerBlue)
+        }
+            };
+
+            XAxes = new Axis[]
+            {
+        new Axis
+        {
+            Name = "Tháng",
+            Labels = Labels,
+            LabelsRotation = 15
+        }
+            };
+
+            YAxes = new Axis[]
+            {
+        new Axis
+        {
+            Name = "Số lần bảo trì",
+            MinStep = 1,
+            MinLimit = 0,
+            Labeler = value => ((int)value).ToString()
         }
             };
         }
@@ -313,14 +394,22 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                     case "Each technician on time":
                         await FetchEachTechnicianChartDataAsync();
                         UpdateChartEachTechnician();
+                        ZoomMode = LiveChartsCore.Measure.ZoomAndPanMode.Y;
                         break;
                     case "Each room on time":
                         await FetchEachRoomChartDataAsync();
                         UpdateChartEachRoom();
+                        ZoomMode = LiveChartsCore.Measure.ZoomAndPanMode.Y;
+                        break;
+                    case "Monthly by room type":
+                        await FetchMonthlyMaintenanceChartDataAsync();
+                        UpdateChartMonthlyMaintenance();
+                        ZoomMode = LiveChartsCore.Measure.ZoomAndPanMode.X;
                         break;
                     default:
                         await FetchEachTechnicianChartDataAsync();
                         UpdateChartEachTechnician();
+                        ZoomMode = LiveChartsCore.Measure.ZoomAndPanMode.X;
                         break;
                 }
             }
@@ -351,6 +440,9 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                         break;
                     case "Each room on time":
                         _exportService.ExportEachRoomMaintenanceToExcel(eachRoomData, saveFileDialog.FileName);
+                        break;
+                    case "Monthly by room type":
+                        _exportService.ExportMonthlyMaintenanceCountsToExcel(_monthlyData, saveFileDialog.FileName);
                         break;
                     default:
                         _exportService.ExportTechnicianActivitiesToExcel(eachTechnicianData, saveFileDialog.FileName);

@@ -34,36 +34,18 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Type -->
-            <TextBlock Text="Type view"
-                       Grid.Column="0"
-                   FontSize="16"
-                   FontWeight="DemiBold"
-                   HorizontalAlignment="Left"
-                   VerticalAlignment="Top"
-                   Margin="0,0,0,0"/>
-            <ComboBox
-                    Grid.Column="0"
-                  Width="100"
-                  Height="25"
-                  HorizontalAlignment="Left"
-                  VerticalAlignment="Bottom"
-                  Margin="0,0,0,0"
-                  ItemsSource="{Binding TypeViewOptions}"
-                  SelectedItem="{Binding SelectedTypeView}"/>
-
             <!-- Start date -->
             <TextBlock Text="Start date"
                    FontSize="16"
                    FontWeight="DemiBold"
-                   Grid.Column="1"
+                   Grid.Column="0"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
                    Margin="10,0,0,0"/>
             <DatePicker x:Name="StartDatePicker"
                     Width="100"
                     Height="25"
-                    Grid.Column="1"
+                    Grid.Column="0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
                     Margin="10,0,0,0"
@@ -73,14 +55,14 @@
             <TextBlock Text="End date"
                    FontSize="16"
                    FontWeight="DemiBold"
-                   Grid.Column="2"
+                   Grid.Column="1"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
                    Margin="10,0,0,0"/>
             <DatePicker x:Name="EndDatePicker"
                     Width="100"
                     Height="25"
-                    Grid.Column="2"
+                    Grid.Column="1"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
                     Margin="10,0,0,0"
@@ -88,7 +70,7 @@
 
             <Button x:Name="FilterButton" 
                     Content="Apply"
-                    Grid.Column="3"
+                    Grid.Column="2"
                 Command="{Binding ApplyFilterCommand}"
                 Foreground="Navy"
                 Background="{StaticResource Primary100Brush}"
@@ -96,7 +78,7 @@
 
             <Button x:Name="exportButton" 
                     Content="Export"
-                    Grid.Column="4"
+                    Grid.Column="3"
                 Command="{Binding ExportChartAndDataCommand}"
                 Foreground="Navy"
                 Background="{StaticResource Primary100Brush}"

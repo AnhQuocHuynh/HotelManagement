@@ -108,7 +108,7 @@
                             Series="{Binding Series}"
                             XAxes="{Binding XAxes}"
                             YAxes="{Binding YAxes}"
-                            ZoomMode="Y"
+                            ZoomMode="{Binding ZoomMode}"
                             ZoomingSpeed="0.5"
                             TooltipPosition="Left"
                             DrawMarginFrame="{x:Null}"

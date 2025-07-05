@@ -93,5 +93,34 @@ namespace HotelManager.Services.Manager
 
             return result;
         }
+
+        public async Task<Dictionary<string, (int Deluxe, int Standard, int Suite)>> GetMonthlyMaintenanceCountsByRoomType(DateTime start, DateTime end)
+        {
+            var monthlyCounts = await _dbContext.Maintenances
+                .Include(m => m.MaintenanceReport)
+                    .ThenInclude(r => r.Room)
+                .Where(m => m.RepairDate >= start && m.RepairDate <= end)
+                .GroupBy(m => new { m.RepairDate.Year, m.RepairDate.Month })
+                .Select(g => new
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    DeluxeCount = g.Count(m => m.MaintenanceReport.Room.RoomType == RoomType.Deluxe),
+                    StandardCount = g.Count(m => m.MaintenanceReport.Room.RoomType == RoomType.Standard),
+                    SuiteCount = g.Count(m => m.MaintenanceReport.Room.RoomType == RoomType.Suite)
+                })
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.Month)
+                .ToListAsync();
+
+            var result = monthlyCounts.ToDictionary(
+                x => $"{x.Year}-{x.Month:D2}",
+                x => (x.DeluxeCount, x.StandardCount, x.SuiteCount)
+            );
+
+            return result;
+        }
+
+
     }
 }
