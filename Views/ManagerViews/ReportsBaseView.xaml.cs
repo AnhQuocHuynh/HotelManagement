@@ -10,25 +10,21 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace HotelManager.Views.StaffViews
+namespace HotelManager.Views.ManagerViews
 {
     /// <summary>
-    /// Interaction logic for ManagerView.xaml
+    /// Interaction logic for ReportsBaseView.xaml
     /// </summary>
-    public partial class ManagerView : UserControl
+    public partial class ReportsBaseView : UserControl
     {
-        public ManagerView()
+        public ReportsBaseView()
         {
             InitializeComponent();
-            if (App.ServiceProvider != null)
-            {
-                DataContext = App.ServiceProvider.GetRequiredService<ViewModels.StaffViewModels.ManagerViewModel>();
-            }
         }
-
-
     }
+
+
 }
