@@ -103,6 +103,7 @@ public partial class App : Application
                 services.AddScoped<HotelManager.Services.CleanRoomService>();
                 services.AddScoped<HotelManager.Services.MaintenanceService>();
                 services.AddScoped<HotelManager.Services.DialogService>();
+                services.AddScoped<HotelManager.Interfaces.IWorkAssignmentService, HotelManager.Services.WorkAssignmentService>();
                 
                 // 📈 Manager Services
                 services.AddScoped<HotelManager.Services.Manager.ReceptionistService>();
@@ -117,12 +118,24 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.TechnicianViewModel>();
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.ManagerViewModel>();
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.ReceptionistViewModel>();
-                services.AddTransient<ViewModels.Admin.AdminViewModel>();
+                services.AddTransient<HotelManager.ViewModels.Admin.AdminViewModel>(provider =>
+                    new HotelManager.ViewModels.Admin.AdminViewModel(
+                        provider.GetRequiredService<EmployeeService>(),
+                        provider.GetRequiredService<IDialogService>(),
+                        provider.GetRequiredService<INotificationService>(),
+                        provider.GetRequiredService<ILogger<HotelManager.ViewModels.Admin.AdminViewModel>>(),
+                        provider,
+                        provider.GetRequiredService<IUnitOfWork>(),
+                        provider.GetRequiredService<INavigationService>()
+                    )
+                );
                 services.AddTransient<HotelManager.ViewModels.EmployeeEditViewModel>();
                 services.AddTransient<HotelManager.ViewModels.RoomInfoEditViewModel>();
                 services.AddTransient<HotelManager.ViewModels.Common.LoginViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.RevenueReportChartViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.ReceptionistActivityReportChartViewModel>();
+                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.EmployeeListViewModel>();
+                services.AddTransient<HotelManager.ViewModels.ProfileViewModel>();
 
                 services.AddSingleton<ICurrentUserProvider, WpfCurrentUserProvider>();
 

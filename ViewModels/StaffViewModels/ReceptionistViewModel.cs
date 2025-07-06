@@ -16,6 +16,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using HotelManager.Utilities;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -23,6 +24,8 @@ namespace HotelManager.ViewModels.StaffViewModels
     {
         private readonly BookingService _bookingService;
         private readonly RoomService _roomService;
+        private readonly INavigationService _navigationService;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<ReceptionistViewModel> _logger;
 
         private string _customerFullName;
@@ -112,6 +115,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand AddNewBookingCommand { get; private set; }
         public ICommand UpdateCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
+        public ICommand CheckoutCommand { get; private set; }
         public ICommand LoadedCommand { get; private set; }
         public ICommand ReportsCommand { get; private set; }
         public ICommand RefreshCommand { get; private set; }
@@ -132,9 +136,13 @@ namespace HotelManager.ViewModels.StaffViewModels
             // Runtime: resolve qua DI
             var bookingService = App.ServiceProvider.GetRequiredService<BookingService>();
             var roomService = App.ServiceProvider.GetRequiredService<RoomService>();
+            var navigationService = App.ServiceProvider.GetRequiredService<INavigationService>();
+            var notificationService = App.ServiceProvider.GetRequiredService<INotificationService>();
             var logger = App.ServiceProvider.GetRequiredService<ILogger<ReceptionistViewModel>>();
             _bookingService = bookingService;
             _roomService = roomService;
+            _navigationService = navigationService;
+            _notificationService = notificationService;
             _logger = logger;
 
             InitializeViewModel();
@@ -156,6 +164,10 @@ namespace HotelManager.ViewModels.StaffViewModels
             DeleteCommand = new AsyncRelayCommand<Booking?>(
                 execute: b => DeleteAsync(b!),
                 canExecute: b => b != null);
+
+            CheckoutCommand = new AsyncRelayCommand<Booking?>(
+                execute: b => CheckoutAsync(b!),
+                canExecute: b => b != null && b.Status == BookingStatus.CheckedIn);
 
             LoadedCommand = new AsyncRelayCommand(LoadDataAsync);
 
@@ -405,6 +417,87 @@ namespace HotelManager.ViewModels.StaffViewModels
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Error clearing form");
+            }
+        }
+
+        private async Task CheckoutAsync(Booking booking)
+        {
+            try
+            {
+                _logger?.LogInformation("Processing checkout for booking {BookingId}", booking.Id);
+                
+                // Xác nhận checkout
+                var result = MessageBox.Show(
+                    $"Confirm checkout for customer {booking.Customer?.FullName} from room {booking.RoomNumber}?\n\n" +
+                    "This will:\n• Navigate to Payment View for processing\n• Update room status to Pending (awaiting cleaning)",
+                    "Confirm Checkout", 
+                    MessageBoxButton.YesNo, 
+                    MessageBoxImage.Question);
+                
+                if (result != MessageBoxResult.Yes)
+                    return;
+
+                // Cập nhật booking status thành CheckedOut
+                booking.Status = BookingStatus.CheckedOut;
+                booking.CheckOutDate = DateTime.Now;
+                
+                await _bookingService.UpdateAsync(booking);
+
+                // Cập nhật room status thành Pending (đợi dọn dẹp)
+                var room = await _roomService.GetByRoomNumberAsync(booking.RoomNumber);
+                if (room != null)
+                {
+                    room.RoomStatus = RoomStatus.Pending; // Đợi dọn dẹp
+                    await _roomService.UpdateAsync(room);
+                    _logger?.LogInformation("Updated room {RoomNumber} status to Pending", room.RoomNumber);
+
+                    // Tự động phân công công việc dọn dẹp
+                    try
+                    {
+                        var workAssignmentService = App.ServiceProvider?.GetRequiredService<HotelManager.Interfaces.IWorkAssignmentService>();
+                        if (workAssignmentService != null)
+                        {
+                            var currentUser = AppSession.GetCurrentUserAccount();
+                            var assigned = await workAssignmentService.AutoAssignWorkAsync(
+                                room.RoomNumber, 
+                                HotelManager.Models.Enums.AssignmentType.Cleaning, 
+                                currentUser?.EmployeeId);
+                            
+                            if (assigned)
+                                _logger?.LogInformation("Auto-assigned cleaning work for room {RoomNumber}", room.RoomNumber);
+                            else
+                                _logger?.LogWarning("Failed to auto-assign cleaning work for room {RoomNumber}", room.RoomNumber);
+                        }
+                    }
+                    catch (Exception assignEx)
+                    {
+                        _logger?.LogError(assignEx, "Error auto-assigning cleaning work for room {RoomNumber}", room.RoomNumber);
+                    }
+                }
+
+                // Refresh data
+                await LoadDataAsync();
+                
+                // Điều hướng sang PaymentView
+                _navigationService?.NavigateTo<PaymentViewModel>();
+                _notificationService?.ShowSuccess($"Checkout completed for room {booking.RoomNumber}. Navigated to Payment View.");
+                
+                _logger?.LogInformation("Successfully processed checkout for booking {BookingId}", booking.Id);
+            }
+            catch (EntityNotFoundException ex)
+            {
+                _logger?.LogWarning(ex, "Entity not found during checkout");
+                _notificationService?.ShowError(ex.UserMessage);
+            }
+            catch (BusinessException ex)
+            {
+                _logger?.LogWarning(ex, "Business error during checkout");
+                _notificationService?.ShowError(ex.UserMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error during checkout");
+                _notificationService?.ShowError("Error during checkout. Please try again.");
             }
         }
     }

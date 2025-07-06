@@ -11,9 +11,7 @@
              d:DesignHeight="500" d:DesignWidth="800"
              Language="vi-VN">
 
-    <UserControl.DataContext>
-        <vm:EmployeeListViewModel/>
-    </UserControl.DataContext>
+
 
     <Grid Margin="0"
           Background="White">

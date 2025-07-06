@@ -8,7 +8,7 @@
         xmlns:vm="clr-namespace:HotelManager.ViewModels.Admin"
         mc:Ignorable="d"
         d:DesignHeight="900" d:DesignWidth="1400">
-    
+
 
 
     <UserControl.Resources>
@@ -35,14 +35,14 @@
     <Grid Background="{StaticResource SurfaceGradient}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="32">
-                
+
                 <!-- Header Section -->
                 <materialDesign:Card Effect="{StaticResource Elevation2}" 
                                      Margin="0,0,0,24">
                     <Border Background="{StaticResource PrimaryGradient}" 
                             CornerRadius="{StaticResource RadiusM}" 
                             Padding="32">
-                <Grid>
+                        <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -68,7 +68,7 @@
                                                Style="{StaticResource BodyLarge}"
                                                Foreground="White" 
                                                Opacity="0.9"/>
-                    <TextBlock Text="Admin Dashboard" 
+                                    <TextBlock Text="Admin Dashboard" 
                                                Style="{StaticResource HeadlineMedium}"
                                                Foreground="White" 
                                                FontWeight="Bold"/>
@@ -79,27 +79,7 @@
                             <StackPanel Grid.Column="1" 
                                         Orientation="Horizontal" 
                                         HorizontalAlignment="Center" 
-                                        VerticalAlignment="Center">
-                                <Border Background="White" 
-                                        CornerRadius="{StaticResource RadiusS}" 
-                                        Padding="12,8" 
-                                        Margin="8,0"
-                                        Opacity="0.9">
-                                    <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon Kind="AccountGroup" 
-                                                                 Foreground="{StaticResource PrimaryBrush}" 
-                                                                 Width="20" 
-                                                                 Height="20" 
-                                                                 VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding TotalEmployees, StringFormat='{}{0} Employees'}" 
-                                                   Style="{StaticResource LabelLarge}"
-                                                   Foreground="{StaticResource PrimaryBrush}" 
-                                                   FontWeight="SemiBold"
-                                                   Margin="8,0,0,0" 
-                                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
+                                        VerticalAlignment="Center"/>
 
                             <!-- Action Buttons -->
                             <StackPanel Grid.Column="2" 
@@ -111,7 +91,7 @@
                            Foreground="White" 
                                         BorderBrush="White"
                                         Margin="0,0,12,0"
-                                        ToolTip="View detailed reports">
+                                        ToolTip="View detailed reports" Click="Button_Click">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border Background="Transparent"
@@ -124,7 +104,7 @@
                                         </ControlTemplate>
                                     </Button.Template>
                                 </Button>
-                                
+
                                 <Button Content="Logout" 
                                         Command="{Binding LogoutCommand}"
                                         Style="{StaticResource ContainedButton}"
@@ -132,8 +112,50 @@
                                         Foreground="{StaticResource PrimaryBrush}"
                                         FontWeight="SemiBold"/>
                             </StackPanel>
-                </Grid>
-            </Border>
+                            <StackPanel Orientation="Horizontal" Grid.Column="1" Margin="193,6,317,4">
+                                <!-- Room Management Button -->
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,0">
+                                    <!-- Nút AccountGroup -->
+                                    <Button Style="{StaticResource ContainedButton}"
+                                            Height="40" Width="168"
+                                            Background="{StaticResource PrimaryBrush}"
+                                            Foreground="White"
+                                            Margin="0,0,8,0"
+                                            Command="{Binding AccountGroupCommand}">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <materialDesign:PackIcon Kind="AccountGroup" Height="14" Width="35" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Account" VerticalAlignment="Center" Height="26" Width="98" TextAlignment="Center" FontSize="18"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <!-- Nút Room Management -->
+                                    <Button Style="{StaticResource ContainedButton}"
+                                            Height="40" Width="180"
+                                            Background="{StaticResource PrimaryBrush}"
+                                            Foreground="White"
+                                            Command="{Binding NavigateRoomManagementCommand}">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <materialDesign:PackIcon Kind="Hotel" Height="17" Width="24" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Room" VerticalAlignment="Center" Height="27" Width="88" TextAlignment="Center" FontSize="18"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <!-- Nút Profile Management -->
+                                    <Button Style="{StaticResource ContainedButton}"
+                                            Height="40" Width="180"
+                                            Background="{StaticResource PrimaryBrush}"
+                                            Foreground="White"
+                                            Command="{Binding NavigateProfileCommand}"
+                                            Margin="8,0,0,0">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <materialDesign:PackIcon Kind="Account" Height="17" Width="24" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Profile" VerticalAlignment="Center" Height="27" Width="88" TextAlignment="Center" FontSize="18"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </materialDesign:Card>
 
                 <!-- Employee Form Section -->
@@ -153,7 +175,7 @@
                                            Margin="12,0,0,0" 
                                            VerticalAlignment="Center"/>
                             </StackPanel>
-                            
+
                             <Button Style="{StaticResource TextButton}"
                                     HorizontalAlignment="Right"
                                     Command="{Binding RefreshCommand}">
@@ -242,7 +264,7 @@
                                     <DatePicker Style="{StaticResource MaterialDesignDatePicker}"
                                                 materialDesign:HintAssist.Hint="Pick date"
                                                 materialDesign:HintAssist.IsFloating="False"
-                                                SelectedDate="{Binding EmployeeHireDate, Mode=TwoWay}"/>
+                                                SelectedDate="{Binding EmployeeHireDate, Mode=TwoWay}" Height="50"/>
                                 </StackPanel>
                             </UniformGrid>
 
@@ -254,7 +276,7 @@
                                         Style="{StaticResource OutlinedButton}"
                                         Margin="0,0,12,0"
                                         Command="{Binding ClearFormCommand}"/>
-                                
+
                                 <Button Command="{Binding AddNewEmployeeCommand}"
                                         Style="{StaticResource ContainedButton}"
                                         Margin="0,0,12,0">
@@ -319,7 +341,7 @@
                                         <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
                                     </TextBox.InputBindings>
                                 </TextBox>
-                                
+
                                 <Button Style="{StaticResource IconButton}"
                                         Command="{Binding SearchCommand}"
                                         ToolTip="Search"
@@ -336,7 +358,7 @@
                                 CornerRadius="{StaticResource RadiusS}" 
                                 BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
                                 BorderThickness="1">
-            <DataGrid ItemsSource="{Binding Employees}" 
+                            <DataGrid ItemsSource="{Binding Employees}" 
                       SelectedItem="{Binding SelectedEmployee, Mode=TwoWay}" 
                       AutoGenerateColumns="False" 
                       CanUserAddRows="False"               
@@ -346,7 +368,7 @@
                       CanUserSortColumns="True"
                       IsReadOnly="True"
                       MinHeight="300">
-                <DataGrid.Columns>
+                                <DataGrid.Columns>
                                     <!-- Avatar Column -->
                                     <DataGridTemplateColumn Header="" Width="60">
                                         <DataGridTemplateColumn.CellTemplate>
@@ -370,32 +392,32 @@
                                                         Binding="{Binding FullName}" 
                                                         Width="2*"
                                                         ElementStyle="{StaticResource BodyMedium}"/>
-                                    
+
                                     <DataGridTextColumn Header="ID Card" 
                                                         Binding="{Binding CCCD}" 
                                                         Width="*"
                                                         ElementStyle="{StaticResource BodyMedium}"/>
-                                    
+
                                     <DataGridTextColumn Header="Email" 
                                                         Binding="{Binding Email}" 
                                                         Width="2*"
                                                         ElementStyle="{StaticResource BodyMedium}"/>
-                                    
+
                                     <DataGridTextColumn Header="Phone Number" 
                                                         Binding="{Binding PhoneNumber}" 
                                                         Width="*"
                                                         ElementStyle="{StaticResource BodyMedium}"/>
-                                    
+
                                     <DataGridTextColumn Header="Position" 
                                                         Binding="{Binding Position}" 
                                                         Width="*"
                                                         ElementStyle="{StaticResource BodyMedium}"/>
-                                    
+
                                     <DataGridTextColumn Header="Hire Date" 
                                                         Binding="{Binding HireDate, StringFormat=dd/MM/yyyy}" 
                                                         Width="*"
                                                         ElementStyle="{StaticResource BodyMedium}"/>
-                                    
+
                                     <DataGridTextColumn Header="Account" 
                                                         Binding="{Binding UserAccount.Username}" 
                                                         Width="*"
@@ -403,8 +425,8 @@
 
                                     <!-- Actions Column -->
                                     <DataGridTemplateColumn Header="Actions" Width="120">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
                                                 <StackPanel Orientation="Horizontal" 
                                                             HorizontalAlignment="Center">
                                                     <Button ToolTip="Edit" 
@@ -419,7 +441,7 @@
                                                                                  Height="16"
                                                                                  Foreground="{StaticResource PrimaryBrush}"/>
                                                     </Button>
-                                                    
+
                                                     <Button ToolTip="Delete" 
                                                             Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
                                                             CommandParameter="{Binding}" 
@@ -431,12 +453,12 @@
                                                                                  Height="16"
                                                                                  Foreground="{StaticResource ErrorBrush}"/>
                                                     </Button>
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </Border>
                     </StackPanel>
                 </materialDesign:Card>
@@ -448,5 +470,5 @@
                                  VerticalAlignment="Bottom" 
                                  HorizontalAlignment="Center"
                                  Margin="32"/>
-        </Grid>
+    </Grid>
 </UserControl>

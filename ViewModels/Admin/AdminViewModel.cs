@@ -36,6 +36,7 @@ namespace HotelManager.ViewModels.Admin
         private readonly ILogger<AdminViewModel> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly INavigationService _navigationService;
         public ICommand AddCommand { get; set; }
         public ICommand UpdateCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
@@ -46,6 +47,8 @@ namespace HotelManager.ViewModels.Admin
         public ICommand RefreshCommand { get; set; }
         public ICommand ClearFormCommand { get; set; }
         public ICommand SearchCommand { get; }
+        public ICommand NavigateRoomManagementCommand { get; set; }
+        public ICommand NavigateProfileCommand { get; set; }
 
         private string _searchText;
         public string SearchText
@@ -155,7 +158,7 @@ namespace HotelManager.ViewModels.Admin
 
         public AdminViewModel(EmployeeService employeeService, IDialogService dialogService,
             INotificationService notificationService, ILogger<AdminViewModel> logger,
-            IServiceProvider serviceProvider, IUnitOfWork unitOfWork)
+            IServiceProvider serviceProvider, IUnitOfWork unitOfWork, INavigationService navigationService)
         {
             _employeeService = employeeService;
             _dialogService = dialogService;
@@ -163,6 +166,7 @@ namespace HotelManager.ViewModels.Admin
             _unitOfWork = unitOfWork;
             _notificationService = notificationService;
             _logger = logger;
+            _navigationService = navigationService;
             AddCommand = new AsyncRelayCommand<Employee>(AddAsync);
             UpdateCommand = new RelayCommand<Employee>(Update);
             DeleteCommand = new AsyncRelayCommand<Employee>(DeleteAsync);
@@ -173,6 +177,8 @@ namespace HotelManager.ViewModels.Admin
             RefreshCommand = new RelayCommand(Refresh);
             ClearFormCommand = new RelayCommand(ClearForm);
             SearchCommand = new RelayCommand(PerformSearch);
+            NavigateRoomManagementCommand = new RelayCommand(NavigateRoomManagement);
+            NavigateProfileCommand = new RelayCommand(NavigateProfile);
 
             LoadEmployees();
 
@@ -202,6 +208,8 @@ namespace HotelManager.ViewModels.Admin
                 ReportsCommand = new RelayCommand(() => { });
                 RefreshCommand = new RelayCommand(() => { });
                 ClearFormCommand = new RelayCommand(() => { });
+                NavigateRoomManagementCommand = new RelayCommand(() => { });
+                NavigateProfileCommand = new RelayCommand(() => { });
                 return;
             }
 
@@ -212,6 +220,7 @@ namespace HotelManager.ViewModels.Admin
             _logger = App.ServiceProvider?.GetRequiredService<ILogger<AdminViewModel>>() ?? throw new InvalidOperationException("Logger not registered");
             _serviceProvider = App.ServiceProvider;
             _unitOfWork = App.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            _navigationService = App.ServiceProvider.GetRequiredService<INavigationService>();
 
             AddCommand = new AsyncRelayCommand<Employee>(AddAsync);
             UpdateCommand = new RelayCommand<Employee>(Update);
@@ -223,6 +232,8 @@ namespace HotelManager.ViewModels.Admin
             RefreshCommand = new RelayCommand(Refresh);
             ClearFormCommand = new RelayCommand(ClearForm);
             SearchCommand = new RelayCommand(PerformSearch);
+            NavigateRoomManagementCommand = new RelayCommand(NavigateRoomManagement);
+            NavigateProfileCommand = new RelayCommand(NavigateProfile);
 
             LoadEmployees();
 
@@ -467,6 +478,36 @@ namespace HotelManager.ViewModels.Admin
             foreach (var emp in filtered)
                 Employees.Add(emp);
 
+        }
+
+        private void NavigateRoomManagement()
+        {
+            try
+            {
+                _logger.LogInformation("Attempting to navigate to RoomViewModel");
+                _navigationService.NavigateTo<RoomViewModel>();
+                _logger.LogInformation("Successfully navigated to RoomViewModel");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error navigating to RoomViewModel");
+                _notificationService?.ShowError($"Navigation error: {ex.Message}");
+            }
+        }
+
+        private void NavigateProfile()
+        {
+            try
+            {
+                _logger.LogInformation("Attempting to navigate to ProfileViewModel");
+                _navigationService.NavigateTo<ProfileViewModel>();
+                _logger.LogInformation("Successfully navigated to ProfileViewModel");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error navigating to ProfileViewModel");
+                _notificationService?.ShowError($"Navigation error: {ex.Message}");
+            }
         }
     }
 

@@ -461,7 +461,7 @@
                                                         ElementStyle="{StaticResource BodyMedium}"/>
 
                                     <!-- Actions Column -->
-                                    <DataGridTemplateColumn Header="Actions" Width="120">
+                                    <DataGridTemplateColumn Header="Actions" Width="180">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal" 
@@ -477,6 +477,19 @@
                                                                                  Width="16" 
                                                                                  Height="16"
                                                                                  Foreground="{StaticResource PrimaryBrush}"/>
+                                                    </Button>
+
+                                                    <Button ToolTip="Checkout" 
+                                            Command="{Binding DataContext.CheckoutCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                            CommandParameter="{Binding}" 
+                                                            Style="{StaticResource IconButton}"
+                                                            Width="32" 
+                                                            Height="32"
+                                                            Margin="0,0,4,0">
+                                                        <materialDesign:PackIcon Kind="ExitToApp" 
+                                                                                 Width="16" 
+                                                                                 Height="16"
+                                                                                 Foreground="{StaticResource SuccessBrush}"/>
                                                     </Button>
 
                                                     <Button ToolTip="Delete" 
