@@ -358,13 +358,14 @@ namespace HotelManager.ViewModels
             {
                 LogInformation("Opening password change dialog");
                 
-                // TODO: Implement password change dialog
-                _notificationService?.ShowInfo("Password change feature coming soon!");
+                var dialog = new Views.Dialogs.ChangePasswordDialog();
+                dialog.Owner = Application.Current.MainWindow;
+                dialog.ShowDialog();
             }
             catch (Exception ex)
             {
-                LogError(ex, "Error opening password change");
-                _notificationService?.ShowError($"Error opening password change: {ex.Message}");
+                LogError(ex, "Error opening password change dialog");
+                _notificationService?.ShowError($"Error opening password change dialog: {ex.Message}");
             }
         }
     }

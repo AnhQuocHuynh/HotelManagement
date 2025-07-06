@@ -2,6 +2,7 @@
 using HotelManager.Models;
 using HotelManager.Config;
 using Microsoft.Extensions.Configuration;
+using HotelManager.Core.Models;
 
 namespace HotelManager.Data
 {
@@ -33,7 +34,13 @@ namespace HotelManager.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<UserAccount> UserAccounts { get; set; }
         public DbSet<MaintenanceReport> MaintenanceReports { get; set; }
+<<<<<<< HEAD
         public DbSet<WorkAssignment> WorkAssignments { get; set; }
+=======
+        public DbSet<Cleaning> Cleanings { get; set; }
+        public DbSet<Maintenance> Maintenances { get; set; }
+
+>>>>>>> BuiQuocBao_Br
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -146,6 +153,7 @@ namespace HotelManager.Data
                       .WithOne(e => e.UserAccount)
                       .HasForeignKey<UserAccount>(u => u.EmployeeId);
             });
+
             modelBuilder.Entity<MaintenanceReport>(entity =>
             {
                 entity.HasKey(m => m.Id);
@@ -159,6 +167,7 @@ namespace HotelManager.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
+<<<<<<< HEAD
             modelBuilder.Entity<WorkAssignment>(entity =>
             {
                 entity.HasKey(w => w.Id);
@@ -188,6 +197,44 @@ namespace HotelManager.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
+=======
+            modelBuilder.Entity<Cleaning>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+
+                entity.Property(c => c.CleaningDate).IsRequired();
+
+                entity.HasOne(c => c.Room)
+                      .WithMany(r => r.Cleanings)
+                      .HasForeignKey(c => c.RoomNumber)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(c => c.Employee)
+                      .WithMany(e => e.Cleanings)
+                      .HasForeignKey(c => c.EmployeeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+            modelBuilder.Entity<Maintenance>(entity =>
+            {
+                entity.HasKey(m => m.Id);
+
+                entity.Property(m => m.RepairDate).IsRequired();
+                entity.Property(m => m.Cost).HasColumnType("decimal(18,2)").IsRequired();
+
+                entity.HasOne(m => m.MaintenanceReport)
+                      .WithMany(r => r.Maintenances)
+                      .HasForeignKey(m => m.MaintenanceReportId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(m => m.Employee)
+                      .WithMany()
+                      .HasForeignKey(m => m.EmployeeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+
+
+>>>>>>> BuiQuocBao_Br
         }
     }
 }

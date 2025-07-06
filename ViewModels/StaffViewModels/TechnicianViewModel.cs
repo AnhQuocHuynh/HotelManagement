@@ -16,6 +16,7 @@ namespace HotelManager.ViewModels.StaffViewModels
     public class TechnicianViewModel : BaseViewModel
     {
         private readonly IMaintenanceService _maintenanceService;
+        private readonly INavigationService _navigationService;
 
         private ObservableCollection<MaintenanceReport> _maintenanceReports;
         public ObservableCollection<MaintenanceReport> MaintenanceReports
@@ -38,10 +39,12 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand FilterPendingCommand { get; }
         public ICommand FilterCompletedCommand { get; }
         public ICommand ClearFilterCommand { get; }
+        public ICommand NavigateProfileCommand { get; set; }
 
-        public TechnicianViewModel(IMaintenanceService maintenanceService)
+        public TechnicianViewModel(IMaintenanceService maintenanceService, INavigationService navigationService)
         {
             _maintenanceService = maintenanceService;
+            _navigationService = navigationService;
             MaintenanceReports = new ObservableCollection<MaintenanceReport>();
 
             ToggleResolvedCommand = new RelayCommand<MaintenanceReport>(ToggleResolved);
@@ -51,6 +54,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             FilterPendingCommand = new RelayCommand(FilterPending);
             FilterCompletedCommand = new RelayCommand(FilterCompleted);
             ClearFilterCommand = new RelayCommand(ClearFilter);
+            NavigateProfileCommand = new RelayCommand(NavigateProfile);
 
             LoadMaintenanceReports();
         }
@@ -234,6 +238,11 @@ namespace HotelManager.ViewModels.StaffViewModels
         private void ClearFilter()
         {
             MaintenanceReports = new ObservableCollection<MaintenanceReport>(_allReports);
+        }
+
+        private void NavigateProfile()
+        {
+            _navigationService.NavigateTo<ProfileViewModel>();
         }
     }
 }

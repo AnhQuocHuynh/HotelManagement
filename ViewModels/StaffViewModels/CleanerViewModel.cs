@@ -82,6 +82,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand FilterPendingCommand { get; }
         public ICommand FilterCleanedCommand { get; }
         public ICommand ClearFilterCommand { get; }
+        public ICommand NavigateProfileCommand { get; set; }
 
         public CleanerViewModel(ICleanRoomService cleanroomService, IService<HotelManager.Models.Room> roomService)
         {
@@ -102,6 +103,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             FilterPendingCommand = new RelayCommand(FilterPending);
             FilterCleanedCommand = new RelayCommand(FilterCleaned);
             ClearFilterCommand = new RelayCommand(ClearFilter);
+            NavigateProfileCommand = new RelayCommand(NavigateProfile);
 
             // sequential async initialization to avoid concurrent DbContext operations
             _ = InitializeAsync();
@@ -324,6 +326,11 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             // Hiển thị tất cả rooms
             RoomsToClean = new ObservableCollection<Room>(_allRooms);
+        }
+
+        private void NavigateProfile()
+        {
+            _navigationService.NavigateTo<ProfileViewModel>();
         }
     }
 }

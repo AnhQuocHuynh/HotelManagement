@@ -146,12 +146,16 @@
                                     </Button.Template>
                                 </Button>
 
-                                <Button Content="Logout" 
-                        Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                        Style="{StaticResource ContainedButton}"
-                                        Background="White"
-                                        Foreground="{StaticResource PrimaryBrush}"
-                                        FontWeight="SemiBold"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button x:Name="btnProfile" Style="{StaticResource MaterialDesignIconButton}"
+                                            ToolTip="Profile" Command="{Binding NavigateProfileCommand}" Margin="0,0,8,0">
+                                        <materialDesign:PackIcon Kind="Account"/>
+                                    </Button>
+                                    <Button x:Name="btnLogout" Style="{StaticResource MaterialDesignIconButton}"
+                                            ToolTip="Logout" Command="{Binding LogoutCommand}" Margin="8,0,0,0">
+                                        <materialDesign:PackIcon Kind="Logout"/>
+                                    </Button>
+                                </StackPanel>
                             </StackPanel>
                         </Grid>
                     </Border>

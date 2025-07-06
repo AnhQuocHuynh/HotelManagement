@@ -11,7 +11,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using HotelManager.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.Views
@@ -28,7 +27,7 @@ namespace HotelManager.Views
             // Set DataContext using DI
             if (App.ServiceProvider != null)
             {
-                DataContext = App.ServiceProvider.GetRequiredService<ProfileViewModel>();
+                DataContext = App.ServiceProvider.GetRequiredService<ViewModels.ProfileViewModel>();
             }
         }
     }

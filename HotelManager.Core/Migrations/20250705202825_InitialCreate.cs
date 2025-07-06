@@ -136,6 +136,34 @@ namespace HotelManager.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Cleanings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CleaningDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RoomNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cleanings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Cleanings_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Cleanings_Rooms_RoomNumber",
+                        column: x => x.RoomNumber,
+                        principalTable: "Rooms",
+                        principalColumn: "RoomNumber",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MaintenanceReports",
                 columns: table => new
                 {
@@ -177,6 +205,41 @@ namespace HotelManager.Core.Migrations
                         name: "FK_Invoices_Bookings_BookingId",
                         column: x => x.BookingId,
                         principalTable: "Bookings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Maintenances",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    MaintenanceReportId = table.Column<int>(type: "int", nullable: false),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
+                    RepairDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmployeeId1 = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Maintenances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Maintenances_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Maintenances_Employees_EmployeeId1",
+                        column: x => x.EmployeeId1,
+                        principalTable: "Employees",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Maintenances_MaintenanceReports_MaintenanceReportId",
+                        column: x => x.MaintenanceReportId,
+                        principalTable: "MaintenanceReports",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -257,6 +320,16 @@ namespace HotelManager.Core.Migrations
                 column: "RoomNumber");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Cleanings_EmployeeId",
+                table: "Cleanings",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cleanings_RoomNumber",
+                table: "Cleanings",
+                column: "RoomNumber");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_InvoiceDetails_InvoiceId",
                 table: "InvoiceDetails",
                 column: "InvoiceId");
@@ -277,6 +350,21 @@ namespace HotelManager.Core.Migrations
                 column: "RoomNumber");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Maintenances_EmployeeId",
+                table: "Maintenances",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Maintenances_EmployeeId1",
+                table: "Maintenances",
+                column: "EmployeeId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Maintenances_MaintenanceReportId",
+                table: "Maintenances",
+                column: "MaintenanceReportId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Payments_InvoiceId",
                 table: "Payments",
                 column: "InvoiceId");
@@ -292,16 +380,22 @@ namespace HotelManager.Core.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Cleanings");
+
+            migrationBuilder.DropTable(
                 name: "InvoiceDetails");
 
             migrationBuilder.DropTable(
-                name: "MaintenanceReports");
+                name: "Maintenances");
 
             migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
                 name: "UserAccounts");
+
+            migrationBuilder.DropTable(
+                name: "MaintenanceReports");
 
             migrationBuilder.DropTable(
                 name: "Invoices");

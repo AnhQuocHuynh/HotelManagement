@@ -20,12 +20,15 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using HotelManager.Data;
 using HotelManager.ViewModels.ManagerViewModels.UIModel;
+using System.Windows.Input;
+using CommunityToolkit.Mvvm.Input;
 
-namespace HotelManager.ViewModels.ManagerViewModels
+namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
     public class ReceptionistActivityReportChartViewModel : BaseViewModel
     {
         ReceptionistService _receptionistService;
+        ExportService _exportService;
 
         // khi start date hoặc end date đổi refresh chart
         // khi dùng time ranges sẽ set nhanh cả start với end date
@@ -40,6 +43,8 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
         // tránh gọi update data liên tục khi data chưa update xong
         private bool _isLoading = false;
+
+        private ReceptionistChartData data = new ReceptionistChartData();
 
         // time units
         public ObservableCollection<string> Units { get; set; }
@@ -207,6 +212,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
         // constructor
         private IServiceScope _scope;
+        public ICommand ExportChartAndDataCommand { get; }
 
         public ReceptionistActivityReportChartViewModel()
         {
@@ -215,10 +221,13 @@ namespace HotelManager.ViewModels.ManagerViewModels
             _scope = App.ServiceProvider.CreateScope(); // GIỮ scope trong ViewModel
             var dbContext = _scope.ServiceProvider.GetRequiredService<HotelDbContext>();
             _receptionistService = new ReceptionistService(dbContext);
+            _exportService = new ExportService();
 
             UnitInit();
             TimeRangeInit();
             RoomTypeInit();
+
+            ExportChartAndDataCommand = new RelayCommand(ExportChartAndData);
 
             _isInitializing = false;
             _ = RefreshChartAsync();
@@ -229,7 +238,18 @@ namespace HotelManager.ViewModels.ManagerViewModels
             _scope?.Dispose();
         }
 
+        private void ExportChartAndData() {
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "Excel files (*.xlsx)|*.xlsx",
+                FileName = "ReceptionistReport.xlsx"
 
+            };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                _exportService.ExportReceptionistActivitiesToExcel(data, SelectedUnit, saveFileDialog.FileName);
+            }
+        }
 
         void UnitInit()
         {
@@ -257,7 +277,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
         void RoomTypeInit()
         {
-            RoomTypes = new ObservableCollection<Object>
+            RoomTypes = new ObservableCollection<object>
             {
                 "All",
                 RoomType.Deluxe,
@@ -503,7 +523,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             try
             {
                 _isLoading = true;
-                var data = await FetchChartDataAsync();
+                data = await FetchChartDataAsync();
                 // update chart sau khi đủ data
                 UpdateChart(data);
             }
