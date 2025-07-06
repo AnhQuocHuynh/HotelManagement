@@ -23,6 +23,7 @@ namespace HotelManager.Views
         public EmployeeEditView()
         {
             InitializeComponent();
+<<<<<<< Updated upstream
             Loaded += EmployeeEditView_Loaded;
         }
 
@@ -36,6 +37,8 @@ namespace HotelManager.Views
                     this.Close();
                 };
             }
+=======
+>>>>>>> Stashed changes
         }
     }
 }

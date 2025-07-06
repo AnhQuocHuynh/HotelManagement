@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+<<<<<<< Updated upstream
              xmlns:converters="clr-namespace:HotelManager.Converters"
              xmlns:local="clr-namespace:HotelManager.Views"
              mc:Ignorable="d" 
@@ -15,11 +16,20 @@
     <Border Background="White" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="10" CornerRadius="8">
         <StackPanel Margin="20" HorizontalAlignment="Center" Width="400" Background="White" >
             <TextBlock Text="Edit Employee Information" 
+=======
+             xmlns:local="clr-namespace:HotelManager.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Border Background="White" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="10" CornerRadius="8">
+        <StackPanel Margin="20" VerticalAlignment="Center" HorizontalAlignment="Stretch" Background="White" >
+            <TextBlock Text="Chỉnh Sửa Thông Tin Nhân Viên" 
+>>>>>>> Stashed changes
                        FontSize="20" 
                        Foreground="{StaticResource PrimaryBrush}" 
                        FontWeight="Bold" 
                        Margin="0,0,0,20" 
                        HorizontalAlignment="Center"/>
+<<<<<<< Updated upstream
             <!-- Full Name -->
             <TextBlock Text="Full Name:" Foreground="{StaticResource SecondaryBrush}" />
             <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}" Text="{Binding EditableEmployee.FullName, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,10"/>
@@ -51,12 +61,38 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
                 <Button Content="Save" 
+=======
+
+            <TextBlock Text="Họ và Tên:" Foreground="{StaticResource SecondaryBrush}" />
+            <TextBox Text="{Binding EditableEmployee.FullName, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,10"/>
+
+            <TextBlock Text="Email:" Foreground="{StaticResource SecondaryBrush}" />
+            <TextBox Text="{Binding EditableEmployee.Email, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,10"/>
+
+            <TextBlock Text="Số điện thoại:" Foreground="{StaticResource SecondaryBrush}" />
+            <TextBox Text="{Binding EditableEmployee.PhoneNumber, UpdateSourceTrigger=PropertyChanged}" Margin="0,5,0,10"/>
+
+            <TextBlock Text="Ngày vào làm:" Foreground="{StaticResource SecondaryBrush}" />
+            <DatePicker SelectedDate="{Binding EditableEmployee.HireDate}" Margin="0,5,0,10"/>
+
+            <TextBlock Text="Vị trí:" Foreground="{StaticResource SecondaryBrush}" />
+            <ComboBox ItemsSource="{Binding Positions}"
+                      SelectedItem="{Binding EditableEmployee.Position}"
+                      Margin="0,5,0,20"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" >
+                <Button Content="Lưu" 
+>>>>>>> Stashed changes
                         Command="{Binding SaveCommand}" 
                         Background="{StaticResource PrimaryBrush}" 
                         Foreground="White"
                         Padding="10,5" 
                         Margin="0,0,10,0"/>
+<<<<<<< Updated upstream
                 <Button Content="Cancel" 
+=======
+                <Button Content="Hủy" 
+>>>>>>> Stashed changes
                         Command="{Binding CancelCommand}" 
                         Background="{StaticResource AccentBrush}" 
                         Foreground="White"

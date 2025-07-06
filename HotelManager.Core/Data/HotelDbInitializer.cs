@@ -300,6 +300,7 @@ namespace HotelManager.Data
 
             context.SaveChanges();
 
+<<<<<<< Updated upstream:HotelManager.Core/Data/HotelDbInitializer.cs
             //cleanings
             if (!context.Cleanings.Any())
             {
@@ -412,6 +413,8 @@ namespace HotelManager.Data
             {
                 System.Diagnostics.Debug.WriteLine("Maintenances already exist, skipping...");
             }
+=======
+>>>>>>> Stashed changes:Data/HotelDbInitializer.cs
 
         }
 

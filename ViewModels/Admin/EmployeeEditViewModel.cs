@@ -13,6 +13,10 @@ using System.Windows;
 using CommunityToolkit.Mvvm.Input;
 using HotelManager.Data;
 using HotelManager.Services;
+<<<<<<< Updated upstream
+=======
+using RelayCommand = HotelManager.Utilities.RelayCommand;
+>>>>>>> Stashed changes
 using HotelManager.Helpers;
 
 namespace HotelManager.ViewModels
@@ -24,6 +28,7 @@ namespace HotelManager.ViewModels
         public Employee EditableEmployee { get; set; }
         private readonly Employee _originalEmp;
 
+<<<<<<< Updated upstream
         private readonly Dictionary<string, string> _errors = new();
 
         public string FullNameError => GetError(nameof(EditableEmployee.FullName));
@@ -34,27 +39,40 @@ namespace HotelManager.ViewModels
         private string GetError(string propertyName) =>
             _errors.TryGetValue(propertyName, out var msg) ? msg : string.Empty;
 
+=======
+>>>>>>> Stashed changes
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
         public Action CloseAction { get; set; } // Action to close the dialog if needed
         public bool? DialogResult { get; set; } // To indicate if the dialog was accepted or canceled
 
+<<<<<<< Updated upstream
         public EmployeeEditViewModel(Employee employee, EmployeeService employeeService)
         {
             _originalEmp = employee;
+=======
+        public EmployeeEditViewModel(Employee employee)
+        {
+            _originalEmp = employee;
+            // Clone or assign the original employee (optional deep copy to avoid immediate changes)
+>>>>>>> Stashed changes
             EditableEmployee = new Employee
             {
                 Id = employee.Id,
                 FullName = employee.FullName,
                 Email = employee.Email,
                 PhoneNumber = employee.PhoneNumber,
+<<<<<<< Updated upstream
                 CCCD = employee.CCCD,
+=======
+>>>>>>> Stashed changes
                 HireDate = employee.HireDate,
                 Position = employee.Position,
                 UserAccount = employee.UserAccount
             };
 
+<<<<<<< Updated upstream
             _employeeService = employeeService;
             SaveCommand = new AsyncRelayCommand(SaveAsync);
             CancelCommand = new RelayCommand(Cancel);
@@ -100,12 +118,32 @@ namespace HotelManager.ViewModels
             OnPropertyChanged(nameof(CCCDError));
 
             return !_errors.Any();
+=======
+            _employeeService = new EmployeeService(new HotelDbContext());
+            SaveCommand = new RelayCommand(async _ => await SaveAsync());
+            CancelCommand = new RelayCommand(param => Cancel());
+
+>>>>>>> Stashed changes
         }
 
         private async Task SaveAsync()
         {
+<<<<<<< Updated upstream
             if(!await ValidateAllAsync())
             {
+=======
+            if (string.IsNullOrWhiteSpace(EditableEmployee.FullName) ||
+                string.IsNullOrWhiteSpace(EditableEmployee.Email) ||
+                string.IsNullOrWhiteSpace(EditableEmployee.PhoneNumber))
+            {
+                MessageBox.Show("Fields cannot be empty.");
+                return;
+            }
+
+            if (!EditableEmployee.Email.IsValidEmail())
+            {
+                MessageBox.Show("Invalid email format.");
+>>>>>>> Stashed changes
                 return;
             }
 
@@ -113,11 +151,18 @@ namespace HotelManager.ViewModels
             _originalEmp.FullName = EditableEmployee.FullName;
             _originalEmp.Email = EditableEmployee.Email;
             _originalEmp.PhoneNumber = EditableEmployee.PhoneNumber;
+<<<<<<< Updated upstream
             _originalEmp.CCCD = EditableEmployee.CCCD;
             _originalEmp.HireDate = EditableEmployee.HireDate;
             _originalEmp.Position = EditableEmployee.Position;
 
             await _employeeService.UpdateAsync(_originalEmp);
+=======
+            _originalEmp.HireDate = EditableEmployee.HireDate;
+            _originalEmp.Position = EditableEmployee.Position;
+
+            await _employeeService.UpdateAsync(EditableEmployee);
+>>>>>>> Stashed changes
             MessageBox.Show("Employee updated.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
             DialogResult = true; // Indicate success

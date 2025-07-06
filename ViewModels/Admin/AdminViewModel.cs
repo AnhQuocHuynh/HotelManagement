@@ -14,6 +14,7 @@ using HotelManager.Data;
 using HotelManager.Interfaces;
 using HotelManager.Models;
 using HotelManager.Services;
+<<<<<<< Updated upstream
 using HotelManager.Helpers;
 using HotelManager.Models.Enums;
 using System.Windows;
@@ -25,21 +26,35 @@ using HotelManager.Extensions;
 using HotelManager.Interfaces;
 
 namespace HotelManager.ViewModels.Admin
+=======
+using RelayCommand = HotelManager.Utilities.RelayCommand;
+using HotelManager.Helpers;
+using HotelManager.Models.Enums;
+using HotelManager.Extensions;
+using System.Windows;
+
+namespace HotelManager.ViewModels
+>>>>>>> Stashed changes
 {
     //Tuấn
     //Todo: 1. Hiển thị danh sách tài khoản, 2. Tạo tài khoản mới, 3. Sửa tài khoản, 4. Xóa tài khoản, 5. Ràng buộc phân quyền
     internal class AdminViewModel : BaseViewModel
     {
         private readonly EmployeeService _employeeService;
+<<<<<<< Updated upstream
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
         private readonly ILogger<AdminViewModel> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly IUnitOfWork _unitOfWork;
+=======
+        private readonly DialogService _dialogService = new DialogService();
+>>>>>>> Stashed changes
         public ICommand AddCommand { get; set; }
         public ICommand UpdateCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
         public ICommand AddNewEmployeeCommand { get; set; }
+<<<<<<< Updated upstream
         public ICommand LogoutCommand { get; set; }
         public ICommand CreateAccountCommand { get; set; }
         public ICommand ReportsCommand { get; set; }
@@ -62,6 +77,10 @@ namespace HotelManager.ViewModels.Admin
         private ObservableCollection<Employee> _employees = new();
         //_allEmployees should be used to store all employees for search/filtering purposes
         private List<Employee> _allEmployees = new();
+=======
+
+        private ObservableCollection<Employee> _employees = new();
+>>>>>>> Stashed changes
         public ObservableCollection<Employee> Employees
         {
             get => _employees;
@@ -69,7 +88,10 @@ namespace HotelManager.ViewModels.Admin
             {
                 _employees = value;
                 OnPropertyChanged(nameof(Employees));
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
             }
         }
 
@@ -81,7 +103,10 @@ namespace HotelManager.ViewModels.Admin
             {
                 _selectedEmployee = value;
                 OnPropertyChanged(nameof(SelectedEmployee));
+<<<<<<< Updated upstream
                 ((RelayCommand)CreateAccountCommand).NotifyCanExecuteChanged();
+=======
+>>>>>>> Stashed changes
             }
         }
 
@@ -139,6 +164,7 @@ namespace HotelManager.ViewModels.Admin
                 OnPropertyChanged(nameof(EmployeeHireDate));
             }
         }
+<<<<<<< Updated upstream
         private string _employeeCCCD;
         public string EmployeeCCCD
         {
@@ -243,6 +269,72 @@ namespace HotelManager.ViewModels.Admin
                 Employees.Add(emp);
         }
 
+=======
+
+
+        public AdminViewModel()
+        {
+            _employeeService = new EmployeeService(new HotelDbContext());
+            AddCommand = new RelayCommand(async param => await AddAsync(SelectedEmployee));
+            UpdateCommand = new RelayCommand(async param => Update(SelectedEmployee));
+            DeleteCommand = new RelayCommand(async param => await DeleteAsync(SelectedEmployee));
+            AddNewEmployeeCommand = new RelayCommand(param => AddNewEmployee());
+
+            LoadEmployees();
+            //SetDummyEmployees();
+        }
+        public AdminViewModel(IService<Employee> employeeService)
+        {
+            _employeeService = (EmployeeService)employeeService;
+
+            AddCommand = new RelayCommand(async param => await AddAsync(SelectedEmployee));
+            UpdateCommand = new RelayCommand(async param => Update(SelectedEmployee));
+            DeleteCommand = new RelayCommand(async param => await DeleteAsync(SelectedEmployee));
+            AddNewEmployeeCommand = new RelayCommand(param => AddNewEmployee());
+
+            LoadEmployees();
+            //SetDummyEmployees();
+        }
+        public async void LoadEmployees()
+        {
+            var employees = await _employeeService.GetAllAsync();
+            Employees.Clear();
+            foreach (var emp in employees)
+                Employees.Add(emp); //Trigger UI update
+        }
+
+        //    private void SetDummyEmployees()
+        //    {
+        //        var dummyEmployees = new List<(string? Username, string FullName, string Email, string Phone, EmployeePosition Position)>
+        //{
+        //    ("user1", "Nguyen Test 1", "user1@example.com", "0901111111", EmployeePosition.Receptionist),
+        //    (null, "Nguyen Test 2", "user2@example.com", "0902222222", EmployeePosition.Technician),
+        //    ("user3", "Nguyen Test 3", "user3@example.com", "0903333333", EmployeePosition.Receptionist)
+        //};
+
+        //        foreach (var (username, fullName, email, phone, position) in dummyEmployees)
+        //        {
+        //            var employee = new Employee
+        //            {
+        //                FullName = fullName,
+        //                Email = email,
+        //                PhoneNumber = phone,
+        //                HireDate = DateTime.UtcNow,
+        //                Position = position,
+        //                UserAccount = username != null ? new UserAccount
+        //                {
+        //                    Username = username,
+        //                    PasswordHash = HashHelper.HashPassword(username),
+        //                    Role = UserRole.Staff,
+        //                    CreatedAt = DateTime.UtcNow,
+        //                    IsActive = true
+        //                } : null
+        //            };
+
+        //            Employees.Add(employee);
+        //        }
+        //    }
+>>>>>>> Stashed changes
         private async Task AddAsync(Employee employee)
         {
             var added = await _employeeService.CreateAsync(employee);
@@ -253,11 +345,19 @@ namespace HotelManager.ViewModels.Admin
         {
             if (employee == null)
             {
+<<<<<<< Updated upstream
                 MessageBox.Show("Please select an employee to edit!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             var editVM = new EmployeeEditViewModel(employee, _employeeService);
+=======
+                MessageBox.Show("Vui lòng chọn 1 nhân viên để chỉnh sửa!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var editVM = new EmployeeEditViewModel(employee);
+>>>>>>> Stashed changes
             var result = _dialogService.ShowDialog(editVM);
 
             if (result == true)
@@ -268,6 +368,7 @@ namespace HotelManager.ViewModels.Admin
 
         private async Task DeleteAsync(Employee employee)
         {
+<<<<<<< Updated upstream
             if (employee == null)
             {
                 MessageBox.Show("Please select an employee to delete!", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -288,6 +389,10 @@ namespace HotelManager.ViewModels.Admin
             {
                 MessageBox.Show($"Lỗi khi xóa nhân viên: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+=======
+            Employees.Remove(employee);
+            await _employeeService.DeleteAsync(employee.Id);
+>>>>>>> Stashed changes
         }
 
         private void AddNewEmployee()
@@ -296,7 +401,11 @@ namespace HotelManager.ViewModels.Admin
             {
                 //Validate employee details
                 if (string.IsNullOrEmpty(_employeeFullName) || string.IsNullOrEmpty(_employeeEmail)
+<<<<<<< Updated upstream
                     || string.IsNullOrEmpty(_employeePhoneNumber) || string.IsNullOrEmpty(_employeeCCCD))
+=======
+                    || string.IsNullOrEmpty(_employeePhoneNumber))
+>>>>>>> Stashed changes
                 {
                     throw new ArgumentException("Employee details cannot be empty.");
                 }
@@ -310,20 +419,27 @@ namespace HotelManager.ViewModels.Admin
                 {
                     throw new ArgumentException("Invalid phone number format.");
                 }
+<<<<<<< Updated upstream
                 if (!System.Text.RegularExpressions.Regex.IsMatch(_employeeCCCD, @"^\d{12}$"))
                 {
                     throw new ArgumentException("ID number (CCCD) must consist of 12 digits.");
                 }
                 //validate Uniqueness via email & CCCD
+=======
+                //validate Uniqueness via email
+>>>>>>> Stashed changes
                 bool emailExists = Employees.Any(e => e.Email.Equals(_employeeEmail, StringComparison.OrdinalIgnoreCase));
                 if (emailExists)
                 {
                     throw new InvalidOperationException("An employee with this email already exists.");
                 }
+<<<<<<< Updated upstream
                 if (Employees.Any(e => e.CCCD == _employeeCCCD))
                 {
                     throw new InvalidOperationException("An employee with this ID number already exists.");
                 }
+=======
+>>>>>>> Stashed changes
 
                 var newEmployee = new Employee
                 {
@@ -332,7 +448,10 @@ namespace HotelManager.ViewModels.Admin
                     PhoneNumber = _employeePhoneNumber,
                     HireDate = _employeeHireDate,
                     Position = _selectedPosition,
+<<<<<<< Updated upstream
                     CCCD = _employeeCCCD,
+=======
+>>>>>>> Stashed changes
                     UserAccount = null
                 };
 
@@ -367,6 +486,7 @@ namespace HotelManager.ViewModels.Admin
 
         }
 
+<<<<<<< Updated upstream
         private void Logout()
         {
             try
@@ -468,6 +588,8 @@ namespace HotelManager.ViewModels.Admin
                 Employees.Add(emp);
 
         }
+=======
+>>>>>>> Stashed changes
     }
 
 }

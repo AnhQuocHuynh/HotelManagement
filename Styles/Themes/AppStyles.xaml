@@ -1,4 +1,5 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<<<<<<< Updated upstream
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
@@ -143,6 +144,22 @@
     
     <!-- Material Design Button Styles -->
     <Style x:Key="ContainedButton" TargetType="Button">
+=======
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Colors -->
+    <Color x:Key="PrimaryColor">#1976D2</Color>
+    <Color x:Key="SecondaryColor">#424242</Color>
+    <Color x:Key="AccentColor">LightSlateGray</Color>
+    
+    <!-- Brushes -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+
+    <!-- Button Styles -->
+    <Style x:Key="DefaultButtonStyle" TargetType="Button">
+>>>>>>> Stashed changes
         <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="BorderThickness" Value="0"/>
@@ -217,6 +234,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+<<<<<<< Updated upstream
     
     <Style x:Key="TextButton" TargetType="Button">
         <Setter Property="Background" Value="Transparent"/>
@@ -313,6 +331,12 @@
     <!-- Text Field Styles -->
     <Style x:Key="OutlinedTextField" TargetType="TextBox">
         <Setter Property="BorderBrush" Value="{StaticResource OnSurfaceVariantBrush}"/>
+=======
+
+    <!-- TextBox Styles -->
+    <Style x:Key="DefaultTextBoxStyle" TargetType="TextBox">
+        <Setter Property="Padding" Value="8,6"/>
+>>>>>>> Stashed changes
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>

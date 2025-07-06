@@ -1,10 +1,17 @@
 ﻿using CommunityToolkit.Mvvm.Input;
+<<<<<<< Updated upstream
 using HotelManager.Models;
 using HotelManager.Models.Enums;
 using HotelManager.Services;
 using HotelManager.Interfaces;
 using HotelManager.Exceptions;
 using Microsoft.Extensions.Logging;
+=======
+using HotelManager.Data;
+using HotelManager.Models;
+using HotelManager.Models.Enums;
+using HotelManager.Services;
+>>>>>>> Stashed changes
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,6 +22,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+<<<<<<< Updated upstream
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.ViewModels.StaffViewModels
@@ -24,6 +32,15 @@ namespace HotelManager.ViewModels.StaffViewModels
         private readonly BookingService _bookingService;
         private readonly RoomService _roomService;
         private readonly ILogger<ReceptionistViewModel> _logger;
+=======
+
+namespace HotelManager.ViewModels.StaffViewModels
+{
+    public class ReceptionistViewModel : INotifyPropertyChanged
+    {
+        private readonly BookingService _bookingService;
+        private readonly RoomService _roomService;
+>>>>>>> Stashed changes
 
         private string _customerFullName;
         private string _customerCCCD;
@@ -68,8 +85,13 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 _selectedRoomType = value;
                 OnPropertyChanged(nameof(SelectedRoomType));
+<<<<<<< Updated upstream
                 // Gọi trực tiếp để đảm bảo chạy trên thread UI (fire-and-forget)
                 _ = UpdateAvailableRoomsAsync();
+=======
+                // Gọi trực tiếp để đảm bảo chạy trên thread UI
+                UpdateAvailableRoomsAsync().ConfigureAwait(false);
+>>>>>>> Stashed changes
             }
         }
 
@@ -109,6 +131,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             set { _availableRooms = value; OnPropertyChanged(nameof(AvailableRooms)); }
         }
 
+<<<<<<< Updated upstream
         public ICommand AddNewBookingCommand { get; private set; }
         public ICommand UpdateCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
@@ -167,13 +190,35 @@ namespace HotelManager.ViewModels.StaffViewModels
         protected override async Task OnLoadedAsync()
         {
             await LoadDataAsync();
+=======
+        public ICommand AddNewBookingCommand { get; }
+        public ICommand UpdateCommand { get; }
+        public ICommand DeleteCommand { get; }
+
+        public ReceptionistViewModel()
+        {
+            var dbContext = new HotelDbContext();
+            _bookingService = new BookingService(dbContext, new CustomerService(dbContext));
+            _roomService = new RoomService(dbContext);
+
+            Bookings = new ObservableCollection<Booking>();
+            AvailableRooms = new ObservableCollection<string>();
+
+            AddNewBookingCommand = new RelayCommand(async () => await AddNewBookingAsync());
+            UpdateCommand = new RelayCommand<Booking>(async booking => await UpdateAsync(booking));
+            DeleteCommand = new RelayCommand<Booking>(async booking => await DeleteAsync(booking));
+>>>>>>> Stashed changes
         }
 
         public async Task LoadDataAsync()
         {
             try
             {
+<<<<<<< Updated upstream
                 _logger?.LogInformation("Loading receptionist data");
+=======
+                Debug.WriteLine("ReceptionistViewModel: LoadDataAsync started");
+>>>>>>> Stashed changes
                 var bookings = await _bookingService.GetAllAsync();
                 Bookings.Clear();
                 foreach (var booking in bookings)
@@ -182,6 +227,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 }
 
                 await UpdateAvailableRoomsAsync();
+<<<<<<< Updated upstream
                 _logger?.LogInformation("Successfully loaded {BookingCount} bookings", bookings.Count);
             }
             catch (BusinessException ex)
@@ -193,6 +239,14 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 _logger?.LogError(ex, "Unexpected error loading data");
                 MessageBox.Show("Lỗi khi tải dữ liệu. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+=======
+                Debug.WriteLine("ReceptionistViewModel: LoadDataAsync completed");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ReceptionistViewModel: LoadDataAsync error - {ex.Message}");
+                MessageBox.Show($"Lỗi khi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+>>>>>>> Stashed changes
             }
         }
 
@@ -200,7 +254,11 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             try
             {
+<<<<<<< Updated upstream
                 _logger?.LogInformation("Adding new booking");
+=======
+                Debug.WriteLine("ReceptionistViewModel: AddNewBookingAsync started");
+>>>>>>> Stashed changes
                 if (string.IsNullOrWhiteSpace(CustomerFullName) ||
                     string.IsNullOrWhiteSpace(CustomerCCCD) ||
                     string.IsNullOrWhiteSpace(CustomerPhoneNumber) ||
@@ -239,6 +297,7 @@ namespace HotelManager.ViewModels.StaffViewModels
 
                 ClearInputFields();
                 MessageBox.Show("Đã thêm booking thành công!", "Thành công", MessageBoxButton.OK);
+<<<<<<< Updated upstream
                 _logger?.LogInformation("Successfully created booking for customer {CustomerName} in room {RoomNumber}", customer.FullName, booking.RoomNumber);
             }
             catch (DuplicateEntityException ex)
@@ -263,6 +322,22 @@ namespace HotelManager.ViewModels.StaffViewModels
             try
             {
                 _logger?.LogInformation("Updating booking {BookingId}", booking?.Id);
+=======
+                Debug.WriteLine("ReceptionistViewModel: AddNewBookingAsync completed");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ReceptionistViewModel: AddNewBookingAsync error - {ex.Message}");
+                MessageBox.Show($"Lỗi khi thêm booking: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task UpdateAsync(Booking booking)
+        {
+            try
+            {
+                Debug.WriteLine("ReceptionistViewModel: UpdateAsync started");
+>>>>>>> Stashed changes
                 if (booking == null)
                 {
                     MessageBox.Show("Vui lòng chọn một booking để cập nhật.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -272,6 +347,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 await _bookingService.UpdateAsync(booking);
                 await UpdateAvailableRoomsAsync();
                 MessageBox.Show("Cập nhật booking thành công!", "Thành công", MessageBoxButton.OK);
+<<<<<<< Updated upstream
                 _logger?.LogInformation("Successfully updated booking {BookingId}", booking.Id);
             }
             catch (EntityNotFoundException ex)
@@ -296,6 +372,22 @@ namespace HotelManager.ViewModels.StaffViewModels
             try
             {
                 _logger?.LogInformation("Deleting booking {BookingId}", booking?.Id);
+=======
+                Debug.WriteLine("ReceptionistViewModel: UpdateAsync completed");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ReceptionistViewModel: UpdateAsync error - {ex.Message}");
+                MessageBox.Show($"Lỗi khi cập nhật booking: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task DeleteAsync(Booking booking)
+        {
+            try
+            {
+                Debug.WriteLine("ReceptionistViewModel: DeleteAsync started");
+>>>>>>> Stashed changes
                 if (booking == null)
                 {
                     MessageBox.Show("Vui lòng chọn một booking để xóa.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -309,6 +401,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                     Bookings.Remove(booking);
                     await UpdateAvailableRoomsAsync();
                     MessageBox.Show("Xóa booking thành công!", "Thành công", MessageBoxButton.OK);
+<<<<<<< Updated upstream
                     _logger?.LogInformation("Successfully deleted booking {BookingId}", booking.Id);
                 }
             }
@@ -326,6 +419,15 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 _logger?.LogError(ex, "Unexpected error deleting booking");
                 MessageBox.Show("Lỗi khi xóa booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+=======
+                    Debug.WriteLine("ReceptionistViewModel: DeleteAsync completed");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ReceptionistViewModel: UpdateAsync error - {ex.Message}");
+                MessageBox.Show($"Lỗi khi xóa booking: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+>>>>>>> Stashed changes
             }
         }
 
@@ -333,6 +435,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             try
             {
+<<<<<<< Updated upstream
                 _logger?.LogDebug("Updating available rooms for type {RoomType}", SelectedRoomType);
                 if (SelectedRoomType != default)
                 {
@@ -351,6 +454,27 @@ namespace HotelManager.ViewModels.StaffViewModels
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Error updating available rooms");
+=======
+                Debug.WriteLine("ReceptionistViewModel: UpdateAvailableRoomsAsync started");
+                if (SelectedRoomType != default)
+                {
+                    var rooms = await _roomService.GetAvailableRoomsByTypeAsync(SelectedRoomType);
+                    // Sử dụng Dispatcher để đảm bảo thay đổi trên thread UI
+                    await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        AvailableRooms.Clear();
+                        foreach (var room in rooms)
+                        {
+                            AvailableRooms.Add(room.RoomNumber);
+                        }
+                    });
+                }
+                Debug.WriteLine("ReceptionistViewModel: UpdateAvailableRoomsAsync completed");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ReceptionistViewModel: UpdateAvailableRoomsAsync error - {ex.Message}");
+>>>>>>> Stashed changes
                 MessageBox.Show($"Lỗi khi cập nhật danh sách phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -365,6 +489,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             SelectedRoomNumber = null;
             CheckInDate = null;
             CheckOutDate = null;
+<<<<<<< Updated upstream
             SelectedStatus = BookingStatus.Pending;
         }
 
@@ -406,6 +531,15 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 _logger?.LogError(ex, "Error clearing form");
             }
+=======
+            SelectedStatus = default;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+>>>>>>> Stashed changes
         }
     }
 }

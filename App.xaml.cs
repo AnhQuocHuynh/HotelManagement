@@ -29,6 +29,7 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+<<<<<<< Updated upstream
         // 📋 Enhanced Serilog configuration với multiple sinks và structured logging
         var logDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
         Directory.CreateDirectory(logDirectory); // Ensure Logs directory exists
@@ -150,6 +151,10 @@ public partial class App : Application
         //register all ViewModel
         ViewModelRegistration.RegisterAll();
         
+=======
+        //register all ViewModel
+        ViewModelRegistration.RegisterAll();
+>>>>>>> Stashed changes
         // Initialize database with seed data
         InitializeDatabaseAsync();
 

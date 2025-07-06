@@ -12,8 +12,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using HotelManager.ViewModels;
+<<<<<<< Updated upstream
 using HotelManager.ViewModels.Admin;
 using Microsoft.Extensions.DependencyInjection;
+=======
+>>>>>>> Stashed changes
 
 namespace HotelManager.Views
 {

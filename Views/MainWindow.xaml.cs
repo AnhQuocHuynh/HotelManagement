@@ -21,12 +21,17 @@ namespace HotelManager.Views
         public MainWindow()
         {
             InitializeComponent();
+<<<<<<< Updated upstream
             
             // Set DataContext using DI
             if (App.ServiceProvider != null)
             {
                 DataContext = App.ServiceProvider.GetRequiredService<MainViewModel>();
             }
+=======
+            DataContext = new MainViewModel();
+
+>>>>>>> Stashed changes
         }
     }
 }

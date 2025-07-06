@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+<<<<<<< Updated upstream
 using System.ComponentModel;
+=======
+>>>>>>> Stashed changes
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,11 +17,19 @@ using HotelManager.Interfaces;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
 using HotelManager.Services;
+<<<<<<< Updated upstream
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.ViewModels
 {
     public class RoomViewModel : BaseViewModel
+=======
+using RelayCommand = HotelManager.Utilities.RelayCommand;
+
+namespace HotelManager.ViewModels
+{
+    internal class RoomViewModel : BaseViewModel
+>>>>>>> Stashed changes
     {
         private readonly RoomService roomService;
         private readonly DialogService _dialogService = new DialogService();
@@ -41,7 +52,10 @@ namespace HotelManager.ViewModels
         public ICommand UpdateCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
         public ICommand AddCommand { get; set; }
+<<<<<<< Updated upstream
         public ICommand SearchCommand { get; set; }
+=======
+>>>>>>> Stashed changes
 
         private Room _selectedRoom;
         public Room SelectedRoom
@@ -122,6 +136,7 @@ namespace HotelManager.ViewModels
             }
         }
 
+<<<<<<< Updated upstream
         public IEnumerable<RoomStatus> RoomStatusOptions { get; } = Enum.GetValues(typeof(RoomStatus)).Cast<RoomStatus>();
         public IEnumerable<RoomType> RoomTypeOptions { get; } = Enum.GetValues(typeof(RoomType)).Cast<RoomType>();
 
@@ -161,6 +176,25 @@ namespace HotelManager.ViewModels
             DeleteCommand = new RelayCommand<object>(_ => DeleteRoom(_selectedRoom));
             AddCommand = new AsyncRelayCommand(AddRoom);
             SearchCommand = new RelayCommand(FilterRooms);
+=======
+        
+
+        public RoomViewModel()
+        {
+            this.roomService = new RoomService(new HotelDbContext());
+            UpdateCommand = new RelayCommand(param => UpdateRoom(_selectedRoom));
+            DeleteCommand = new RelayCommand(param => DeleteRoom(_selectedRoom));
+            AddCommand = new RelayCommand(async param => AddRoom());
+            LoadRooms();
+        }
+
+        public RoomViewModel(IService<Room> roomService)
+        {
+            this.roomService = (RoomService)roomService;
+            UpdateCommand = new RelayCommand(param => UpdateRoom(_selectedRoom));
+            DeleteCommand = new RelayCommand(param => DeleteRoom(_selectedRoom));
+            AddCommand = new RelayCommand(async param => await AddRoom());
+>>>>>>> Stashed changes
             LoadRooms();
         }
 
@@ -181,6 +215,7 @@ namespace HotelManager.ViewModels
 
         private async Task AddRoom()
         {
+<<<<<<< Updated upstream
             try
             {
                 // Validate input
@@ -295,6 +330,14 @@ namespace HotelManager.ViewModels
             {
                 MessageBox.Show($"Lỗi khi xóa phòng: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+=======
+            throw new NotImplementedException();
+        }
+
+        private void DeleteRoom(Room? selectedRoom)
+        {
+            throw new NotImplementedException();
+>>>>>>> Stashed changes
         }
 
         private void UpdateRoom(Room selectedRoom)
@@ -305,7 +348,11 @@ namespace HotelManager.ViewModels
                 MessageBox.Show("Vui lòng chọn một phòng để cập nhật.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+<<<<<<< Updated upstream
             var editVM = new RoomInfoEditViewModel(selectedRoom, roomService);
+=======
+            var editVM = new RoomInfoEditViewModel(selectedRoom);
+>>>>>>> Stashed changes
             var dialog = _dialogService.ShowDialog(editVM);
             if (dialog == true)
             {
@@ -328,6 +375,7 @@ namespace HotelManager.ViewModels
 
             Rooms = new ObservableCollection<Room>(filtered);
         }
+<<<<<<< Updated upstream
 
         private void ClearForm()
         {
@@ -337,5 +385,7 @@ namespace HotelManager.ViewModels
             PricePerNight = 0m;
             SelectedRoom = null;
         }
+=======
+>>>>>>> Stashed changes
     }
 }

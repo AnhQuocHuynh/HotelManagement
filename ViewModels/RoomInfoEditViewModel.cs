@@ -10,8 +10,13 @@ using HotelManager.Helpers;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
 using HotelManager.Services;
+<<<<<<< Updated upstream
 using HotelManager.Interfaces;
 using CommunityToolkit.Mvvm.Input;
+=======
+using HotelManager.Utilities;
+using RelayCommand = HotelManager.Utilities.RelayCommand;
+>>>>>>> Stashed changes
 
 namespace HotelManager.ViewModels
 {
@@ -31,7 +36,11 @@ namespace HotelManager.ViewModels
         public bool? DialogResult { get;  set; }
         public Action? CloseAction { get; set; } // Action to close the dialog if needed
 
+<<<<<<< Updated upstream
         public RoomInfoEditViewModel(Room room, RoomService roomService)
+=======
+        public RoomInfoEditViewModel(Room room)
+>>>>>>> Stashed changes
         {
             _originalRoom = room;
             EditableRoom = new Room
@@ -42,9 +51,15 @@ namespace HotelManager.ViewModels
                 PricePerNight = room.PricePerNight
             };
 
+<<<<<<< Updated upstream
             _roomService = roomService;
             SaveCommand = new AsyncRelayCommand(Save);
             CancelCommand = new RelayCommand(Cancel);
+=======
+            _roomService = new RoomService(new HotelDbContext());
+            SaveCommand = new RelayCommand(async param => await Save());
+            CancelCommand = new RelayCommand(param => Cancel());
+>>>>>>> Stashed changes
         }
 
         private void Cancel()

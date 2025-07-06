@@ -22,7 +22,18 @@ namespace HotelManager.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+<<<<<<< Updated upstream:HotelManager.Core/Data/HotelDbContext.cs
             // Provider configuration (UseSqlServer, UseInMemory, ...) sẽ được cấu hình ở main project hoặc test project.
+=======
+            if (!optionsBuilder.IsConfigured)
+            {
+                // Sử dụng connection string từ DatabaseConfig thay vì hardcoded default
+                var connectionString = _configuration?.GetConnectionString("DefaultConnection")
+                    ?? Config.DatabaseConfig.GetConnectionString();
+              
+                optionsBuilder.UseSqlServer(connectionString);
+            }
+>>>>>>> Stashed changes:Data/HotelDbContext.cs
         }
 
         public DbSet<Customer> Customers { get; set; }
