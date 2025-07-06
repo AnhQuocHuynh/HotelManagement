@@ -46,7 +46,7 @@ namespace HotelManager.ViewModels.Admin
         public ICommand ReportsCommand { get; set; }
         public ICommand RefreshCommand { get; set; }
         public ICommand ClearFormCommand { get; set; }
-        public ICommand SearchCommand { get; }
+        public ICommand SearchCommand { get; set; }
         public ICommand NavigateRoomManagementCommand { get; set; }
         public ICommand NavigateProfileCommand { get; set; }
 
@@ -222,6 +222,19 @@ namespace HotelManager.ViewModels.Admin
             _unitOfWork = App.ServiceProvider.GetRequiredService<IUnitOfWork>();
             _navigationService = App.ServiceProvider.GetRequiredService<INavigationService>();
 
+            InitializeCommands();
+
+            LoadEmployees();
+
+            var user = AppSession.GetCurrentUserAccount();
+            if (user != null)
+            {
+                Greeting = $"Hello, {user.Username}";
+            }
+        }
+
+        private void InitializeCommands()
+        {
             AddCommand = new AsyncRelayCommand<Employee>(AddAsync);
             UpdateCommand = new RelayCommand<Employee>(Update);
             DeleteCommand = new AsyncRelayCommand<Employee>(DeleteAsync);
@@ -235,13 +248,6 @@ namespace HotelManager.ViewModels.Admin
             NavigateRoomManagementCommand = new RelayCommand(NavigateRoomManagement);
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
 
-            LoadEmployees();
-
-            var user = AppSession.GetCurrentUserAccount();
-            if (user != null)
-            {
-                Greeting = $"Hello, {user.Username}";
-            }
         }
 
         public async void LoadEmployees()
