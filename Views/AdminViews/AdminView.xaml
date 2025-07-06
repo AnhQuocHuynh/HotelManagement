@@ -1,0 +1,120 @@
+<Window x:Class="HotelManager.Views.AdminViews.AdminView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:converters="clr-namespace:HotelManager.Converters"
+        Title="Admin Management" Height="800" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource MaterialDesignPaper}"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        FontFamily="{DynamicResource MaterialDesignFont}">
+
+    <Window.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <materialDesign:ColorZone Grid.Row="0" Mode="PrimaryMid" Padding="16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="AccountCog" Width="32" Height="32" 
+                                           VerticalAlignment="Center" Margin="0,0,16,0"/>
+                    <TextBlock Text="Admin Management" Style="{DynamicResource MaterialDesignHeadline5TextBlock}"
+                             VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button x:Name="btnRefresh" Style="{DynamicResource MaterialDesignIconButton}"
+                            ToolTip="Refresh Data" Click="btnRefresh_Click">
+                        <materialDesign:PackIcon Kind="Refresh"/>
+                    </Button>
+                    <Button x:Name="btnLogout" Style="{DynamicResource MaterialDesignIconButton}"
+                            ToolTip="Logout" Click="btnLogout_Click" Margin="8,0,0,0">
+                        <materialDesign:PackIcon Kind="Logout"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </materialDesign:ColorZone>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Navigation Menu -->
+            <materialDesign:Card Grid.Column="0" Padding="16" Margin="0,0,16,0">
+                <StackPanel>
+                    <TextBlock Text="Navigation" Style="{DynamicResource MaterialDesignHeadline6TextBlock}"
+                             Margin="0,0,0,16"/>
+                    
+                    <Button x:Name="btnEmployeeManagement" Style="{DynamicResource MaterialDesignFlatButton}"
+                            Content="Employee Management" HorizontalAlignment="Stretch" Margin="0,4"
+                            Click="btnEmployeeManagement_Click"/>
+                    
+                    <Button x:Name="btnRoomManagement" Style="{DynamicResource MaterialDesignFlatButton}"
+                            Content="Room Management" HorizontalAlignment="Stretch" Margin="0,4"
+                            Click="btnRoomManagement_Click"/>
+                    
+                    <Button x:Name="btnAccountManagement" Style="{DynamicResource MaterialDesignFlatButton}"
+                            Content="Account Management" HorizontalAlignment="Stretch" Margin="0,4"
+                            Click="btnAccountManagement_Click"/>
+                    
+                    <Button x:Name="btnReports" Style="{DynamicResource MaterialDesignFlatButton}"
+                            Content="Reports" HorizontalAlignment="Stretch" Margin="0,4"
+                            Click="btnReports_Click"/>
+                    
+                    <Button x:Name="btnSettings" Style="{DynamicResource MaterialDesignFlatButton}"
+                            Content="Settings" HorizontalAlignment="Stretch" Margin="0,4"
+                            Click="btnSettings_Click"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <!-- Content Area -->
+            <materialDesign:Card Grid.Column="1" Padding="16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Content Header -->
+                    <TextBlock x:Name="txtContentHeader" Text="Welcome to Admin Panel" 
+                             Style="{DynamicResource MaterialDesignHeadline5TextBlock}"
+                             Grid.Row="0" Margin="0,0,0,16"/>
+
+                    <!-- Content Frame -->
+                    <Frame x:Name="contentFrame" Grid.Row="1" NavigationUIVisibility="Hidden"/>
+                </Grid>
+            </materialDesign:Card>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Grid x:Name="loadingOverlay" Grid.Row="1" Background="#80000000" 
+              Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ProgressBar Style="{DynamicResource MaterialDesignCircularProgressBar}" 
+                           Value="0" IsIndeterminate="True" Width="48" Height="48"/>
+                <TextBlock Text="Loading..." Style="{DynamicResource MaterialDesignBody1TextBlock}"
+                         HorizontalAlignment="Center" Margin="0,16,0,0"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window> 
