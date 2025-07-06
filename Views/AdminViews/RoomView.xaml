@@ -289,7 +289,7 @@
                                         CanUserResizeRows="False"
                                         CanUserSortColumns="True"
                       SelectedItem="{Binding SelectedRoom}"
-                                        MinHeight="400" SelectionChanged="DataGrid_SelectionChanged">
+                                        MinHeight="400">
                 <DataGrid.Columns>
                                         <!-- Status Indicator -->
                                         <DataGridTemplateColumn Header="" Width="50">
