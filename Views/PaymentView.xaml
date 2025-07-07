@@ -91,16 +91,30 @@
                                    Margin="0,4,0,0"/>
                     </StackPanel>
 
-                    <!-- Logout Button -->
-                    <Button Grid.Column="1"
+                    <!-- Logout Button + Back Button -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <Button
+                            Command="{Binding NavigateBackCommand}"
+                            Style="{StaticResource OutlinedButton}"
+                            Background="White"
+                            Foreground="{StaticResource PrimaryBrush}"
+                            FontWeight="SemiBold"
+                            Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="ArrowLeft" Width="20" Height="20" VerticalAlignment="Center"/>
+                                <TextBlock Text="Back" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button
                             Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                             Style="{StaticResource ContainedButton}"
                             Background="White"
                             Foreground="{StaticResource PrimaryBrush}"
                             FontWeight="SemiBold"
                             VerticalAlignment="Center">
-                        Logout
-                    </Button>
+                            <TextBlock Text="Logout"/>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </Border>
 
@@ -206,7 +220,7 @@
                                         <DatePicker Style="{StaticResource MaterialDesignDatePicker}"
                                                   materialDesign:HintAssist.Hint="Select payment date"
                                                   materialDesign:HintAssist.IsFloating="False"
-                                                  SelectedDate="{Binding PaymentDate, Mode=TwoWay}"/>
+                                                  SelectedDate="{Binding PaymentDate, Mode=TwoWay}" Height="49"/>
                                     </StackPanel>
 
                                     <StackPanel Margin="8,0,0,0">
@@ -220,7 +234,7 @@
                                     </StackPanel>
                                 </UniformGrid>
 
-                                <!-- Row 2: Payment Method & Invoice -->
+                                <!-- Row 2: Payment Method -->
                                 <UniformGrid Grid.Row="1" Columns="2" Margin="0,0,0,16">
                                     <StackPanel Margin="0,0,8,0">
                                         <TextBlock Text="Payment Method *" 
@@ -229,21 +243,8 @@
                                         <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}"
                                                 materialDesign:HintAssist.Hint="Select payment method"
                                                 materialDesign:HintAssist.IsFloating="False"
-                          SelectedItem="{Binding PaymentMethod, Mode=TwoWay}"
+                                                SelectedItem="{Binding PaymentMethod, Mode=TwoWay}"
                                                 ItemsSource="{Binding Source={StaticResource PaymentMethodValues}}"/>
-                                    </StackPanel>
-
-                                    <StackPanel Margin="8,0,0,0">
-                                        <TextBlock Text="Invoice *" 
-                                                 Style="{StaticResource LabelLarge}"
-                                                 Margin="0,0,0,8"/>
-                                        <ComboBox Style="{StaticResource MaterialDesignOutlinedComboBox}"
-                                                materialDesign:HintAssist.Hint="Select invoice"
-                                                materialDesign:HintAssist.IsFloating="False"
-                                                ItemsSource="{Binding AvailableInvoices}" 
-                                                DisplayMemberPath="Id" 
-                                                SelectedValuePath="Id" 
-                                                SelectedValue="{Binding SelectedInvoiceId, Mode=TwoWay}"/>
                                     </StackPanel>
                                 </UniformGrid>
 

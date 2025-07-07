@@ -21,5 +21,18 @@ namespace HotelManager.Services
                 .Include(i => i.Booking)
                 .ToListAsync();
         }
+
+        public async Task<Invoice> CreateForBookingAsync(int bookingId, decimal totalAmount)
+        {
+            var invoice = new Invoice
+            {
+                BookingId = bookingId,
+                IssueDate = DateTime.Now,
+                TotalAmount = totalAmount
+            };
+            _dbContext.Invoices.Add(invoice);
+            await _dbContext.SaveChangesAsync();
+            return invoice;
+        }
     }
 }
