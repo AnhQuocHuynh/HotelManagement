@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HotelManager.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -64,5 +65,8 @@ namespace HotelManager.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public ICollection<Maintenance> Maintenances { get; set; }
+
     }
 }

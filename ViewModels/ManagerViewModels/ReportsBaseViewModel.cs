@@ -48,7 +48,9 @@ namespace HotelManager.ViewModels.ManagerViewModels
             Options = new ObservableCollection<string>
             {
                 "View revenue report",
-                "View receptionist activity report"
+                "View receptionist activity report",
+                "View cleaner activity report",
+                "Maintenance activity report",
             };
             // Set a default selected option
             SelectedOption = Options.FirstOrDefault();
@@ -66,13 +68,19 @@ namespace HotelManager.ViewModels.ManagerViewModels
             switch (option)
             {
                 case "View revenue report":
-                    CurrentContent = new Views.ManagerViews.RevenueReportChartView();
+                    CurrentContent = new Views.ManagerViews.Reports.RevenueReportChartView();
                     break;
                 case "View receptionist activity report":
-                    CurrentContent = new Views.ManagerViews.ReceptionistActivityReportChartView();
+                    CurrentContent = new Views.ManagerViews.Reports.ReceptionistActivityReportChartView();
+                    break;
+                case "View cleaner activity report":
+                    CurrentContent = new Views.ManagerViews.Reports.CleanerActivivtyReportChartView();
+                    break;
+                case "Maintenance activity report":
+                    CurrentContent = new Views.ManagerViews.Reports.MaintenanceReportChartView();
                     break;
                 default:
-                    CurrentContent = new Views.ManagerViews.RevenueReportChartView();
+                    CurrentContent = new Views.ManagerViews.Reports.RevenueReportChartView();
                     break;
             }
         }

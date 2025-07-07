@@ -1,136 +1,162 @@
-﻿<UserControl x:Class="HotelManager.Views.ManagerViews.ReceptionistActivityReportChartView"
+﻿<UserControl x:Class="HotelManager.Views.ManagerViews.Reports.RevenueReportChartView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:HotelManager.Views.ManagerViews"
+             xmlns:local="clr-namespace:HotelManager.Views.ManagerViews.Reports"
              
-             xmlns:vm="clr-namespace:HotelManager.ViewModels.ManagerViewModels"
+             xmlns:vm="clr-namespace:HotelManager.ViewModels.ManagerViewModels.Reports"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="800"
              Background="White">
 
+    <UserControl.DataContext>
+        <vm:RevenueReportChartViewModel/>
+    </UserControl.DataContext>
 
-
-    <Grid>
+<Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="45"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Unit -->
-        <TextBlock Text="Unit"
+            <!-- Unit -->
+            <TextBlock Text="Unit"
+                       Grid.Column="0"
                    FontSize="16"
                    FontWeight="DemiBold"
-                   Grid.Row="0"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Top"
+                   Margin="0,0,0,0"/>
+            <ComboBox Name="TimeUnit"
+                    Grid.Column="0"
+                  Width="100"
+                  Height="25"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Bottom"
+                  Margin="0,0,0,0"
+                  ItemsSource="{Binding TimeUnits}"
+                  SelectedItem="{Binding SelectedTimeUnit}"/>
+
+            <!-- Time range -->
+            <Border Background="{Binding TimeRangeBackground}"
+                Height="50"
+                Width="100"
+                Grid.Column="1"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="10,0,0,0"/>
+            <TextBlock Text="Time range"
+                   FontSize="16"
+                   FontWeight="DemiBold"
+                   Grid.Column="1"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
                    Margin="10,0,0,0"/>
-        <ComboBox Name="TimeUnit"
+            <ComboBox Name="TimeRangeQuickselection"
                   Width="100"
                   Height="25"
-                  Grid.Row="0"
+                  Grid.Column="1"
                   HorizontalAlignment="Left"
                   VerticalAlignment="Bottom"
                   Margin="10,0,0,0"
-                  ItemsSource="{Binding Units}"
-                  SelectedItem="{Binding SelectedUnit}"/>
-
-        <!-- Time range -->
-        <Border Background="{Binding TimeRangeBackground}"
-                Height="50"
-                Width="100"
-                Grid.Row="0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                Margin="120,0,0,0"/>
-        <TextBlock Text="Time range"
-                   FontSize="16"
-                   FontWeight="DemiBold"
-                   Grid.Row="0"
-                   HorizontalAlignment="Left"
-                   VerticalAlignment="Top"
-                   Margin="120,0,0,0"/>
-        <ComboBox Name="TimeRangeQuickselection"
-                  Width="100"
-                  Height="25"
-                  Grid.Row="0"
-                  HorizontalAlignment="Left"
-                  VerticalAlignment="Bottom"
-                  Margin="120,0,0,0"
                   ItemsSource="{Binding TimeRanges}"
                   SelectedItem="{Binding SelectedTimeRange}"/>
 
-        <Border Background="{Binding DateBackground}"
+            <Border Background="{Binding DateBackground}"
                 Height="50"
                 Width="210"
-                Grid.Row="0"
+                Grid.Column="2"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Bottom"
-                Margin="230,0,0,0"/>
-        <!-- Start date -->
-        <TextBlock Text="Start date"
+                Margin="10,0,0,0"/>
+            <!-- Start date -->
+            <TextBlock Text="Start date"
                    FontSize="16"
                    FontWeight="DemiBold"
-                   Grid.Row="0"
+                   Grid.Column="2"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
-                   Margin="230,0,0,0"/>
-        <DatePicker x:Name="StartDatePicker"
+                   Margin="10,0,0,0"/>
+            <DatePicker x:Name="StartDatePicker"
                     Width="100"
                     Height="25"
-                    Grid.Row="0"
+                    Grid.Column="2"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
-                    Margin="230,0,0,0"
+                    Margin="10,0,0,0"
                     SelectedDate="{Binding StartDate, Mode=TwoWay}"/>
 
-        <!-- End date -->
-        <TextBlock Text="End date"
+            <!-- End date -->
+            <TextBlock Text="End date"
                    FontSize="16"
                    FontWeight="DemiBold"
-                   Grid.Row="0"
+                   Grid.Column="3"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
-                   Margin="340,0,0,0"/>
-        <DatePicker x:Name="EndDatePicker"
+                   Margin="10,0,0,0"/>
+            <DatePicker x:Name="EndDatePicker"
                     Width="100"
                     Height="25"
-                    Grid.Row="0"
+                    Grid.Column="3"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
-                    Margin="340,0,0,0"
+                    Margin="10,0,0,0"
                     SelectedDate="{Binding EndDate, Mode=TwoWay}"/>
 
-        <!-- Room type -->
-        <TextBlock Text="Room type"
+            <!-- Room type -->
+            <TextBlock Text="Room type"
                    FontSize="16"
                    FontWeight="DemiBold"
-                   Grid.Row="0"
+                   Grid.Column="4"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
-                   Margin="450,0,0,0"/>
-        <ComboBox x:Name="RoomType"
+                   Margin="10,0,0,0"/>
+            <ComboBox x:Name="RoomType"
                   Width="100"
                   Height="25"
-                  Grid.Row="0"
+                  Grid.Column="4"
                   HorizontalAlignment="Left"
                   VerticalAlignment="Bottom"
-                  Margin="450,0,0,0"
+                  Margin="10,0,0,0"
                   ItemsSource="{Binding RoomTypes}"
                   SelectedItem="{Binding SelectedRoomType}"/>
 
-        <!-- chart -->
-        <lvc:CartesianChart Grid.Row="1"
+            <Button x:Name="exportButton" 
+                    Content="Export"
+                    Grid.Column="5"
+                Command="{Binding ExportChartAndDataCommand}"
+                Foreground="Navy"
+                Background="{StaticResource Primary100Brush}"
+                Margin="10,0,0,0"/>
+
+
+        </Grid>
+
+
+        <lvc:CartesianChart x:Name="RevenueChart"
+                            Grid.Row="1"
                             Series="{Binding Series}"
                             XAxes="{Binding XAxes}"
                             YAxes="{Binding YAxes}"
-                            ZoomMode="Y"
-                            ZoomingSpeed="0.5"
-                            TooltipPosition="Left"
+                            Margin="10"
+                            ZoomMode="X"
+                            TooltipPosition="Top"
+                            ZoomingSpeed="0.2"
                             DrawMarginFrame="{x:Null}"
                             LegendPosition="Top"/>
     </Grid>

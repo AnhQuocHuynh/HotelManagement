@@ -124,7 +124,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             };
             if (saveFileDialog.ShowDialog() == true)
             {
-                _exportService.ExportToExcel(Employees, saveFileDialog.FileName);
+                _exportService.ExportEmployeeListToExcel(Employees, saveFileDialog.FileName);
             }
         }
 

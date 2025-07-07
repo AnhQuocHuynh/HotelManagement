@@ -12,10 +12,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using HotelManager.ViewModels.ManagerViewModels;
+using HotelManager.Services.Manager;
+using HotelManager.ViewModels.ManagerViewModels.Reports;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 
-namespace HotelManager.Views.ManagerViews
+namespace HotelManager.Views.ManagerViews.Reports
 {
     /// <summary>
     /// Interaction logic for RevenueBarChartView.xaml

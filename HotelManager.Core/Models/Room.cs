@@ -17,6 +17,8 @@ namespace HotelManager.Models
         public ICollection<Booking> Bookings { get; set; }
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
         public ICollection<MaintenanceReport> MaintenanceReports { get; set; }
+        public ICollection<Cleaning> Cleanings { get; set; }
+
 
         [NotMapped] // Hiển thị status bằng tiếng Việt, không lưu vào cơ sở dữ liệu
         public string RoomStatusDisplay => RoomStatus switch
