@@ -14,6 +14,7 @@ using HotelManager.ViewModels.Admin;
 using HotelManager.ViewModels.StaffViewModels;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
+using HotelManager.ViewModels.Common;
 
 namespace HotelManager.ViewModels
 {
@@ -47,13 +48,23 @@ namespace HotelManager.ViewModels
                 _navigationService.CurrentViewModelChanged += OnCurrentViewModelChanged;
             }
 
-            ShowLoginCommand = new RelayCommand(() => CurrentView = new Views.Common.LoginView());
-            ShowHomeCommand = new RelayCommand(() => CurrentView = new Views.HomeView());
-            ShowAdminCommand = new RelayCommand(() => CurrentView = new Views.AdminView());
-            ShowCleanerCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.CleanerView());
-            ShowTechnicianCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.TechnicianView());
-            ShowReceptionistCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.ReceptionistView());
-            ShowManagerCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.ManagerView());
+            //ShowLoginCommand = new RelayCommand(() => CurrentView = new Views.Common.LoginView());
+            //ShowHomeCommand = new RelayCommand(() => CurrentView = new Views.HomeView());
+            //ShowAdminCommand = new RelayCommand(() => CurrentView = new Views.AdminView());
+            //ShowCleanerCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.CleanerView());
+            //ShowTechnicianCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.TechnicianView());
+            //ShowReceptionistCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.ReceptionistView());
+            //ShowManagerCommand = new RelayCommand(() => CurrentView = new Views.StaffViews.ManagerView());
+
+            // Refactored navigation to use NavigationService
+            ShowLoginCommand = new RelayCommand(() => _navigationService?.NavigateTo<LoginViewModel>());
+            ShowHomeCommand = new RelayCommand(() => _navigationService?.NavigateTo<HomeViewModel>());
+            ShowAdminCommand = new RelayCommand(() => _navigationService?.NavigateTo<AdminViewModel>());
+            ShowCleanerCommand = new RelayCommand(() => _navigationService?.NavigateTo<CleanerViewModel>());
+            ShowTechnicianCommand = new RelayCommand(() => _navigationService?.NavigateTo<TechnicianViewModel>());
+            ShowReceptionistCommand = new RelayCommand(() => _navigationService?.NavigateTo<ReceptionistViewModel>());
+            ShowManagerCommand = new RelayCommand(() => _navigationService?.NavigateTo<ManagerViewModel>());
+
             LogoutCommand = new RelayCommand(Logout);
 
             // Subscribe to login success event
@@ -95,57 +106,58 @@ namespace HotelManager.ViewModels
             var currentUser = Utilities.AppSession.GetCurrentUserAccount();
             if (currentUser == null)
             {
-                CurrentView = new Views.Common.LoginView();
+                _navigationService?.NavigateTo<LoginViewModel>();
                 return;
             }
 
             switch (currentUser.Role)
             {
                 case UserRole.Admin:
-                    CurrentView = new Views.AdminView();
+                    _navigationService?.NavigateTo<AdminViewModel>();
                     break;
                 case UserRole.Manager:
-                    CurrentView = new Views.StaffViews.ManagerView();
+                    _navigationService?.NavigateTo<StaffViewModels.ManagerViewModel>();
                     break;
                 case UserRole.Staff:
-                    // For staff, check their position
                     if (currentUser.Employee != null)
                     {
                         switch (currentUser.Employee.Position)
                         {
                             case EmployeePosition.Cleaner:
-                                CurrentView = new Views.StaffViews.CleanerView();
+                                _navigationService?.NavigateTo<StaffViewModels.CleanerViewModel>();
                                 break;
                             case EmployeePosition.Technician:
-                                CurrentView = new Views.StaffViews.TechnicianView();
+                                _navigationService?.NavigateTo<StaffViewModels.TechnicianViewModel>();
                                 break;
                             case EmployeePosition.Receptionist:
-                                CurrentView = new Views.StaffViews.ReceptionistView();
+                                _navigationService?.NavigateTo<StaffViewModels.ReceptionistViewModel>();
                                 break;
                             default:
-                                CurrentView = new Views.HomeView();
+                                _navigationService?.NavigateTo<HomeViewModel>(); // Optional fallback
                                 break;
                         }
                     }
                     else
                     {
-                        CurrentView = new Views.HomeView();
+                        _navigationService?.NavigateTo<HomeViewModel>();
                     }
                     break;
                 case UserRole.Customer:
-                    CurrentView = new Views.HomeView();
+                    _navigationService?.NavigateTo<HomeViewModel>();
                     break;
                 default:
-                    CurrentView = new Views.HomeView();
+                    _navigationService?.NavigateTo<HomeViewModel>();
                     break;
             }
+     
         }
 
         // Logout method
         public void Logout()
         {
             Utilities.AppSession.Clear();
-            CurrentView = new Views.Common.LoginView();
+            _navigationService?.ClearHistory();
+            _navigationService?.NavigateTo<LoginViewModel>();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

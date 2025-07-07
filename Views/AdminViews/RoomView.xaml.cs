@@ -34,7 +34,7 @@ namespace HotelManager.Views
 
         private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            // (giữ nguyên, có thể để trống hoặc thêm logic nếu cần)
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
