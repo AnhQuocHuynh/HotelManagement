@@ -134,8 +134,8 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.RoomInfoEditViewModel>();
                 services.AddTransient<HotelManager.ViewModels.Common.LoginViewModel>();
 
-                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.RevenueReportChartViewModel>();
-                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.ReceptionistActivityReportChartViewModel>();
+                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.Reports.RevenueReportChartViewModel>();
+                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.Reports.ReceptionistActivityReportChartViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.EmployeeListViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ProfileViewModel>();
 

@@ -390,29 +390,6 @@ namespace HotelManager.Core.Migrations
                     b.ToTable("UserAccounts");
                 });
 
-
-            modelBuilder.Entity("HotelManager.Core.Models.Maintenance", b =>
-                {
-                    b.HasOne("HotelManager.Models.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("HotelManager.Models.Employee", null)
-                        .WithMany("Maintenances")
-                        .HasForeignKey("EmployeeId1");
-
-                    b.HasOne("HotelManager.Models.MaintenanceReport", "MaintenanceReport")
-                        .WithMany("Maintenances")
-                        .HasForeignKey("MaintenanceReportId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-
-                    b.Navigation("MaintenanceReport");
-
             modelBuilder.Entity("HotelManager.Models.WorkAssignment", b =>
                 {
                     b.Property<int>("Id")
@@ -455,7 +432,29 @@ namespace HotelManager.Core.Migrations
                     b.HasIndex("RoomNumber");
 
                     b.ToTable("WorkAssignments");
+                });
 
+            modelBuilder.Entity("HotelManager.Core.Models.Maintenance", b =>
+                {
+                    b.HasOne("HotelManager.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HotelManager.Models.Employee", null)
+                        .WithMany("Maintenances")
+                        .HasForeignKey("EmployeeId1");
+
+                    b.HasOne("HotelManager.Models.MaintenanceReport", "MaintenanceReport")
+                        .WithMany("Maintenances")
+                        .HasForeignKey("MaintenanceReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("MaintenanceReport");
                 });
 
             modelBuilder.Entity("HotelManager.Models.Booking", b =>

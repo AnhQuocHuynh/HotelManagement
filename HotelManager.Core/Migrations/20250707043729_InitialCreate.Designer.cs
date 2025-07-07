@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManager.Core.Migrations
 {
     [DbContext(typeof(HotelDbContext))]
-    [Migration("20250705202825_InitialCreate")]
+    [Migration("20250707043729_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -393,6 +393,50 @@ namespace HotelManager.Core.Migrations
                     b.ToTable("UserAccounts");
                 });
 
+            modelBuilder.Entity("HotelManager.Models.WorkAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AssignedByEmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("AssignedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoomNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedByEmployeeId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("RoomNumber");
+
+                    b.ToTable("WorkAssignments");
+                });
+
             modelBuilder.Entity("HotelManager.Core.Models.Maintenance", b =>
                 {
                     b.HasOne("HotelManager.Models.Employee", "Employee")
@@ -536,6 +580,32 @@ namespace HotelManager.Core.Migrations
                         .IsRequired();
 
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("HotelManager.Models.WorkAssignment", b =>
+                {
+                    b.HasOne("HotelManager.Models.Employee", "AssignedByEmployee")
+                        .WithMany()
+                        .HasForeignKey("AssignedByEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HotelManager.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HotelManager.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedByEmployee");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("HotelManager.Models.Booking", b =>
