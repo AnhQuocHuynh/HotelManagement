@@ -107,6 +107,8 @@ namespace HotelManager.ViewModels.Dialogs
             set { _passwordStrengthColor = value; OnPropertyChanged(); }
         }
 
+        public Action CloseAction { get; set; }
+
         // Commands
         public ICommand ChangePasswordCommand { get; }
         public ICommand CancelCommand { get; }
@@ -256,6 +258,11 @@ namespace HotelManager.ViewModels.Dialogs
 
         private async Task ChangePasswordAsync()
         {
+            if(CurrentPassword.Equals(NewPassword, StringComparison.OrdinalIgnoreCase))
+            {
+                _notificationService?.ShowError("New password must be different from current password");
+                return;
+            }
             try
             {
                 LogInformation("Attempting to change password");
@@ -270,21 +277,18 @@ namespace HotelManager.ViewModels.Dialogs
                 // Validate current password
                 if (!await _userAccountService.ValidatePasswordAsync(currentUser.Username, CurrentPassword))
                 {
+                    //MessageBox.Show("Current password is incorrect", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     _notificationService?.ShowError("Current password is incorrect");
-                    return;
+                    return; 
                 }
-
                 // Change password
-                await _userAccountService.ChangePasswordAsync(currentUser.Username, NewPassword);
-                
+                await _userAccountService.ChangePasswordAsync(currentUser.Username, NewPassword);               
                 _notificationService?.ShowSuccess("Password changed successfully!");
+                //MessageBox.Show("Password changed successfully!");
                 LogInformation("Password changed successfully for user: {Username}", currentUser.Username);
 
                 // Close dialog
-                if (Application.Current.Windows.Count > 0)
-                {
-                    Application.Current.Windows[Application.Current.Windows.Count - 1].Close();
-                }
+                CloseAction?.Invoke();
             }
             catch (Exception ex)
             {
