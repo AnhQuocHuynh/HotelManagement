@@ -16,6 +16,7 @@ using System.Windows.Input;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Axis = LiveChartsCore.SkiaSharpView.Axis;
 using LiveChartsCore.Defaults;
+using HotelManager.Models.Enums;
 
 
 namespace HotelManager.ViewModels.ManagerViewModels.Reports
@@ -253,39 +254,25 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             var roomList = eachRoomData.Keys.ToList();
             Labels = roomList.ToArray();
 
-            // tạo series cho từng phòng để đổi màu
-            var seriesList = new List<ISeries>();
+            // chuẩn bị mảng ObservableValue chứa số lần bảo trì cho mỗi phòng
+            var values = new ObservableValue[roomList.Count];
 
             for (int i = 0; i < roomList.Count; i++)
             {
                 var roomName = roomList[i];
-                var (roomType, maintenanceCount) = eachRoomData[roomName];
-
-                // xây dựng Values với chỉ duy nhất vị trí i có maintenanceCount, còn lại = 0
-                var values = new ObservableValue[roomList.Count];
-                for (int j = 0; j < roomList.Count; j++)
-                {
-                    values[j] = new ObservableValue(j == i ? maintenanceCount : 0);
-                }
-
-                var color = roomType switch
-                {
-                    "Deluxe" => SKColors.Yellow,
-                    "Standard" => SKColors.Green,
-                    "Suite" => SKColors.Blue,
-                    _ => SKColors.Gray
-                };
-
-                seriesList.Add(new RowSeries<ObservableValue>
-                {
-                    Name = $"{roomName} ({roomType})",
-                    Values = values,
-                    Fill = new SolidColorPaint(color),
-                    MaxBarWidth = 25
-                });
+                var (_, maintenanceCount) = eachRoomData[roomName];
+                values[i] = new ObservableValue(maintenanceCount);
             }
 
-            Series = seriesList.ToArray();
+            Series = new ISeries[]
+            {
+        new RowSeries<ObservableValue>
+        {
+            Name = "Số lần bảo trì",
+            Values = values,
+            Fill = new SolidColorPaint(SKColors.ForestGreen),
+        }
+            };
 
             XAxes = new Axis[]
             {
@@ -295,7 +282,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             SeparatorsPaint = new SolidColorPaint(SKColors.LightGray),
             MinStep = 1,
             MinLimit = 0,
-            Labeler = value => ((int)value).ToString(),
+            Labeler = value => ((int)value).ToString()
         }
             };
 
@@ -305,10 +292,12 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         {
             Name = "Phòng",
             Labels = Labels,
-            LabelsRotation = 0
+            LabelsRotation = 0,
+            MinStep = 1
         }
             };
         }
+
 
 
         // chart counting maintenance activities by room type each month
