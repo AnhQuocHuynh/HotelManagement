@@ -143,7 +143,6 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand ShowAvailableRoomsCommand { get; private set; }
         public ICommand NavigateToRoomViewCommand { get; private set; }
         public ICommand UpdateCommand { get; private set; }
-        public ICommand DeleteCommand { get; private set; }
         public ICommand CheckoutCommand { get; private set; }
         public ICommand LoadedCommand { get; private set; }
         public ICommand ReportsCommand { get; private set; }
@@ -195,10 +194,6 @@ namespace HotelManager.ViewModels.StaffViewModels
 
             UpdateCommand = new AsyncRelayCommand<Booking?>(
                 execute: b => UpdateAsync(b!),
-                canExecute: b => b != null);
-
-            DeleteCommand = new AsyncRelayCommand<Booking?>(
-                execute: b => DeleteAsync(b!),
                 canExecute: b => b != null);
 
             CheckoutCommand = new AsyncRelayCommand<Booking?>(
@@ -349,17 +344,17 @@ namespace HotelManager.ViewModels.StaffViewModels
                 _logger?.LogInformation("Deleting booking {BookingId}", booking?.Id);
                 if (booking == null)
                 {
-                    MessageBox.Show("Please select a booking to delete.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Vui lòng chọn một booking để xóa.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                var result = MessageBox.Show("Are you sure you want to delete this booking?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = MessageBox.Show("Bạn có chắc chắn muốn xóa booking này?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
                     await _bookingService.DeleteAsync(booking.Id);
                     Bookings.Remove(booking);
                     await UpdateAvailableRoomsAsync();
-                    MessageBox.Show("Booking deleted successfully!", "Success", MessageBoxButton.OK);
+                    MessageBox.Show("Xóa booking thành công!", "Thành công", MessageBoxButton.OK);
                     _logger?.LogInformation("Successfully deleted booking {BookingId}", booking.Id);
                     TotalBookings = Bookings.Count;
                 }
@@ -367,17 +362,17 @@ namespace HotelManager.ViewModels.StaffViewModels
             catch (EntityNotFoundException ex)
             {
                 _logger?.LogWarning(ex, "Entity not found");
-                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (BusinessException ex)
             {
                 _logger?.LogWarning(ex, "Business error deleting booking");
-                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Unexpected error deleting booking");
-                MessageBox.Show("Error while deleting booking. Please try again!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Lỗi khi xóa booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

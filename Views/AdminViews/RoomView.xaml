@@ -38,31 +38,40 @@
             <Border Grid.Row="0" Background="{StaticResource PrimaryGradient}" Margin="0,-27,0,0">
                 <Grid Margin="32">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Room Title and Info -->
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock Text="Room Management" 
-                                   Style="{StaticResource HeadlineLarge}" 
-                                   Foreground="White"/>
-                        <TextBlock Text="Manage hotel rooms, types, status and pricing" 
-                                   Style="{StaticResource BodyMedium}" 
-                                   Foreground="{StaticResource OnPrimary200Brush}" 
-                                   Margin="0,4,0,0"/>
+                    <!-- Welcome Section (giữ nguyên hoặc sửa lại nếu cần) -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Border Background="White" CornerRadius="30" Width="60" Height="60" Margin="0,0,16,0">
+                            <materialDesign:PackIcon Kind="Hotel" Foreground="{StaticResource PrimaryBrush}" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Room Management" Style="{StaticResource BodyLarge}" Foreground="White" Opacity="0.9"/>
+                            <TextBlock Text="Quản lý phòng khách sạn" Style="{StaticResource HeadlineMedium}" Foreground="White" FontWeight="Bold"/>
+                        </StackPanel>
                     </StackPanel>
 
-                    <!-- Logout Button -->
-                    <Button Grid.Column="1"
-                            Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                            Style="{StaticResource ContainedButton}"
-                            Background="White"
-                            Foreground="{StaticResource PrimaryBrush}"
-                            FontWeight="SemiBold"
-                            VerticalAlignment="Center">
-                        Logout
-                    </Button>
+                    <!-- Quick Stats (bỏ qua ở đây, giữ ở dưới) -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                    <!-- Action Buttons (copy từ AdminView) -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Back" Command="{Binding NavigateBackCommand}" Margin="0,0,8,0">
+                            <materialDesign:PackIcon Kind="ArrowLeft" Foreground="White"/>
+                        </Button>
+                        <Button Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Profile" Command="{Binding NavigateProfileCommand}" Margin="0,0,8,0">
+                            <materialDesign:PackIcon Kind="Account" Foreground="White"/>
+                        </Button>
+                        <Button Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Logout" Command="{Binding LogoutCommand}" Margin="8,0,0,0">
+                            <materialDesign:PackIcon Kind="Logout" Foreground="White"/>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </Border>
 
@@ -72,82 +81,47 @@
                     
                     <!-- Quick Stats -->
                     <Grid Margin="0,0,0,24">
-                <Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                        </Grid.ColumnDefinitions>
 
                         <materialDesign:Card Grid.Column="0" Style="{StaticResource QuickStatsCard}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <materialDesign:PackIcon Kind="Hotel" 
-                                                           Width="24" Height="24" 
-                                                           Foreground="{StaticResource PrimaryBrush}"/>
-                                    <TextBlock Text="Total Rooms" 
-                                             Style="{StaticResource BodyLarge}" 
-                                             Margin="12,0,0,0" 
-                                             VerticalAlignment="Center"/>
+                                    <materialDesign:PackIcon Kind="Hotel" Width="24" Height="24" Foreground="{StaticResource PrimaryBrush}"/>
+                                    <TextBlock Text="Total Rooms" Style="{StaticResource BodyLarge}" Margin="12,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock Text="{Binding Rooms.Count}" 
-                                         Style="{StaticResource HeadlineMedium}" 
-                                         Foreground="{StaticResource PrimaryBrush}" 
-                                         FontWeight="Bold"/>
+                                <TextBlock Text="{Binding TotalRooms}" Style="{StaticResource HeadlineMedium}" Foreground="{StaticResource PrimaryBrush}" FontWeight="Bold"/>
                             </StackPanel>
                         </materialDesign:Card>
-                        
                         <materialDesign:Card Grid.Column="1" Style="{StaticResource QuickStatsCard}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <materialDesign:PackIcon Kind="CheckCircle" 
-                                                           Width="24" Height="24" 
-                                                           Foreground="{StaticResource SuccessBrush}"/>
-                                    <TextBlock Text="Available" 
-                                             Style="{StaticResource BodyLarge}" 
-                                             Margin="12,0,0,0" 
-                                             VerticalAlignment="Center"/>
+                                    <materialDesign:PackIcon Kind="CheckCircle" Width="24" Height="24" Foreground="{StaticResource SuccessBrush}"/>
+                                    <TextBlock Text="Available" Style="{StaticResource BodyLarge}" Margin="12,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock Text="12" 
-                                         Style="{StaticResource HeadlineMedium}" 
-                                         Foreground="{StaticResource SuccessBrush}" 
-                                         FontWeight="Bold"/>
+                                <TextBlock Text="{Binding AvailableRooms}" Style="{StaticResource HeadlineMedium}" Foreground="{StaticResource SuccessBrush}" FontWeight="Bold"/>
                             </StackPanel>
                         </materialDesign:Card>
-                        
                         <materialDesign:Card Grid.Column="2" Style="{StaticResource QuickStatsCard}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <materialDesign:PackIcon Kind="AccountMultiple" 
-                                                           Width="24" Height="24" 
-                                                           Foreground="{StaticResource WarningBrush}"/>
-                                    <TextBlock Text="Occupied" 
-                                             Style="{StaticResource BodyLarge}" 
-                                             Margin="12,0,0,0" 
-                                             VerticalAlignment="Center"/>
+                                    <materialDesign:PackIcon Kind="AccountMultiple" Width="24" Height="24" Foreground="{StaticResource WarningBrush}"/>
+                                    <TextBlock Text="Occupied" Style="{StaticResource BodyLarge}" Margin="12,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock Text="8" 
-                                         Style="{StaticResource HeadlineMedium}" 
-                                         Foreground="{StaticResource WarningBrush}" 
-                                         FontWeight="Bold"/>
+                                <TextBlock Text="{Binding OccupiedRooms}" Style="{StaticResource HeadlineMedium}" Foreground="{StaticResource WarningBrush}" FontWeight="Bold"/>
                             </StackPanel>
                         </materialDesign:Card>
-                        
                         <materialDesign:Card Grid.Column="3" Style="{StaticResource QuickStatsCard}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <materialDesign:PackIcon Kind="Tools" 
-                                                           Width="24" Height="24" 
-                                                           Foreground="{StaticResource ErrorBrush}"/>
-                                    <TextBlock Text="Maintenance" 
-                                             Style="{StaticResource BodyLarge}" 
-                                             Margin="12,0,0,0" 
-                                             VerticalAlignment="Center"/>
+                                    <materialDesign:PackIcon Kind="Tools" Width="24" Height="24" Foreground="{StaticResource ErrorBrush}"/>
+                                    <TextBlock Text="Maintenance" Style="{StaticResource BodyLarge}" Margin="12,0,0,0" VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock Text="2" 
-                                         Style="{StaticResource HeadlineMedium}" 
-                                         Foreground="{StaticResource ErrorBrush}" 
-                                         FontWeight="Bold"/>
+                                <TextBlock Text="{Binding MaintenanceRooms}" Style="{StaticResource HeadlineMedium}" Foreground="{StaticResource ErrorBrush}" FontWeight="Bold"/>
                             </StackPanel>
                         </materialDesign:Card>
                     </Grid>
@@ -281,15 +255,16 @@
                                   BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
                                   BorderThickness="1">
                                 <DataGrid ItemsSource="{Binding Rooms}" 
-                      AutoGenerateColumns="False" 
-                      CanUserAddRows="False"               
-                      SelectionMode="Single"
+                                        AutoGenerateColumns="False" 
+                                        CanUserAddRows="False"               
+                                        SelectionMode="Single"
                                         Style="{StaticResource ModernDataGrid}"
                                         ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
                                         CanUserResizeRows="False"
                                         CanUserSortColumns="True"
-                      SelectedItem="{Binding SelectedRoom}"
-                                        MinHeight="400">
+                                        SelectedItem="{Binding SelectedRoom}"
+                                        MinHeight="400"
+                                         MaxHeight="600">
                 <DataGrid.Columns>
                                         <!-- Status Indicator -->
                                         <DataGridTemplateColumn Header="" Width="50">
