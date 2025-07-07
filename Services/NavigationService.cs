@@ -59,6 +59,10 @@ namespace HotelManager.Services
 
         public void NavigateTo(BaseViewModel viewModel)
         {
+            // Check if the ViewModel is already the current one
+            if (_currentViewModel != null && _currentViewModel.GetType() == viewModel.GetType())
+                return;
+            // Ensure the ViewModel is not null
             if (viewModel == null)
                 throw new ArgumentNullException(nameof(viewModel));
 
