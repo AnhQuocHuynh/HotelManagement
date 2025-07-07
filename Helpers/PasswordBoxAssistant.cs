@@ -57,4 +57,17 @@ public static class PasswordBoxAssistant
 
         SetIsUpdating(passwordBox, false);
     }
+
+    /// <summary>
+    /// Sets up password binding for a PasswordBox
+    /// </summary>
+    /// <param name="passwordBox">The PasswordBox to bind</param>
+    /// <param name="password">The password to bind</param>
+    public static void SetBindPassword(PasswordBox passwordBox, string password)
+    {
+        if (passwordBox != null)
+        {
+            SetBoundPassword(passwordBox, password);
+        }
+    }
 } 

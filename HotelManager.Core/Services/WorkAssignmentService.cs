@@ -15,13 +15,13 @@ namespace HotelManager.Services
 {
     public class WorkAssignmentService : IWorkAssignmentService
     {
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<WorkAssignmentService> _logger;
         private readonly IAuditService? _auditService;
 
-        public WorkAssignmentService(IServiceScopeFactory scopeFactory, ILogger<WorkAssignmentService> logger, IAuditService? auditService = null)
+        public WorkAssignmentService(IUnitOfWork unitOfWork, ILogger<WorkAssignmentService> logger, IAuditService? auditService = null)
         {
-            _scopeFactory = scopeFactory;
+            _unitOfWork = unitOfWork;
             _logger = logger;
             _auditService = auditService;
         }
@@ -30,36 +30,10 @@ namespace HotelManager.Services
         {
             try
             {
-                _logger.LogInformation("Creating work assignment for room {RoomNumber}, employee {EmployeeId}, type {Type}", 
-                    entity.RoomNumber, entity.EmployeeId, entity.Type);
+                _logger.LogInformation("Creating work assignment for room {RoomNumber}", entity.RoomNumber);
 
-                using var scope = _scopeFactory.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
-
-                // Validate room exists
-                var room = await context.Rooms.FirstOrDefaultAsync(r => r.RoomNumber == entity.RoomNumber);
-                if (room == null)
-                    throw new EntityNotFoundException("Room", entity.RoomNumber);
-
-                // Validate employee exists and has correct position
-                var employee = await context.Employees.FirstOrDefaultAsync(e => e.Id == entity.EmployeeId);
-                if (employee == null)
-                    throw new EntityNotFoundException("Employee", entity.EmployeeId);
-
-                // Check if employee position matches assignment type
-                if (!IsValidEmployeeForAssignmentType(employee.Position, entity.Type))
-                    throw new BusinessException($"Employee position {employee.Position} is not valid for assignment type {entity.Type}");
-
-                // Check for existing active assignment
-                var existingAssignment = await GetActiveAssignmentForRoomAsync(entity.RoomNumber, entity.Type);
-                if (existingAssignment != null)
-                    throw new BusinessException($"Room {entity.RoomNumber} already has an active {entity.Type} assignment");
-
-                entity.AssignedDate = DateTime.Now;
-                entity.Status = AssignmentStatus.Pending;
-
-                context.WorkAssignments.Add(entity);
-                await context.SaveChangesAsync();
+                await _unitOfWork.WorkAssignments.AddAsync(entity);
+                await _unitOfWork.SaveChangesAsync();
 
                 await _auditService?.LogBusinessOperationAsync("Create", "WorkAssignment", entity.Id.ToString(), "System", true, $"Created assignment for room {entity.RoomNumber}");
 
@@ -75,42 +49,41 @@ namespace HotelManager.Services
 
         public async Task<WorkAssignment> GetByIdAsync(int id)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
+            if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.WorkAssignmentRepository != null)
+            {
+                var result = await uowImpl.WorkAssignmentRepository.GetByIdAsync(id);
+                if (result == null)
+                    throw new EntityNotFoundException("WorkAssignment", id);
+                return result;
+            }
             
-            var result = await context.WorkAssignments
-                .Include(w => w.Employee)
-                .Include(w => w.AssignedByEmployee)
-                .Include(w => w.Room)
-                .FirstOrDefaultAsync(w => w.Id == id);
-            
-            if (result == null)
+            var genericResult = await _unitOfWork.WorkAssignments.GetByIdAsync(id);
+            if (genericResult == null)
                 throw new EntityNotFoundException("WorkAssignment", id);
-                
-            return result;
+            return genericResult;
         }
 
         public async Task<IEnumerable<WorkAssignment>> GetAllAsync()
         {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
-            
-            return await context.WorkAssignments
-                .Include(w => w.Employee)
-                .Include(w => w.AssignedByEmployee)
-                .Include(w => w.Room)
-                .OrderByDescending(w => w.AssignedDate)
-                .ToListAsync();
+            if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.WorkAssignmentRepository != null)
+                return await uowImpl.WorkAssignmentRepository.GetAllAsync();
+            return await _unitOfWork.WorkAssignments.GetAllAsync();
         }
 
         public async Task<WorkAssignment> UpdateAsync(WorkAssignment entity)
         {
             try
             {
-                using var scope = _scopeFactory.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
-
-                var existing = await context.WorkAssignments.FindAsync(entity.Id);
+                WorkAssignment existing;
+                if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.WorkAssignmentRepository != null)
+                {
+                    existing = await uowImpl.WorkAssignmentRepository.GetByIdAsync(entity.Id);
+                }
+                else
+                {
+                    existing = await _unitOfWork.WorkAssignments.GetByIdAsync(entity.Id);
+                }
+                
                 if (existing == null)
                     throw new EntityNotFoundException("WorkAssignment", entity.Id);
 
@@ -118,7 +91,8 @@ namespace HotelManager.Services
                 existing.Notes = entity.Notes;
                 existing.CompletedDate = entity.CompletedDate;
 
-                await context.SaveChangesAsync();
+                await _unitOfWork.WorkAssignments.UpdateAsync(existing);
+                await _unitOfWork.SaveChangesAsync();
 
                 await _auditService?.LogBusinessOperationAsync("Update", "WorkAssignment", entity.Id.ToString(), "System", true, $"Updated assignment {entity.Id}");
 
@@ -135,15 +109,21 @@ namespace HotelManager.Services
         {
             try
             {
-                using var scope = _scopeFactory.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
-
-                var assignment = await context.WorkAssignments.FindAsync(id);
+                WorkAssignment assignment;
+                if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.WorkAssignmentRepository != null)
+                {
+                    assignment = await uowImpl.WorkAssignmentRepository.GetByIdAsync(id);
+                }
+                else
+                {
+                    assignment = await _unitOfWork.WorkAssignments.GetByIdAsync(id);
+                }
+                
                 if (assignment == null)
                     throw new EntityNotFoundException("WorkAssignment", id);
 
-                context.WorkAssignments.Remove(assignment);
-                await context.SaveChangesAsync();
+                await _unitOfWork.WorkAssignments.DeleteAsync(id);
+                await _unitOfWork.SaveChangesAsync();
 
                 await _auditService?.LogBusinessOperationAsync("Delete", "WorkAssignment", id.ToString(), "System", true, $"Deleted assignment {id}");
                 return true;
@@ -157,58 +137,74 @@ namespace HotelManager.Services
 
         public async Task<List<WorkAssignment>> GetAssignmentsByEmployeeAsync(int employeeId)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
+            if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.WorkAssignmentRepository != null)
+            {
+                var allAssignments = await uowImpl.WorkAssignmentRepository.GetAllAsync();
+                return allAssignments
+                    .Where(w => w.EmployeeId == employeeId)
+                    .OrderByDescending(w => w.AssignedDate)
+                    .ToList();
+            }
             
-            return await context.WorkAssignments
-                .Include(w => w.Employee)
-                .Include(w => w.AssignedByEmployee)
-                .Include(w => w.Room)
+            var genericAssignments = await _unitOfWork.WorkAssignments.GetAllAsync();
+            return genericAssignments
                 .Where(w => w.EmployeeId == employeeId)
                 .OrderByDescending(w => w.AssignedDate)
-                .ToListAsync();
+                .ToList();
         }
 
         public async Task<List<WorkAssignment>> GetAssignmentsByRoomAsync(string roomNumber)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
+            if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.WorkAssignmentRepository != null)
+            {
+                var allAssignments = await uowImpl.WorkAssignmentRepository.GetAllAsync();
+                return allAssignments
+                    .Where(w => w.RoomNumber == roomNumber)
+                    .OrderByDescending(w => w.AssignedDate)
+                    .ToList();
+            }
             
-            return await context.WorkAssignments
-                .Include(w => w.Employee)
-                .Include(w => w.AssignedByEmployee)
-                .Include(w => w.Room)
+            var genericAssignments = await _unitOfWork.WorkAssignments.GetAllAsync();
+            return genericAssignments
                 .Where(w => w.RoomNumber == roomNumber)
                 .OrderByDescending(w => w.AssignedDate)
-                .ToListAsync();
+                .ToList();
         }
 
         public async Task<List<WorkAssignment>> GetAssignmentsByTypeAsync(AssignmentType type)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
+            if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.WorkAssignmentRepository != null)
+            {
+                var allAssignments = await uowImpl.WorkAssignmentRepository.GetAllAsync();
+                return allAssignments
+                    .Where(w => w.Type == type)
+                    .OrderByDescending(w => w.AssignedDate)
+                    .ToList();
+            }
             
-            return await context.WorkAssignments
-                .Include(w => w.Employee)
-                .Include(w => w.AssignedByEmployee)
-                .Include(w => w.Room)
+            var genericAssignments = await _unitOfWork.WorkAssignments.GetAllAsync();
+            return genericAssignments
                 .Where(w => w.Type == type)
                 .OrderByDescending(w => w.AssignedDate)
-                .ToListAsync();
+                .ToList();
         }
 
         public async Task<List<WorkAssignment>> GetAssignmentsByStatusAsync(AssignmentStatus status)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
+            if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.WorkAssignmentRepository != null)
+            {
+                var allAssignments = await uowImpl.WorkAssignmentRepository.GetAllAsync();
+                return allAssignments
+                    .Where(w => w.Status == status)
+                    .OrderByDescending(w => w.AssignedDate)
+                    .ToList();
+            }
             
-            return await context.WorkAssignments
-                .Include(w => w.Employee)
-                .Include(w => w.AssignedByEmployee)
-                .Include(w => w.Room)
+            var genericAssignments = await _unitOfWork.WorkAssignments.GetAllAsync();
+            return genericAssignments
                 .Where(w => w.Status == status)
                 .OrderByDescending(w => w.AssignedDate)
-                .ToListAsync();
+                .ToList();
         }
 
         public async Task<List<WorkAssignment>> GetPendingAssignmentsAsync()
@@ -238,10 +234,16 @@ namespace HotelManager.Services
             {
                 _logger.LogInformation("Completing assignment {AssignmentId}", assignmentId);
 
-                using var scope = _scopeFactory.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
-
-                var assignment = await context.WorkAssignments.FindAsync(assignmentId);
+                WorkAssignment assignment;
+                if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.WorkAssignmentRepository != null)
+                {
+                    assignment = await uowImpl.WorkAssignmentRepository.GetByIdAsync(assignmentId);
+                }
+                else
+                {
+                    assignment = await _unitOfWork.WorkAssignments.GetByIdAsync(assignmentId);
+                }
+                
                 if (assignment == null)
                     throw new EntityNotFoundException("WorkAssignment", assignmentId);
 
@@ -253,7 +255,8 @@ namespace HotelManager.Services
                 if (!string.IsNullOrEmpty(notes))
                     assignment.Notes = assignment.Notes + (string.IsNullOrEmpty(assignment.Notes) ? "" : "; ") + notes;
 
-                await context.SaveChangesAsync();
+                await _unitOfWork.WorkAssignments.UpdateAsync(assignment);
+                await _unitOfWork.SaveChangesAsync();
 
                 await _auditService?.LogBusinessOperationAsync("Complete", "WorkAssignment", assignmentId.ToString(), "System", true, $"Completed assignment {assignmentId}");
 
@@ -271,21 +274,34 @@ namespace HotelManager.Services
         {
             try
             {
-                using var scope = _scopeFactory.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
+                _logger.LogInformation("Cancelling assignment {AssignmentId}", assignmentId);
 
-                var assignment = await context.WorkAssignments.FindAsync(assignmentId);
+                WorkAssignment assignment;
+                if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.WorkAssignmentRepository != null)
+                {
+                    assignment = await uowImpl.WorkAssignmentRepository.GetByIdAsync(assignmentId);
+                }
+                else
+                {
+                    assignment = await _unitOfWork.WorkAssignments.GetByIdAsync(assignmentId);
+                }
+                
                 if (assignment == null)
                     throw new EntityNotFoundException("WorkAssignment", assignmentId);
+
+                if (assignment.Status == AssignmentStatus.Cancelled)
+                    throw new BusinessException("Assignment is already cancelled");
 
                 assignment.Status = AssignmentStatus.Cancelled;
                 if (!string.IsNullOrEmpty(notes))
                     assignment.Notes = assignment.Notes + (string.IsNullOrEmpty(assignment.Notes) ? "" : "; ") + notes;
 
-                await context.SaveChangesAsync();
+                await _unitOfWork.WorkAssignments.UpdateAsync(assignment);
+                await _unitOfWork.SaveChangesAsync();
 
                 await _auditService?.LogBusinessOperationAsync("Cancel", "WorkAssignment", assignmentId.ToString(), "System", true, $"Cancelled assignment {assignmentId}");
 
+                _logger.LogInformation("Successfully cancelled assignment {AssignmentId}", assignmentId);
                 return assignment;
             }
             catch (Exception ex)
@@ -297,33 +313,28 @@ namespace HotelManager.Services
 
         public async Task<List<Employee>> GetAvailableEmployeesForTypeAsync(AssignmentType type)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
-
+            var allEmployees = await _unitOfWork.Employees.GetAllAsync();
             var requiredPosition = GetRequiredPositionForAssignmentType(type);
             
-            // Get employees with correct position who don't have active assignments
-            var availableEmployees = await context.Employees
+            return allEmployees
                 .Where(e => e.Position == requiredPosition)
-                .Where(e => !context.WorkAssignments.Any(w => 
-                    w.EmployeeId == e.Id && 
-                    (w.Status == AssignmentStatus.Pending || w.Status == AssignmentStatus.InProgress)))
-                .ToListAsync();
-
-            return availableEmployees;
+                .ToList();
         }
 
         public async Task<WorkAssignment?> GetActiveAssignmentForRoomAsync(string roomNumber, AssignmentType type)
         {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
+            if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.WorkAssignmentRepository != null)
+            {
+                var allAssignments = await uowImpl.WorkAssignmentRepository.GetAllAsync();
+                return allAssignments
+                    .FirstOrDefault(w => w.RoomNumber == roomNumber && 
+                                       w.Type == type && 
+                                       (w.Status == AssignmentStatus.Pending || w.Status == AssignmentStatus.InProgress));
+            }
             
-            return await context.WorkAssignments
-                .Include(w => w.Employee)
-                .Include(w => w.AssignedByEmployee)
-                .Include(w => w.Room)
-                .FirstOrDefaultAsync(w => 
-                    w.RoomNumber == roomNumber && 
+            var genericAssignments = await _unitOfWork.WorkAssignments.GetAllAsync();
+            return genericAssignments
+                .FirstOrDefault(w => w.RoomNumber == roomNumber && 
                     w.Type == type && 
                     (w.Status == AssignmentStatus.Pending || w.Status == AssignmentStatus.InProgress));
         }
@@ -332,32 +343,24 @@ namespace HotelManager.Services
         {
             try
             {
-                _logger.LogInformation("Auto-assigning {Type} work for room {RoomNumber}", type, roomNumber);
-
-                // Check if there's already an active assignment
-                var existingAssignment = await GetActiveAssignmentForRoomAsync(roomNumber, type);
-                if (existingAssignment != null)
-                {
-                    _logger.LogInformation("Room {RoomNumber} already has active {Type} assignment", roomNumber, type);
-                    return false;
-                }
-
-                // Get available employees
                 var availableEmployees = await GetAvailableEmployeesForTypeAsync(type);
                 if (!availableEmployees.Any())
                 {
-                    _logger.LogWarning("No available employees found for {Type} assignment", type);
+                    _logger.LogWarning("No available employees for assignment type {Type}", type);
                     return false;
                 }
 
-                // Simple round-robin assignment (could be enhanced with load balancing)
-                var selectedEmployee = availableEmployees.OrderBy(e => e.Id).First();
+                var activeAssignment = await GetActiveAssignmentForRoomAsync(roomNumber, type);
+                if (activeAssignment != null)
+                {
+                    _logger.LogWarning("Room {RoomNumber} already has an active assignment of type {Type}", roomNumber, type);
+                    return false;
+                }
 
-                await AssignWorkAsync(roomNumber, selectedEmployee.Id, type, assignedByEmployeeId, "Auto-assigned");
+                var selectedEmployee = availableEmployees.First();
+                await AssignWorkAsync(roomNumber, selectedEmployee.Id, type, assignedByEmployeeId);
 
-                _logger.LogInformation("Successfully auto-assigned {Type} work for room {RoomNumber} to employee {EmployeeId}", 
-                    type, roomNumber, selectedEmployee.Id);
-                
+                _logger.LogInformation("Auto-assigned work for room {RoomNumber} to employee {EmployeeId}", roomNumber, selectedEmployee.Id);
                 return true;
             }
             catch (Exception ex)
@@ -369,13 +372,7 @@ namespace HotelManager.Services
 
         private static bool IsValidEmployeeForAssignmentType(EmployeePosition position, AssignmentType type)
         {
-            return type switch
-            {
-                AssignmentType.Cleaning => position == EmployeePosition.Cleaner,
-                AssignmentType.Maintenance => position == EmployeePosition.Technician,
-                AssignmentType.Inspection => position == EmployeePosition.Manager || position == EmployeePosition.Receptionist,
-                _ => false
-            };
+            return position == GetRequiredPositionForAssignmentType(type);
         }
 
         private static EmployeePosition GetRequiredPositionForAssignmentType(AssignmentType type)

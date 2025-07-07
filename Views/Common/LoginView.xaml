@@ -240,8 +240,8 @@
                                     Width="36" Height="36"
                                     Margin="0"
                                     Padding="0"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center"
+                                          HorizontalAlignment="Right"
+                                          VerticalAlignment="Center"
                                     Background="Transparent"
                                     BorderThickness="0"
                                     Command="{Binding TogglePasswordVisibilityCommand}">

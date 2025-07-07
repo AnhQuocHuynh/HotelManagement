@@ -1,0 +1,1 @@
+namespace HotelManager.Core.Config;

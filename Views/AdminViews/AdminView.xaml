@@ -68,7 +68,7 @@
                                                Style="{StaticResource BodyLarge}"
                                                Foreground="White" 
                                                Opacity="0.9"/>
-                                    <TextBlock Text="Admin Dashboard" 
+                                    <TextBlock x:Name="txtContentHeader" Text="Admin Dashboard" 
                                                Style="{StaticResource HeadlineMedium}"
                                                Foreground="White" 
                                                FontWeight="Bold"/>
@@ -85,40 +85,22 @@
                             <StackPanel Grid.Column="2" 
                                         Orientation="Horizontal" 
                                         VerticalAlignment="Center">
-                                <Button Content="Reports"
-                                        Style="{StaticResource OutlinedButton}"
-                                        Command="{Binding ReportsCommand}"
-                           Foreground="White" 
-                                        BorderBrush="White"
-                                        Margin="0,0,12,0"
-                                        ToolTip="View detailed reports" Click="Button_Click">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="Transparent"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="1"
-                                                    CornerRadius="{StaticResource RadiusS}"
-                                                    Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
+
 
                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                                     <Button x:Name="btnProfile" Style="{StaticResource MaterialDesignIconButton}"
                                             ToolTip="Profile" Command="{Binding NavigateProfileCommand}" Margin="0,0,8,0">
-                                        <materialDesign:PackIcon Kind="Account"/>
+                                        <materialDesign:PackIcon Kind="Account" Foreground="White"/>
                                     </Button>
                                     <Button x:Name="btnLogout" Style="{StaticResource MaterialDesignIconButton}"
-                                            ToolTip="Logout" Click="btnLogout_Click" Margin="8,0,0,0">
-                                        <materialDesign:PackIcon Kind="Logout"/>
+                                            ToolTip="Logout" Command="{Binding LogoutCommand}" Margin="8,0,0,0">
+                                        <materialDesign:PackIcon Kind="Logout" Foreground="White"/>
                                     </Button>
                                 </StackPanel>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Grid.Column="1" Margin="193,6,317,4">
                                 <!-- Room Management Button -->
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,0" Width="331">
                                     <!-- Nút AccountGroup -->
                                     <Button Style="{StaticResource ContainedButton}"
                                             Height="40" Width="168"
@@ -134,10 +116,10 @@
 
                                     <!-- Nút Room Management -->
                                     <Button Style="{StaticResource ContainedButton}"
-                                            Height="40" Width="180"
+                                            Height="40" Width="191"
                                             Background="{StaticResource PrimaryBrush}"
                                             Foreground="White"
-                                            Command="{Binding NavigateRoomManagementCommand}">
+                                            Command="{Binding NavigateRoomManagementCommand}" Click="Button_Click_1">
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                             <materialDesign:PackIcon Kind="Hotel" Height="17" Width="24" Margin="0,0,8,0"/>
                                             <TextBlock Text="Room" VerticalAlignment="Center" Height="27" Width="88" TextAlignment="Center" FontSize="18"/>

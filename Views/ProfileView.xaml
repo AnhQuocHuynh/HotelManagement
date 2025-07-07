@@ -10,7 +10,7 @@
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
-        
+
         <!-- Stats Card Style -->
         <Style x:Key="StatsCard" TargetType="materialDesign:Card">
             <Setter Property="Padding" Value="20"/>
@@ -68,13 +68,13 @@
             </Border>
 
             <!-- Content Area -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,102,0,0" Grid.RowSpan="2">
                 <StackPanel Margin="32">
 
                     <!-- Profile Card -->
                     <materialDesign:Card Style="{StaticResource StatsCard}" Margin="0,0,0,24">
                         <StackPanel Margin="24">
-                            
+
                             <!-- Profile Header -->
                             <Grid Margin="0,0,0,24">
                                 <Grid.ColumnDefinitions>
@@ -114,15 +114,7 @@
                                 </StackPanel>
 
                                 <!-- Edit Button -->
-                                <Button Grid.Column="2"
-                                        Command="{Binding EditModeCommand}"
-                                        Style="{StaticResource OutlinedButton}"
-                                        VerticalAlignment="Center">
-                                    <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon Kind="Pencil" Width="20" Height="20" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Edit Profile"/>
-                                    </StackPanel>
-                                </Button>
+                                
                             </Grid>
 
                             <!-- Profile Form -->
@@ -286,7 +278,7 @@
                                         <TextBlock Text="Save Changes"/>
                                     </StackPanel>
                                 </Button>
-                                
+
                                 <Button Command="{Binding CancelCommand}"
                                       Style="{StaticResource OutlinedButton}">
                                     <StackPanel Orientation="Horizontal">

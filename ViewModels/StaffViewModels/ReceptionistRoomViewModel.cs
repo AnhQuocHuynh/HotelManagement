@@ -26,9 +26,10 @@ namespace HotelManager.ViewModels.StaffViewModels
 
         private ObservableCollection<Room> _rooms;
         private Room _selectedRoom;
-        private RoomType _selectedRoomType;
-        private RoomStatus _selectedRoomStatus;
+        private string _selectedRoomType;
+        private string _selectedRoomStatus;
         private string _searchText;
+        private List<Room> _allRooms;
 
         public ObservableCollection<Room> Rooms
         {
@@ -42,7 +43,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             set { _selectedRoom = value; OnPropertyChanged(nameof(SelectedRoom)); }
         }
 
-        public RoomType SelectedRoomType
+        public string SelectedRoomType
         {
             get => _selectedRoomType;
             set
@@ -53,7 +54,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
         }
 
-        public RoomStatus SelectedRoomStatus
+        public string SelectedRoomStatus
         {
             get => _selectedRoomStatus;
             set
@@ -75,16 +76,25 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
         }
 
+        // Room count properties
+        public int AvailableRoomsCount => _allRooms?.Count(r => r.RoomStatus == RoomStatus.Available) ?? 0;
+        public int PendingRoomsCount => _allRooms?.Count(r => r.RoomStatus == RoomStatus.Pending) ?? 0;
+        public int MaintainingRoomsCount => _allRooms?.Count(r => r.RoomStatus == RoomStatus.UnderMaintenance) ?? 0;
+
         public ICommand LoadedCommand { get; private set; }
         public ICommand RefreshCommand { get; private set; }
         public ICommand UpdateRoomStatusCommand { get; private set; }
         public ICommand ClearFiltersCommand { get; private set; }
+        public ICommand BackToReceptionistViewCommand { get; }
+        public ICommand NavigateProfileCommand { get; }
+        public ICommand LogoutCommand { get; }
 
         public ReceptionistRoomViewModel() : base()
         {
             if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
             {
                 Rooms = new ObservableCollection<Room>();
+                _allRooms = new List<Room>();
                 InitializeViewModel();
                 return;
             }
@@ -93,8 +103,13 @@ namespace HotelManager.ViewModels.StaffViewModels
             var logger = App.ServiceProvider.GetRequiredService<ILogger<ReceptionistRoomViewModel>>();
             _roomService = roomService;
             _logger = logger;
+            _allRooms = new List<Room>();
 
             InitializeViewModel();
+
+            BackToReceptionistViewCommand = new RelayCommand(BackToReceptionistView);
+            NavigateProfileCommand = new RelayCommand(NavigateProfile);
+            LogoutCommand = new RelayCommand(Logout);
         }
 
         private void InitializeViewModel()
@@ -118,12 +133,9 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 _logger?.LogInformation("Loading room data for receptionist");
                 var rooms = await _roomService.GetAllAsync();
-                Rooms.Clear();
-                foreach (var room in rooms)
-                {
-                    Rooms.Add(room);
-                }
-                _logger?.LogInformation("Successfully loaded {RoomCount} rooms", rooms.Count);
+                _allRooms = rooms.ToList();
+                await FilterRoomsAsync();
+                _logger?.LogInformation("Successfully loaded {RoomCount} rooms", rooms.Count());
             }
             catch (BusinessException ex)
             {
@@ -133,7 +145,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Unexpected error loading room data");
-                MessageBox.Show("Lỗi khi tải dữ liệu phòng. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Lỗi khi tải dữ liệu phòng. {ex.Message}\n{ex.StackTrace}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -169,27 +181,33 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             try
             {
-                var allRooms = await _roomService.GetAllAsync();
-                var filteredRooms = allRooms.AsEnumerable();
+                if (_allRooms == null) return;
+
+                var filteredRooms = _allRooms.AsEnumerable();
 
                 // Filter by room type
-                if (SelectedRoomType != RoomType.None)
+                if (!string.IsNullOrEmpty(SelectedRoomType) && SelectedRoomType != "All Types")
                 {
-                    filteredRooms = filteredRooms.Where(r => r.Type == SelectedRoomType);
+                    if (Enum.TryParse<RoomType>(SelectedRoomType, out var roomType))
+                    {
+                        filteredRooms = filteredRooms.Where(r => r.RoomType == roomType);
+                    }
                 }
 
                 // Filter by room status
-                if (SelectedRoomStatus != RoomStatus.None)
+                if (!string.IsNullOrEmpty(SelectedRoomStatus) && SelectedRoomStatus != "All Status")
                 {
-                    filteredRooms = filteredRooms.Where(r => r.Status == SelectedRoomStatus);
+                    if (Enum.TryParse<RoomStatus>(SelectedRoomStatus, out var roomStatus))
+                    {
+                        filteredRooms = filteredRooms.Where(r => r.RoomStatus == roomStatus);
+                    }
                 }
 
                 // Filter by search text
                 if (!string.IsNullOrWhiteSpace(SearchText))
                 {
                     filteredRooms = filteredRooms.Where(r => 
-                        r.RoomNumber.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                        r.Description?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) == true);
+                        r.RoomNumber.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
                 }
 
                 Rooms.Clear();
@@ -197,20 +215,54 @@ namespace HotelManager.ViewModels.StaffViewModels
                 {
                     Rooms.Add(room);
                 }
+
+                // Update count properties
+                OnPropertyChanged(nameof(AvailableRoomsCount));
+                OnPropertyChanged(nameof(PendingRoomsCount));
+                OnPropertyChanged(nameof(MaintainingRoomsCount));
             }
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Error filtering rooms");
-                MessageBox.Show("Lỗi khi lọc danh sách phòng.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Lỗi khi lọc danh sách phòng. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async Task ClearFiltersAsync()
         {
-            SelectedRoomType = RoomType.None;
-            SelectedRoomStatus = RoomStatus.None;
-            SearchText = string.Empty;
-            await LoadDataAsync();
+            try
+            {
+                SelectedRoomType = null;
+                SelectedRoomStatus = null;
+                SearchText = string.Empty;
+                await FilterRoomsAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error clearing filters");
+                MessageBox.Show("Lỗi khi xóa bộ lọc. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BackToReceptionistView()
+        {
+            var mainVM = App.Current.MainWindow.DataContext as HotelManager.ViewModels.MainViewModel;
+            if (mainVM != null)
+                mainVM.CurrentView = new HotelManager.Views.StaffViews.ReceptionistView();
+        }
+
+        private void NavigateProfile()
+        {
+            var mainVM = App.Current.MainWindow.DataContext as HotelManager.ViewModels.MainViewModel;
+            if (mainVM != null)
+                mainVM.CurrentView = new HotelManager.Views.ProfileView();
+        }
+
+        private void Logout()
+        {
+            var mainVM = App.Current.MainWindow.DataContext as HotelManager.ViewModels.MainViewModel;
+            if (mainVM != null)
+                mainVM.Logout();
         }
     }
 } 

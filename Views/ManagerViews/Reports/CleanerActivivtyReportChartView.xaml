@@ -11,10 +11,6 @@
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              Background="White">
 
-    <UserControl.DataContext>
-        <vm:CleanerActivityReportChartViewModel />
-    </UserControl.DataContext>
-
     <Grid>
 
         <Grid.RowDefinitions>

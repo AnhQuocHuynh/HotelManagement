@@ -10,10 +10,6 @@
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              Background="White">
 
-    <UserControl.DataContext>
-        <vm:MaintenanceReportChartViewModel />
-    </UserControl.DataContext>
-
     <Grid>
 
         <Grid.RowDefinitions>

@@ -83,6 +83,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand FilterCleanedCommand { get; }
         public ICommand ClearFilterCommand { get; }
         public ICommand NavigateProfileCommand { get; set; }
+        public ICommand LogoutCommand { get; }
 
         public CleanerViewModel(ICleanRoomService cleanroomService, IService<HotelManager.Models.Room> roomService)
         {
@@ -104,6 +105,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             FilterCleanedCommand = new RelayCommand(FilterCleaned);
             ClearFilterCommand = new RelayCommand(ClearFilter);
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
+            LogoutCommand = new RelayCommand(Logout);
 
             // sequential async initialization to avoid concurrent DbContext operations
             _ = InitializeAsync();
@@ -331,6 +333,12 @@ namespace HotelManager.ViewModels.StaffViewModels
         private void NavigateProfile()
         {
             _navigationService.NavigateTo<ProfileViewModel>();
+        }
+
+        private void Logout()
+        {
+            var mainVM = System.Windows.Application.Current.MainWindow?.DataContext as HotelManager.ViewModels.MainViewModel;
+            mainVM?.Logout();
         }
     }
 }

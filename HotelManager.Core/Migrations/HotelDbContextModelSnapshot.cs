@@ -390,7 +390,6 @@ namespace HotelManager.Core.Migrations
                     b.ToTable("UserAccounts");
                 });
 
-<<<<<<< HEAD
             modelBuilder.Entity("HotelManager.Models.WorkAssignment", b =>
                 {
                     b.Property<int>("Id")
@@ -433,7 +432,8 @@ namespace HotelManager.Core.Migrations
                     b.HasIndex("RoomNumber");
 
                     b.ToTable("WorkAssignments");
-=======
+                });
+
             modelBuilder.Entity("HotelManager.Core.Models.Maintenance", b =>
                 {
                     b.HasOne("HotelManager.Models.Employee", "Employee")
@@ -455,7 +455,6 @@ namespace HotelManager.Core.Migrations
                     b.Navigation("Employee");
 
                     b.Navigation("MaintenanceReport");
->>>>>>> BuiQuocBao_Br
                 });
 
             modelBuilder.Entity("HotelManager.Models.Booking", b =>
@@ -596,7 +595,7 @@ namespace HotelManager.Core.Migrations
                     b.HasOne("HotelManager.Models.Room", "Room")
                         .WithMany()
                         .HasForeignKey("RoomNumber")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("AssignedByEmployee");

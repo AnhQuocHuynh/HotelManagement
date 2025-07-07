@@ -13,6 +13,7 @@ using HotelManager.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using HotelManager.Helpers;
+using HotelManager.Utilities;
 
 namespace HotelManager.ViewModels.Dialogs
 {
@@ -33,6 +34,18 @@ namespace HotelManager.ViewModels.Dialogs
         private double _passwordStrength;
         private string _passwordStrengthText;
         private Brush _passwordStrengthColor;
+        private bool _isCurrentPasswordVisible;
+        public bool IsCurrentPasswordVisible { get => _isCurrentPasswordVisible; set { _isCurrentPasswordVisible = value; OnPropertyChanged(); } }
+        private bool _isNewPasswordVisible;
+        public bool IsNewPasswordVisible { get => _isNewPasswordVisible; set { _isNewPasswordVisible = value; OnPropertyChanged(); } }
+        private bool _isConfirmPasswordVisible;
+        public bool IsConfirmPasswordVisible { get => _isConfirmPasswordVisible; set { _isConfirmPasswordVisible = value; OnPropertyChanged(); } }
+        private string _firstErrorMessage;
+        public string FirstErrorMessage
+        {
+            get => _firstErrorMessage;
+            set { _firstErrorMessage = value; OnPropertyChanged(); }
+        }
 
         public string CurrentPassword
         {
@@ -97,6 +110,9 @@ namespace HotelManager.ViewModels.Dialogs
         // Commands
         public ICommand ChangePasswordCommand { get; }
         public ICommand CancelCommand { get; }
+        public ICommand ToggleCurrentPasswordVisibilityCommand { get; }
+        public ICommand ToggleNewPasswordVisibilityCommand { get; }
+        public ICommand ToggleConfirmPasswordVisibilityCommand { get; }
 
         public ChangePasswordDialogViewModel(UserAccountService userAccountService, 
             INotificationService notificationService, ILogger<ChangePasswordDialogViewModel> logger)
@@ -105,8 +121,11 @@ namespace HotelManager.ViewModels.Dialogs
             _notificationService = notificationService;
             _logger = logger;
 
-            ChangePasswordCommand = new AsyncRelayCommand(ChangePasswordAsync, () => CanChangePassword);
+            ChangePasswordCommand = new AsyncRelayCommand(ChangePasswordAsync);
             CancelCommand = new RelayCommand(Cancel);
+            ToggleCurrentPasswordVisibilityCommand = new RelayCommand(() => IsCurrentPasswordVisible = !IsCurrentPasswordVisible);
+            ToggleNewPasswordVisibilityCommand = new RelayCommand(() => IsNewPasswordVisible = !IsNewPasswordVisible);
+            ToggleConfirmPasswordVisibilityCommand = new RelayCommand(() => IsConfirmPasswordVisible = !IsConfirmPasswordVisible);
         }
 
         public ChangePasswordDialogViewModel() : base()
@@ -125,8 +144,11 @@ namespace HotelManager.ViewModels.Dialogs
                 _notificationService = App.ServiceProvider?.GetRequiredService<INotificationService>();
                 _logger = App.ServiceProvider?.GetRequiredService<ILogger<ChangePasswordDialogViewModel>>();
 
-                ChangePasswordCommand = new AsyncRelayCommand(ChangePasswordAsync, () => CanChangePassword);
+                ChangePasswordCommand = new AsyncRelayCommand(ChangePasswordAsync);
                 CancelCommand = new RelayCommand(Cancel);
+                ToggleCurrentPasswordVisibilityCommand = new RelayCommand(() => IsCurrentPasswordVisible = !IsCurrentPasswordVisible);
+                ToggleNewPasswordVisibilityCommand = new RelayCommand(() => IsNewPasswordVisible = !IsNewPasswordVisible);
+                ToggleConfirmPasswordVisibilityCommand = new RelayCommand(() => IsConfirmPasswordVisible = !IsConfirmPasswordVisible);
             }
         }
 
@@ -177,17 +199,17 @@ namespace HotelManager.ViewModels.Dialogs
             if (errors.Count > 0)
             {
                 ErrorMessage = string.Join("\n", errors);
+                FirstErrorMessage = errors[0];
                 HasError = true;
-                CanChangePassword = false;
+                IsPasswordValid = false;
             }
             else
             {
                 ErrorMessage = "";
+                FirstErrorMessage = "";
                 HasError = false;
-                CanChangePassword = true;
+                IsPasswordValid = true;
             }
-
-            ((AsyncRelayCommand)ChangePasswordCommand).NotifyCanExecuteChanged();
         }
 
         private void UpdatePasswordStrength()

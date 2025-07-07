@@ -16,9 +16,10 @@ namespace HotelManager.Converters
                 {
                     RoomStatus.Available => new SolidColorBrush(Colors.Green),
                     RoomStatus.Occupied => new SolidColorBrush(Colors.Red),
-                    RoomStatus.Maintenance => new SolidColorBrush(Colors.Orange),
-                    RoomStatus.Cleaning => new SolidColorBrush(Colors.Yellow),
+                    RoomStatus.UnderMaintenance => new SolidColorBrush(Colors.Orange),
+                    RoomStatus.Pending => new SolidColorBrush(Colors.Yellow),
                     RoomStatus.Reserved => new SolidColorBrush(Colors.Blue),
+                    RoomStatus.OutOfService => new SolidColorBrush(Colors.Gray),
                     _ => new SolidColorBrush(Colors.Gray)
                 };
             }

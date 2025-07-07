@@ -32,6 +32,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public IRelayCommand ShowEmployeeListCommand { get; }
         public IRelayCommand ShowReportsCommand { get; }
         public ICommand NavigateProfileCommand { get; set; }
+        public ICommand LogoutCommand { get; }
 
         public ManagerViewModel()
         {
@@ -39,6 +40,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             ShowEmployeeListCommand = new RelayCommand(ShowEmployeeList);
             ShowReportsCommand = new RelayCommand(ShowReports);
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
+            LogoutCommand = new RelayCommand(Logout);
 
             ShowReports();
         }
@@ -76,6 +78,12 @@ namespace HotelManager.ViewModels.StaffViewModels
         private void NavigateProfile()
         {
             _navigationService.NavigateTo<ProfileViewModel>();
+        }
+
+        private void Logout()
+        {
+            var mainVM = System.Windows.Application.Current.MainWindow?.DataContext as HotelManager.ViewModels.MainViewModel;
+            mainVM?.Logout();
         }
     }
 }
