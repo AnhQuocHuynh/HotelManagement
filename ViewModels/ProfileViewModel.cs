@@ -251,6 +251,7 @@ namespace HotelManager.ViewModels
             {
                 LogInformation("Navigating back from profile");
                 _navigationService?.GoBack();
+                //LogInformation("Navigation back successful");
             }
             catch (Exception ex)
             {
