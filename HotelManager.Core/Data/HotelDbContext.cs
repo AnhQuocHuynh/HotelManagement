@@ -34,9 +34,11 @@ namespace HotelManager.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<UserAccount> UserAccounts { get; set; }
         public DbSet<MaintenanceReport> MaintenanceReports { get; set; }
+
         public DbSet<Cleaning> Cleanings { get; set; }
         public DbSet<Maintenance> Maintenances { get; set; }
         public DbSet<WorkAssignment> WorkAssignments { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -220,6 +222,7 @@ namespace HotelManager.Data
                       .HasForeignKey(w => w.AssignedByEmployeeId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+
         }
     }
 }
