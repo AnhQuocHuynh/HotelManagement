@@ -217,7 +217,7 @@
                                     <ComboBoxItem Content="All Status" IsSelected="True"/>
                                     <ComboBoxItem Content="Available"/>
                                     <ComboBoxItem Content="Pending"/>
-                                    <ComboBoxItem Content="Maintaining"/>
+                                    <ComboBoxItem Content="UnderMaintenance"/>
                                 </ComboBox>
                             </StackPanel>
 

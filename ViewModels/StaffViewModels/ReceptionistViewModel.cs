@@ -143,7 +143,6 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand ShowAvailableRoomsCommand { get; private set; }
         public ICommand NavigateToRoomViewCommand { get; private set; }
         public ICommand UpdateCommand { get; private set; }
-        public ICommand DeleteCommand { get; private set; }
         public ICommand CheckoutCommand { get; private set; }
         public ICommand LoadedCommand { get; private set; }
         public ICommand ReportsCommand { get; private set; }
@@ -195,10 +194,6 @@ namespace HotelManager.ViewModels.StaffViewModels
 
             UpdateCommand = new AsyncRelayCommand<Booking?>(
                 execute: b => UpdateAsync(b!),
-                canExecute: b => b != null);
-
-            DeleteCommand = new AsyncRelayCommand<Booking?>(
-                execute: b => DeleteAsync(b!),
                 canExecute: b => b != null);
 
             CheckoutCommand = new AsyncRelayCommand<Booking?>(
@@ -349,17 +344,17 @@ namespace HotelManager.ViewModels.StaffViewModels
                 _logger?.LogInformation("Deleting booking {BookingId}", booking?.Id);
                 if (booking == null)
                 {
-                    MessageBox.Show("Please select a booking to delete.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Vui lòng chọn một booking để xóa.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                var result = MessageBox.Show("Are you sure you want to delete this booking?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = MessageBox.Show("Bạn có chắc chắn muốn xóa booking này?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
                     await _bookingService.DeleteAsync(booking.Id);
                     Bookings.Remove(booking);
                     await UpdateAvailableRoomsAsync();
-                    MessageBox.Show("Booking deleted successfully!", "Success", MessageBoxButton.OK);
+                    MessageBox.Show("Xóa booking thành công!", "Thành công", MessageBoxButton.OK);
                     _logger?.LogInformation("Successfully deleted booking {BookingId}", booking.Id);
                     TotalBookings = Bookings.Count;
                 }
@@ -367,17 +362,17 @@ namespace HotelManager.ViewModels.StaffViewModels
             catch (EntityNotFoundException ex)
             {
                 _logger?.LogWarning(ex, "Entity not found");
-                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (BusinessException ex)
             {
                 _logger?.LogWarning(ex, "Business error deleting booking");
-                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Unexpected error deleting booking");
-                MessageBox.Show("Error while deleting booking. Please try again!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Lỗi khi xóa booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -471,63 +466,43 @@ namespace HotelManager.ViewModels.StaffViewModels
             try
             {
                 _logger?.LogInformation("Processing checkout for booking {BookingId}", booking.Id);
-                
-                // Xác nhận checkout
                 var result = MessageBox.Show(
                     $"Confirm checkout for customer {booking.Customer?.FullName} from room {booking.RoomNumber}?\n\n" +
                     "This will:\n• Navigate to Payment View for processing\n• Update room status to Pending (awaiting cleaning)",
-                    "Confirm Checkout", 
-                    MessageBoxButton.YesNo, 
+                    "Confirm Checkout",
+                    MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
-                
                 if (result != MessageBoxResult.Yes)
                     return;
-
-                // Cập nhật booking status thành CheckedOut
                 booking.Status = BookingStatus.CheckedOut;
                 booking.CheckOutDate = DateTime.Now;
-                
                 await _bookingService.UpdateAsync(booking);
-
-                // Cập nhật room status thành Pending (đợi dọn dẹp)
                 var room = await _roomService.GetByRoomNumberAsync(booking.RoomNumber);
                 if (room != null)
                 {
-                    room.RoomStatus = RoomStatus.Pending; // Đợi dọn dẹp
+                    room.RoomStatus = RoomStatus.Pending;
                     await _roomService.UpdateAsync(room);
-                    _logger?.LogInformation("Updated room {RoomNumber} status to Pending", room.RoomNumber);
-
-                    // Tự động phân công công việc dọn dẹp
                     try
                     {
                         var workAssignmentService = App.ServiceProvider?.GetRequiredService<HotelManager.Interfaces.IWorkAssignmentService>();
                         if (workAssignmentService != null)
                         {
                             var currentUser = AppSession.GetCurrentUserAccount();
-                            var assigned = await workAssignmentService.AutoAssignWorkAsync(
-                                room.RoomNumber, 
-                                HotelManager.Models.Enums.AssignmentType.Cleaning, 
+                            await workAssignmentService.AutoAssignWorkAsync(
+                                room.RoomNumber,
+                                HotelManager.Models.Enums.AssignmentType.Cleaning,
                                 currentUser?.EmployeeId);
-                            
-                            if (assigned)
-                                _logger?.LogInformation("Auto-assigned cleaning work for room {RoomNumber}", room.RoomNumber);
-                            else
-                                _logger?.LogWarning("Failed to auto-assign cleaning work for room {RoomNumber}", room.RoomNumber);
                         }
                     }
-                    catch (Exception assignEx)
-                    {
-                        _logger?.LogError(assignEx, "Error auto-assigning cleaning work for room {RoomNumber}", room.RoomNumber);
-                    }
+                    catch { }
                 }
-
-                // Refresh data
                 await LoadDataAsync();
-                
-                // Điều hướng sang PaymentView
-                _navigationService?.NavigateTo<PaymentViewModel>();
+                // Tạo mới invoice cho booking
+                var invoiceService = App.ServiceProvider.GetRequiredService<HotelManager.Services.InvoiceService>();
+                var invoice = await invoiceService.CreateForBookingAsync(booking.Id, booking.TotalAmount);
+                // Điều hướng sang PaymentViewModel, truyền invoice
+                _navigationService?.NavigateTo<PaymentViewModel>(invoice);
                 _notificationService?.ShowSuccess($"Checkout completed for room {booking.RoomNumber}. Navigated to Payment View.");
-                
                 _logger?.LogInformation("Successfully processed checkout for booking {BookingId}", booking.Id);
             }
             catch (EntityNotFoundException ex)
@@ -583,16 +558,7 @@ namespace HotelManager.ViewModels.StaffViewModels
 
         private void NavigateToRoomView()
         {
-            try
-            {
-                _logger?.LogInformation("Navigating to ReceptionistRoomView");
-                _navigationService?.NavigateTo<ReceptionistRoomViewModel>();
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "Error navigating to room view");
-                MessageBox.Show("Lỗi khi chuyển đến trang quản lý phòng. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            _navigationService?.NavigateTo<ReceptionistRoomViewModel>();
         }
 
         private void PerformSearch()
@@ -625,7 +591,7 @@ namespace HotelManager.ViewModels.StaffViewModels
 
         private void NavigateProfile()
         {
-            _navigationService.NavigateTo<ProfileViewModel>();
+            _navigationService?.NavigateTo<ProfileViewModel>();
         }
 
         private void Logout()

@@ -114,12 +114,13 @@
                                         <TextBlock Text="{Binding TotalBookings, StringFormat='{}{0} Bookings'}" Style="{StaticResource LabelLarge}" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
+                                <!--
                                 <Button Command="{Binding NavigateToRoomViewCommand}" Style="{StaticResource OutlinedButton}" Margin="8,0" Background="White">
                                     <StackPanel Orientation="Horizontal">
                                         <materialDesign:PackIcon Kind="BedKingOutline" Foreground="{StaticResource SuccessBrush}" Width="20" Height="20" VerticalAlignment="Center"/>
                                         <TextBlock Text="Room Status" Style="{StaticResource LabelLarge}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
-                                </Button>
+                                </Button> -->
                             </StackPanel>
 
                             <!-- Action Buttons -->
@@ -361,145 +362,135 @@
                                 CornerRadius="{StaticResource RadiusS}" 
                                 BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
                                 BorderThickness="1">
-                            <DataGrid ItemsSource="{Binding Bookings}" 
-                      AutoGenerateColumns="False" 
-                      CanUserAddRows="False"               
-                      SelectionMode="Single"
-                                      Style="{StaticResource ModernDataGrid}"
-                                      ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
-                      CanUserResizeRows="False"
-                                      CanUserSortColumns="True"
-                                      MinHeight="400" SelectionChanged="DataGrid_SelectionChanged">
-                                <DataGrid.Columns>
-                                    <!-- Status Indicator -->
-                                    <DataGridTemplateColumn Header="" Width="50">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <Ellipse Width="12" Height="12">
-                                                    <Ellipse.Style>
-                                                        <Style TargetType="Ellipse">
-                                                            <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Status}" Value="Confirmed">
-                                                                    <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding Status}" Value="Cancelled">
-                                                                    <Setter Property="Fill" Value="{StaticResource ErrorBrush}"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding Status}" Value="CheckedIn">
-                                                                    <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Ellipse.Style>
-                                                </Ellipse>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
+                            
+                                <DataGrid ItemsSource="{Binding Bookings}" 
+                                          AutoGenerateColumns="False" 
+                                          CanUserAddRows="False"               
+                                          SelectionMode="Single"
+                                          Style="{StaticResource ModernDataGrid}"
+                                          ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
+                                          CanUserResizeRows="False"
+                                          CanUserSortColumns="True"
+                                          MinHeight="400" MaxHeight="1000">
+                                    <DataGrid.Columns>
+                                        <!-- Status Indicator -->
+                                        <DataGridTemplateColumn Header="" Width="50">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Ellipse Width="12" Height="12">
+                                                        <Ellipse.Style>
+                                                            <Style TargetType="Ellipse">
+                                                                <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Confirmed">
+                                                                        <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                                                        <Setter Property="Fill" Value="{StaticResource ErrorBrush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="CheckedIn">
+                                                                        <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Ellipse.Style>
+                                                    </Ellipse>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
 
-                                    <DataGridTextColumn Header="Customer Name" 
-                                                        Binding="{Binding Customer.FullName}" 
-                                                        Width="2*"
-                                                        IsReadOnly="True"
-                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                        <DataGridTextColumn Header="Customer Name" 
+                                                            Binding="{Binding Customer.FullName}" 
+                                                            Width="2*"
+                                                            IsReadOnly="True"
+                                                            ElementStyle="{StaticResource BodyMedium}"/>
 
-                                    <DataGridTextColumn Header="ID" 
-                                                        Binding="{Binding Customer.CCCD}" 
-                                                        Width="*"
-                                                        IsReadOnly="True"
-                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                        <DataGridTextColumn Header="ID" 
+                                                            Binding="{Binding Customer.CCCD}" 
+                                                            Width="*"
+                                                            IsReadOnly="True"
+                                                            ElementStyle="{StaticResource BodyMedium}"/>
 
-                                    <DataGridTextColumn Header="Phone Number" 
-                                                        Binding="{Binding Customer.PhoneNumber}" 
-                                                        Width="*"
-                                                        IsReadOnly="True"
-                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                        <DataGridTextColumn Header="Phone Number" 
+                                                            Binding="{Binding Customer.PhoneNumber}" 
+                                                            Width="*"
+                                                            IsReadOnly="True"
+                                                            ElementStyle="{StaticResource BodyMedium}"/>
 
-                                    <DataGridTextColumn Header="Customer Type" 
-                                                        Binding="{Binding Customer.Type}" 
-                                                        Width="*"
-                                                        IsReadOnly="True"
-                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                        <DataGridTextColumn Header="Customer Type" 
+                                                            Binding="{Binding Customer.Type}" 
+                                                            Width="*"
+                                                            IsReadOnly="True"
+                                                            ElementStyle="{StaticResource BodyMedium}"/>
 
-                                    <DataGridTextColumn Header="Room Type" 
-                                                        Binding="{Binding RoomType}" 
-                                                        Width="*"
-                                                        IsReadOnly="True"
-                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                        <DataGridTextColumn Header="Room Type" 
+                                                            Binding="{Binding RoomType}" 
+                                                            Width="*"
+                                                            IsReadOnly="True"
+                                                            ElementStyle="{StaticResource BodyMedium}"/>
 
-                                    <DataGridTextColumn Header="Room Number" 
-                                                        Binding="{Binding RoomNumber}" 
-                                                        Width="*"
-                                                        IsReadOnly="True"
-                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                        <DataGridTextColumn Header="Room Number" 
+                                                            Binding="{Binding RoomNumber}" 
+                                                            Width="*"
+                                                            IsReadOnly="True"
+                                                            ElementStyle="{StaticResource BodyMedium}"/>
 
-                                    <DataGridTextColumn Header="Check-in" 
-                                                        Binding="{Binding CheckInDate, StringFormat=dd/MM/yyyy}" 
-                                                        Width="*"
-                                                        IsReadOnly="True"
-                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                        <DataGridTextColumn Header="Check-in" 
+                                                            Binding="{Binding CheckInDate, StringFormat=dd/MM/yyyy}" 
+                                                            Width="*"
+                                                            IsReadOnly="True"
+                                                            ElementStyle="{StaticResource BodyMedium}"/>
 
-                                    <DataGridTextColumn Header="Check-out" 
-                                                        Binding="{Binding CheckOutDate, StringFormat=dd/MM/yyyy}" 
-                                                        Width="*"
-                                                        IsReadOnly="True"
-                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                        <DataGridTextColumn Header="Check-out" 
+                                                            Binding="{Binding CheckOutDate, StringFormat=dd/MM/yyyy}" 
+                                                            Width="*"
+                                                            IsReadOnly="True"
+                                                            ElementStyle="{StaticResource BodyMedium}"/>
 
-                                    <DataGridTextColumn Header="Status" 
-                                                        Binding="{Binding Status}" 
-                                                        Width="*"
-                                                        IsReadOnly="True"
-                                                        ElementStyle="{StaticResource BodyMedium}"/>
+                                        <DataGridTextColumn Header="Status" 
+                                                            Binding="{Binding Status}" 
+                                                            Width="*"
+                                                            IsReadOnly="True"
+                                                            ElementStyle="{StaticResource BodyMedium}"/>
 
-                                    <!-- Actions Column -->
-                                    <DataGridTemplateColumn Header="Actions" Width="180">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" 
-                                                            HorizontalAlignment="Center">
-                                                    <Button ToolTip="Edit" 
-                                            Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
-                                            CommandParameter="{Binding}" 
-                                                            Style="{StaticResource IconButton}"
-                                                            Width="32" 
-                                                            Height="32"
-                                                            Margin="0,0,4,0">
-                                                        <materialDesign:PackIcon Kind="Pencil" 
-                                                                                 Width="16" 
-                                                                                 Height="16"
-                                                                                 Foreground="{StaticResource PrimaryBrush}"/>
-                                                    </Button>
+                                        <!-- Actions Column -->
+                                        <DataGridTemplateColumn Header="Actions" Width="180">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" 
+                                                                HorizontalAlignment="Center">
+                                                        <Button ToolTip="Edit" 
+                                                                Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                                                CommandParameter="{Binding}" 
+                                                                Style="{StaticResource IconButton}"
+                                                                Width="32" 
+                                                                Height="32"
+                                                                Margin="0,0,4,0">
+                                                            <materialDesign:PackIcon Kind="Pencil" 
+                                                                                     Width="16" 
+                                                                                     Height="16"
+                                                                                     Foreground="{StaticResource PrimaryBrush}"/>
+                                                        </Button>
 
-                                                    <Button ToolTip="Checkout" 
-                                            Command="{Binding DataContext.CheckoutCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
-                                            CommandParameter="{Binding}" 
-                                                            Style="{StaticResource IconButton}"
-                                                            Width="32" 
-                                                            Height="32"
-                                                            Margin="0,0,4,0">
-                                                        <materialDesign:PackIcon Kind="ExitToApp" 
-                                                                                 Width="16" 
-                                                                                 Height="16"
-                                                                                 Foreground="{StaticResource SuccessBrush}"/>
-                                                    </Button>
-
-                                                    <Button ToolTip="Delete" 
-                                            Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
-                                            CommandParameter="{Binding}" 
-                                                            Style="{StaticResource IconButton}"
-                                                            Width="32" 
-                                                            Height="32">
-                                                        <materialDesign:PackIcon Kind="Delete" 
-                                                                                 Width="16" 
-                                                                                 Height="16"
-                                                                                 Foreground="{StaticResource ErrorBrush}"/>
-                                                    </Button>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                                                        <Button ToolTip="Checkout" 
+                                                                Command="{Binding DataContext.CheckoutCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                                                CommandParameter="{Binding}" 
+                                                                Style="{StaticResource IconButton}"
+                                                                Width="32" 
+                                                                Height="32"
+                                                                Margin="0,0,4,0">
+                                                            <materialDesign:PackIcon Kind="ExitToApp" 
+                                                                                     Width="16" 
+                                                                                     Height="16"
+                                                                                     Foreground="{StaticResource SuccessBrush}"/>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            
                         </Border>
                     </StackPanel>
                 </materialDesign:Card>

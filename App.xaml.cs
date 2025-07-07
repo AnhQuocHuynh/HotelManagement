@@ -113,7 +113,13 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.BookingViewModel>();
                 services.AddTransient<HotelManager.ViewModels.MainViewModel>();
                 services.AddTransient<HotelManager.ViewModels.PaymentViewModel>();
-                services.AddTransient<HotelManager.ViewModels.RoomViewModel>();
+                services.AddTransient<HotelManager.ViewModels.RoomViewModel>(provider =>
+                    new HotelManager.ViewModels.RoomViewModel(
+                        provider.GetRequiredService<RoomService>(),
+                        provider.GetRequiredService<DialogService>(),
+                        provider.GetRequiredService<INavigationService>()
+                    )
+                );
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.CleanerViewModel>();
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.TechnicianViewModel>();
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.ManagerViewModel>();

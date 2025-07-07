@@ -31,6 +31,5 @@ namespace HotelManager.Views
                 DataContext = App.ServiceProvider.GetRequiredService<RoomViewModel>();
             }
         }
-
     }
 }

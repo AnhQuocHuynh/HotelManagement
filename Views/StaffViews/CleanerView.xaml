@@ -7,12 +7,22 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:converters="clr-namespace:HotelManager.Converters"
              mc:Ignorable="d" d:DesignWidth="1200" 
              Background="{StaticResource SurfaceBrush}" Height="883">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 
     <UserControl.Resources>
         <local:SplitImagePathConverter x:Key="SplitImagePathConverter" />
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+        <converters:RoomStatusToMarkCleanTextConverter x:Key="RoomStatusToMarkCleanTextConverter" />
+        <converters:RoomStatusToMarkCleanEnabledConverter x:Key="RoomStatusToMarkCleanEnabledConverter" />
+        <converters:RoomStatusToButtonBrushConverter x:Key="RoomStatusToButtonBrushConverter" />
 
         <!-- Custom Status Indicator Style -->
         <Style x:Key="StatusIndicatorStyle" TargetType="Ellipse">
@@ -252,14 +262,15 @@
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                                        <Button Command="{Binding DataContext.MarkAsCleanedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                                        <Button Command="{Binding DataContext.MarkAsCleanedCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                                           CommandParameter="{Binding}"
                                                           Style="{StaticResource ContainedButton}"
-                                                          Background="{StaticResource SuccessBrush}"
+                                                          Background="{Binding RoomStatus, Converter={StaticResource RoomStatusToButtonBrushConverter}}"
+                                                          IsEnabled="{Binding RoomStatus, Converter={StaticResource RoomStatusToMarkCleanEnabledConverter}}"
                                                           Margin="0,0,24,0">
                                                             <StackPanel Orientation="Horizontal">
                                                                 <materialDesign:PackIcon Kind="CheckCircle" Width="16" Height="16"/>
-                                                                <TextBlock Text="Mark Clean" Margin="8,0,0,0"/>
+                                                                <TextBlock Text="{Binding RoomStatus, Converter={StaticResource RoomStatusToMarkCleanTextConverter}}" Margin="8,0,0,0"/>
                                                             </StackPanel>
                                                         </Button>
                                                         <Button Command="{Binding DataContext.ReportIssueCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
@@ -426,8 +437,10 @@
                                 <DataGrid ItemsSource="{Binding DamageReportHistory}" 
                                     AutoGenerateColumns="False" 
                                     Style="{StaticResource ModernDataGrid}"
-                                    MaxHeight="250"
-                                    CanUserAddRows="False">
+                                    MaxHeight="280"
+                                    CanUserAddRows="False"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                    Margin="0,0,0,16">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="80"/>
                                         <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*"/>
