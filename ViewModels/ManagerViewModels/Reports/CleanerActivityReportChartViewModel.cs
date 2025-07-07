@@ -162,6 +162,21 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             );
 
             _chartData = data ?? new Dictionary<string, (int DeluxeCount, int StandardCount, int SuiteCount)>();
+
+            System.Diagnostics.Debug.WriteLine($"=== FetchChartDataAsync result for {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd} ===");
+            if (_chartData.Any())
+            {
+                foreach (var item in _chartData)
+                {
+                    var (deluxe, standard, suite) = item.Value;
+                    System.Diagnostics.Debug.WriteLine($"Cleaner: {item.Key} | Deluxe: {deluxe}, Standard: {standard}, Suite: {suite}");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("⚠ Không có dữ liệu cleaner nào được trả về.");
+            }
+
         }
 
         // update chart

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HotelManager.ViewModels.ManagerViewModels.Reports;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +25,12 @@ namespace HotelManager.Views.ManagerViews.Reports
         public MaintenanceReportChartView()
         {
             InitializeComponent();
+
+            // Set DataContext using DI
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<MaintenanceReportChartViewModel>();
+            }
         }
     }
 }
