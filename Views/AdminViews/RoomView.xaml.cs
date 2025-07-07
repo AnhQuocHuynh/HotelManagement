@@ -36,5 +36,13 @@ namespace HotelManager.Views
         {
 
         }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is RoomViewModel vm)
+            {
+                vm.RefreshRooms();
+            }
+        }
     }
 }

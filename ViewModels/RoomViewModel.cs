@@ -22,6 +22,7 @@ namespace HotelManager.ViewModels
     {
         private readonly RoomService roomService;
         private readonly DialogService _dialogService = new DialogService();
+        private readonly INavigationService _navigationService;
         private List<Room> _allRooms = new();  // Holds unfiltered data
 
         public ObservableCollection<Room> _rooms = new();
@@ -34,6 +35,10 @@ namespace HotelManager.ViewModels
                 {
                     _rooms = value;
                     OnPropertyChanged(nameof(Rooms));
+                    OnPropertyChanged(nameof(TotalRooms));
+                    OnPropertyChanged(nameof(AvailableRooms));
+                    OnPropertyChanged(nameof(OccupiedRooms));
+                    OnPropertyChanged(nameof(MaintenanceRooms));
                 }
             }
         }
@@ -42,6 +47,9 @@ namespace HotelManager.ViewModels
         public ICommand DeleteCommand { get; set; }
         public ICommand AddCommand { get; set; }
         public ICommand SearchCommand { get; set; }
+        public ICommand NavigateBackCommand { get; set; }
+        public ICommand NavigateProfileCommand { get; set; }
+        public ICommand LogoutCommand { get; set; }
 
         private Room _selectedRoom;
         public Room SelectedRoom
@@ -125,6 +133,11 @@ namespace HotelManager.ViewModels
         public IEnumerable<RoomStatus> RoomStatusOptions { get; } = Enum.GetValues(typeof(RoomStatus)).Cast<RoomStatus>();
         public IEnumerable<RoomType> RoomTypeOptions { get; } = Enum.GetValues(typeof(RoomType)).Cast<RoomType>();
 
+        public int TotalRooms => Rooms?.Count ?? 0;
+        public int AvailableRooms => Rooms?.Count(r => r.RoomStatus == RoomStatus.Available) ?? 0;
+        public int OccupiedRooms => Rooms?.Count(r => r.RoomStatus == RoomStatus.Occupied) ?? 0;
+        public int MaintenanceRooms => Rooms?.Count(r => r.RoomStatus == RoomStatus.UnderMaintenance) ?? 0;
+
         public RoomViewModel()
         {
             if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
@@ -139,19 +152,40 @@ namespace HotelManager.ViewModels
                 DeleteCommand = new RelayCommand<object>(_ => { });
                 AddCommand = new AsyncRelayCommand(() => Task.CompletedTask);
                 SearchCommand = new RelayCommand(() => { });
+                NavigateBackCommand = new RelayCommand(() => { });
+                NavigateProfileCommand = new RelayCommand(() => { });
+                LogoutCommand = new RelayCommand(() => { });
                 return;
             }
 
             // Runtime initialization
             this.roomService = App.ServiceProvider?.GetRequiredService<RoomService>() ?? throw new InvalidOperationException("RoomService not registered");
             this._dialogService = App.ServiceProvider?.GetRequiredService<DialogService>() ?? new DialogService();
+            this._navigationService = App.ServiceProvider?.GetRequiredService<INavigationService>() ?? throw new InvalidOperationException("INavigationService not registered");
             InitializeViewModel();
         }
 
-        public RoomViewModel(RoomService roomService, DialogService dialogService)
+        public RoomViewModel(RoomService roomService, DialogService dialogService, INavigationService navigationService)
         {
             this.roomService = roomService;
             this._dialogService = dialogService;
+            this._navigationService = navigationService;
+            InitializeViewModel();
+        }
+
+        public RoomViewModel(RoomService roomService, INavigationService navigationService)
+        {
+            this.roomService = roomService;
+            this._dialogService = App.ServiceProvider?.GetRequiredService<DialogService>() ?? new DialogService();
+            this._navigationService = navigationService;
+            InitializeViewModel();
+        }
+
+        public RoomViewModel(INavigationService navigationService)
+        {
+            this.roomService = App.ServiceProvider?.GetRequiredService<RoomService>() ?? throw new InvalidOperationException("RoomService not registered");
+            this._dialogService = App.ServiceProvider?.GetRequiredService<DialogService>() ?? new DialogService();
+            this._navigationService = navigationService;
             InitializeViewModel();
         }
 
@@ -161,6 +195,9 @@ namespace HotelManager.ViewModels
             DeleteCommand = new RelayCommand<object>(_ => DeleteRoom(_selectedRoom));
             AddCommand = new AsyncRelayCommand(AddRoom);
             SearchCommand = new RelayCommand(FilterRooms);
+            NavigateBackCommand = new RelayCommand(() => _navigationService.NavigateTo<HotelManager.ViewModels.Admin.AdminViewModel>());
+            NavigateProfileCommand = new RelayCommand(() => _navigationService.NavigateTo<ProfileViewModel>());
+            LogoutCommand = new RelayCommand(() => _navigationService.NavigateTo<HotelManager.ViewModels.Common.LoginViewModel>());
             LoadRooms();
         }
 
@@ -318,8 +355,6 @@ namespace HotelManager.ViewModels
             }
         }
 
-        
-
         private void FilterRooms()
         {
             var filtered = string.IsNullOrWhiteSpace(RoomFilter)
@@ -327,6 +362,11 @@ namespace HotelManager.ViewModels
                 : _allRooms.Where(r => r.RoomNumber.Contains(RoomFilter, StringComparison.OrdinalIgnoreCase));
 
             Rooms = new ObservableCollection<Room>(filtered);
+            // Đảm bảo cập nhật các property thống kê
+            OnPropertyChanged(nameof(TotalRooms));
+            OnPropertyChanged(nameof(AvailableRooms));
+            OnPropertyChanged(nameof(OccupiedRooms));
+            OnPropertyChanged(nameof(MaintenanceRooms));
         }
 
         private void ClearForm()
@@ -337,5 +377,7 @@ namespace HotelManager.ViewModels
             PricePerNight = 0m;
             SelectedRoom = null;
         }
+
+        public void RefreshRooms() => LoadRooms();
     }
 }
