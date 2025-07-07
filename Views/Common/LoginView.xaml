@@ -6,12 +6,14 @@
              xmlns:vm="clr-namespace:HotelManager.ViewModels.Common"
              xmlns:helpers="clr-namespace:HotelManager.Helpers"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:HotelManager.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="900" d:DesignWidth="1400"
              d:Background="Transparent">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+        <converters:PasswordVisibilityToIconConverter x:Key="PasswordVisibilityToIconConverter"/>
         
         <!-- Gradient Background -->
         <LinearGradientBrush x:Key="LoginBackgroundGradient" StartPoint="0,0" EndPoint="1,1">
@@ -205,7 +207,7 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="40"/>
                             </Grid.ColumnDefinitions>
                             <!-- Normal Password Box -->
                             <PasswordBox x:Name="Password_PasswordBox"
@@ -233,59 +235,23 @@
                                 </PasswordBox.Style>
                             </PasswordBox>
                             
-                            <!-- Visible Password TextBox -->
-                            <TextBox x:Name="Password_tb"
-                                     Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"
-                                     materialDesign:HintAssist.Hint="Enter password"
-                                     materialDesign:HintAssist.IsFloating="False"
-                                     BorderThickness="0"
-                                     Background="White"
-                                     FontSize="16"
-                                     Padding="16,12,50,12"
-                                     VerticalAlignment="Center"
-                                     Focusable="True"
-                                     Grid.Column="0">
-                                <TextBox.InputBindings>
-                                    <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
-                                </TextBox.InputBindings>
-                                <TextBox.Style>
-                                    <Style TargetType="TextBox">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding PasswordVisibility}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBox.Style>
-                            </TextBox>
-                            
                             <!-- Show/Hide Password Toggle -->
-                            <ToggleButton IsChecked="{Binding PasswordVisibility, Mode=TwoWay}"
-                                          Style="{StaticResource MaterialDesignActionToggleButton}"
-                                          Width="24" Height="24"
+                            <Button Grid.Column="1"
+                                    Width="36" Height="36"
+                                    Margin="0"
+                                    Padding="0"
                                           HorizontalAlignment="Right"
                                           VerticalAlignment="Center"
-                                          Margin="12,0,0,0"
-                                          Grid.Column="1"
-                                          ToolTip="Show/Hide password">
-                                <ToggleButton.Content>
-                                    <materialDesign:PackIcon Kind="Eye" Width="20" Height="20"/>
-                                </ToggleButton.Content>
-                                <materialDesign:ToggleButtonAssist.OnContent>
-                                    <materialDesign:PackIcon Kind="EyeOff" Width="20" Height="20"/>
-                                </materialDesign:ToggleButtonAssist.OnContent>
-                            </ToggleButton>
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Command="{Binding TogglePasswordVisibilityCommand}">
+                                <materialDesign:PackIcon Width="24" Height="24"
+                                    Kind="{Binding PasswordVisibility, Converter={StaticResource PasswordVisibilityToIconConverter}}"/>
+                            </Button>
                         </Grid>
                     </materialDesign:Card>
 
-                    <!-- Remember Me & Forgot Password -->
-                    <Grid Margin="0,0,0,32">
-                        <CheckBox Content="Remember me" 
-                                  Foreground="White" 
-                                  HorizontalAlignment="Left"
-                                  Style="{StaticResource MaterialDesignCheckBox}"/>
-                    </Grid>
+
 
                     <!-- Login Button -->
                     <Button Content="LOG IN" 

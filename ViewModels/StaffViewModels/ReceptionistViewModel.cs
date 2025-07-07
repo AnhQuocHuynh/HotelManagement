@@ -141,6 +141,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand AddNewBookingCommand { get; private set; }
         public ICommand ShowBookingsCommand { get; private set; }
         public ICommand ShowAvailableRoomsCommand { get; private set; }
+        public ICommand NavigateToRoomViewCommand { get; private set; }
         public ICommand UpdateCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
         public ICommand CheckoutCommand { get; private set; }
@@ -149,6 +150,8 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand RefreshCommand { get; private set; }
         public ICommand ClearFormCommand { get; private set; }
         public ICommand SearchCommand { get; private set; }
+        public ICommand NavigateProfileCommand { get; set; }
+        public ICommand LogoutCommand { get; set; }
 
 
         // Constructor cho XAML (không tham số) – tự resolve qua DI
@@ -188,6 +191,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 canExecute: () => true);
             ShowBookingsCommand = new RelayCommand(ShowBookings);
             ShowAvailableRoomsCommand = new RelayCommand(ShowAvailableRooms);
+            NavigateToRoomViewCommand = new RelayCommand(NavigateToRoomView);
 
             UpdateCommand = new AsyncRelayCommand<Booking?>(
                 execute: b => UpdateAsync(b!),
@@ -207,6 +211,8 @@ namespace HotelManager.ViewModels.StaffViewModels
             RefreshCommand = new AsyncRelayCommand(RefreshAsync);
             ClearFormCommand = new AsyncRelayCommand(ClearFormAsync);
             SearchCommand = new RelayCommand(PerformSearch);
+            NavigateProfileCommand = new RelayCommand(NavigateProfile);
+            LogoutCommand = new RelayCommand(Logout);
         }
 
         protected override async Task OnLoadedAsync()
@@ -575,6 +581,20 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
         }
 
+        private void NavigateToRoomView()
+        {
+            try
+            {
+                _logger?.LogInformation("Navigating to ReceptionistRoomView");
+                _navigationService?.NavigateTo<ReceptionistRoomViewModel>();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error navigating to room view");
+                MessageBox.Show("Lỗi khi chuyển đến trang quản lý phòng. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void PerformSearch()
         {
             if (string.IsNullOrWhiteSpace(SearchText))
@@ -601,6 +621,17 @@ namespace HotelManager.ViewModels.StaffViewModels
             Bookings.Clear();
             foreach (var booking in filteredBookings)
                 Bookings.Add(booking);
+        }
+
+        private void NavigateProfile()
+        {
+            _navigationService.NavigateTo<ProfileViewModel>();
+        }
+
+        private void Logout()
+        {
+            var mainVM = System.Windows.Application.Current.MainWindow?.DataContext as HotelManager.ViewModels.MainViewModel;
+            mainVM?.Logout();
         }
     }
 }

@@ -69,21 +69,16 @@
                                    Foreground="{StaticResource OnPrimary200Brush}"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
-                    <Button Grid.Column="1"
-                            Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                            Style="{StaticResource TextButton}"
-                            Background="{StaticResource ErrorBrush}"
-                            Foreground="White"
-                            VerticalAlignment="Center"
-                            Margin="16,0,0,0"
-                            MinWidth="100">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Logout"
-                                               Width="20" Height="20"
-                                               Margin="0,0,8,0"/>
-                            <TextBlock Text="Logout" FontWeight="Medium"/>
-                        </StackPanel>
-                    </Button>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button x:Name="btnProfile" Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Profile" Command="{Binding NavigateProfileCommand}" Margin="0,0,8,0">
+                            <materialDesign:PackIcon Kind="Account" Foreground="White"/>
+                        </Button>
+                        <Button x:Name="btnLogout" Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Logout" Command="{Binding LogoutCommand}" Margin="8,0,0,0">
+                            <materialDesign:PackIcon Kind="Logout" Foreground="White"/>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </Border>
         </materialDesign:Card>

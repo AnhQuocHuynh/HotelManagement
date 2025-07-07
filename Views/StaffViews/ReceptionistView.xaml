@@ -114,10 +114,10 @@
                                         <TextBlock Text="{Binding TotalBookings, StringFormat='{}{0} Bookings'}" Style="{StaticResource LabelLarge}" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Command="{Binding ShowAvailableRoomsCommand}" Style="{StaticResource OutlinedButton}" Margin="8,0" Background="White">
+                                <Button Command="{Binding NavigateToRoomViewCommand}" Style="{StaticResource OutlinedButton}" Margin="8,0" Background="White">
                                     <StackPanel Orientation="Horizontal">
                                         <materialDesign:PackIcon Kind="BedKingOutline" Foreground="{StaticResource SuccessBrush}" Width="20" Height="20" VerticalAlignment="Center"/>
-                                        <TextBlock Text="{Binding AvailableRoomsCount, StringFormat='{}{0} Rooms Available'}" Style="{StaticResource LabelLarge}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Room Status" Style="{StaticResource LabelLarge}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                             </StackPanel>
@@ -126,32 +126,18 @@
                             <StackPanel Grid.Column="2" 
                                         Orientation="Horizontal" 
                                         VerticalAlignment="Center">
-                                <Button Content="Reports"
-                                        Style="{StaticResource OutlinedButton}"
-                                        Command="{Binding ReportsCommand}"
-                           Foreground="White" 
-                                        BorderBrush="White"
-                                        Margin="0,0,12,0"
-                                        ToolTip="View reports">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="Transparent"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="1"
-                                                    CornerRadius="{StaticResource RadiusS}"
-                                                    Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
+                               
 
-                                <Button Content="Logout" 
-                        Command="{Binding DataContext.LogoutCommand, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                                        Style="{StaticResource ContainedButton}"
-                                        Background="White"
-                                        Foreground="{StaticResource PrimaryBrush}"
-                                        FontWeight="SemiBold"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button x:Name="btnProfile" Style="{StaticResource MaterialDesignIconButton}"
+                                            ToolTip="Profile" Command="{Binding NavigateProfileCommand}" Margin="0,0,8,0">
+                                        <materialDesign:PackIcon Kind="Account" Foreground="White"/>
+                                    </Button>
+                                    <Button x:Name="btnLogout" Style="{StaticResource MaterialDesignIconButton}"
+                                            ToolTip="Logout" Command="{Binding LogoutCommand}" Margin="8,0,0,0">
+                                        <materialDesign:PackIcon Kind="Logout" Foreground="White"/>
+                                    </Button>
+                                </StackPanel>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -286,7 +272,7 @@
                                     <DatePicker Style="{StaticResource MaterialDesignDatePicker}"
                                                 materialDesign:HintAssist.Hint="Pick check-in date"
                                                 materialDesign:HintAssist.IsFloating="False"
-                                                SelectedDate="{Binding CheckInDate, Mode=TwoWay}"/>
+                                                SelectedDate="{Binding CheckInDate, Mode=TwoWay}" Height="52"/>
                                 </StackPanel>
 
                                 <StackPanel Margin="8,0">
@@ -296,7 +282,7 @@
                                     <DatePicker Style="{StaticResource MaterialDesignDatePicker}"
                                                 materialDesign:HintAssist.Hint="Pick check-out date"
                                                 materialDesign:HintAssist.IsFloating="False"
-                                                SelectedDate="{Binding CheckOutDate, Mode=TwoWay}"/>
+                                                SelectedDate="{Binding CheckOutDate, Mode=TwoWay}" Height="51"/>
                                 </StackPanel>
 
                                 <StackPanel Margin="8,0,0,0">
@@ -383,7 +369,7 @@
                                       ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
                       CanUserResizeRows="False"
                                       CanUserSortColumns="True"
-                                      MinHeight="400">
+                                      MinHeight="400" SelectionChanged="DataGrid_SelectionChanged">
                                 <DataGrid.Columns>
                                     <!-- Status Indicator -->
                                     <DataGridTemplateColumn Header="" Width="50">

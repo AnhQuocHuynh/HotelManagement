@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using HotelManager.ViewModels;
 using HotelManager.ViewModels.Admin;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,7 +21,61 @@ namespace HotelManager.Views
             }
         }
 
+        private void btnRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is AdminViewModel viewModel)
+            {
+                viewModel.RefreshCommand?.Execute(null);
+            }
+        }
+
+        private void btnLogout_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is AdminViewModel viewModel)
+            {
+                viewModel.LogoutCommand?.Execute(null);
+            }
+        }
+
+        private void btnEmployeeManagement_Click(object sender, RoutedEventArgs e)
+        {
+            txtContentHeader.Text = "Employee Management";
+            // TODO: Navigate to employee management view
+        }
+
+        private void btnRoomManagement_Click(object sender, RoutedEventArgs e)
+        {
+            txtContentHeader.Text = "Room Management";
+            // TODO: Navigate to room management view
+        }
+
+        private void btnAccountManagement_Click(object sender, RoutedEventArgs e)
+        {
+            txtContentHeader.Text = "Account Management";
+            // TODO: Navigate to account management view
+        }
+
+        private void btnReports_Click(object sender, RoutedEventArgs e)
+        {
+            txtContentHeader.Text = "Reports";
+            // TODO: Navigate to reports view
+        }
+
+        private void btnSettings_Click(object sender, RoutedEventArgs e)
+        {
+            txtContentHeader.Text = "Settings";
+            // TODO: Navigate to settings view
+        }
+
         private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is AdminViewModel viewModel)
+            {
+                viewModel.ReportsCommand?.Execute(null);
+            }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
         {
 
         }

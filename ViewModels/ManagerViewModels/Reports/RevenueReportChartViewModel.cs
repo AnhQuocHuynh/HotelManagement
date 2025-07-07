@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 
+using LiveChartsCore.Drawing;
+using LiveChartsCore.Kernel;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.WPF;
@@ -18,12 +20,19 @@ using System.Windows.Media;
 using HotelManager.Services.Manager;
 using Microsoft.Extensions.DependencyInjection;
 using HotelManager.Data;
+using HotelManager.Models;
+using System.Windows.Input;
+using CommunityToolkit.Mvvm.Input;
+using LiveChartsCore.SkiaSharpView.SKCharts;
 
-namespace HotelManager.ViewModels.ManagerViewModels
+
+
+namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
     public class RevenueReportChartViewModel : BaseViewModel
     {
         InVoiceService inVoiceService;
+        ExportService _exportService;
 
         // khi start date hoặc end date đổi refresh chart
         // khi dùng time ranges sẽ set nhanh cả start với end date
@@ -198,6 +207,11 @@ namespace HotelManager.ViewModels.ManagerViewModels
             set { _xAxes = value; OnPropertyChanged(); }
         }
 
+
+        // commands
+        public ICommand ExportChartAndDataCommand { get; }
+
+
         // constructor
         private IServiceScope _scope;
 
@@ -208,10 +222,13 @@ namespace HotelManager.ViewModels.ManagerViewModels
             _scope = App.ServiceProvider.CreateScope(); // GIỮ scope trong ViewModel
             var dbContext = _scope.ServiceProvider.GetRequiredService<HotelDbContext>();
             inVoiceService = new InVoiceService(dbContext);
+            _exportService = new ExportService();
 
             TimeUnitInit();
             TimeRangeInit();
             RoomTypeInit();
+
+            ExportChartAndDataCommand = new RelayCommand(ExportChartAndData);
 
             _isInitializing = false;
             _ = RefreshChartAsync();
@@ -221,6 +238,26 @@ namespace HotelManager.ViewModels.ManagerViewModels
         {
             _scope?.Dispose();
         }
+
+
+        // export dữ liệu ra file excel
+        private void ExportChartAndData()
+        {
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "Excel files (*.xlsx)|*.xlsx",
+                FileName = "RevenueReport.xlsx"
+
+            };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                _exportService.ExportRevenueDataWithChart(_chartData, saveFileDialog.FileName);
+            }
+        }
+
+
+
+
 
         void TimeUnitInit()
         {
@@ -251,7 +288,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
         void RoomTypeInit()
         {
-            RoomTypes = new ObservableCollection<Object>
+            RoomTypes = new ObservableCollection<object>
             {
                 "All",
                 RoomType.Deluxe,
@@ -314,7 +351,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
 
         // get data
-        private Dictionary<string, (decimal revenue, int invoiceCount)> _chartData;
+        public Dictionary<string, (decimal revenue, int invoiceCount)> _chartData;
         private async Task FetchChartDataAsync()
         {
             var data = await inVoiceService.GetInvoiceStatsGroupedAsync(
@@ -347,7 +384,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             var revenueValues = labels.Select((label, index) =>
             {
                 var data = _chartData.TryGetValue(label, out var value) ? value : (0m, 0);
-                return new ObservablePoint(index, (double)(value.revenue));
+                return new ObservablePoint(index, (double)value.revenue);
             }).ToList();
 
             var invoiceCountValues = labels.Select((label, index) =>
@@ -425,7 +462,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
         new Axis
         {
             Name = "Invoice Count",
-            Position = LiveChartsCore.Measure.AxisPosition.End,
+            Position = AxisPosition.End,
             LabelsPaint = new SolidColorPaint(SKColors.DarkRed),
             TextSize = 12,
             Labeler = value => value.ToString("N0"),

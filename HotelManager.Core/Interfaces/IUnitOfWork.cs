@@ -15,6 +15,7 @@ namespace HotelManager.Interfaces
         IRepository<InvoiceDetail> InvoiceDetails { get; }
         IRepository<Payment> Payments { get; }
         IRepository<MaintenanceReport> MaintenanceReports { get; }
+        IRepository<WorkAssignment> WorkAssignments { get; }
         Task<int> SaveChangesAsync();
     }
 } 

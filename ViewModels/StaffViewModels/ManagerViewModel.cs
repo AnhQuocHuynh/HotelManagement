@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-
+using System.Windows.Input;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -31,13 +31,16 @@ namespace HotelManager.ViewModels.StaffViewModels
         // commands
         public IRelayCommand ShowEmployeeListCommand { get; }
         public IRelayCommand ShowReportsCommand { get; }
-
+        public ICommand NavigateProfileCommand { get; set; }
+        public ICommand LogoutCommand { get; }
 
         public ManagerViewModel()
         {
             // init command
             ShowEmployeeListCommand = new RelayCommand(ShowEmployeeList);
             ShowReportsCommand = new RelayCommand(ShowReports);
+            NavigateProfileCommand = new RelayCommand(NavigateProfile);
+            LogoutCommand = new RelayCommand(Logout);
 
             ShowReports();
         }
@@ -70,6 +73,17 @@ namespace HotelManager.ViewModels.StaffViewModels
 
             CurrentContent = new Views.ManagerViews.ReportsBaseView();
             CurrentView = "Reports";
+        }
+
+        private void NavigateProfile()
+        {
+            _navigationService.NavigateTo<ProfileViewModel>();
+        }
+
+        private void Logout()
+        {
+            var mainVM = System.Windows.Application.Current.MainWindow?.DataContext as HotelManager.ViewModels.MainViewModel;
+            mainVM?.Logout();
         }
     }
 }

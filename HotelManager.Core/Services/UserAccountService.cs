@@ -8,6 +8,7 @@ using HotelManager.Interfaces;
 using HotelManager.Models;
 using Microsoft.EntityFrameworkCore;
 using HotelManager.Exceptions;
+using HotelManager.Helpers;
 
 namespace HotelManager.Services
 {
@@ -47,6 +48,30 @@ namespace HotelManager.Services
             await _unitOfWork.UserAccounts.UpdateAsync(entity);
             await _unitOfWork.SaveChangesAsync();
             return entity;
+        }
+        public async Task<bool> ValidatePasswordAsync(string username, string password)
+        {
+            var user = await _unitOfWork.UserAccounts.GetAllAsync();
+            var targetUser = user.FirstOrDefault(u => u.Username == username);
+            
+            if (targetUser == null)
+                return false;
+
+            // Simple password validation for now - in production, use proper hashing
+            return targetUser.PasswordHash == password;
+        }
+        public async Task ChangePasswordAsync(string username, string newPassword)
+        {
+            var users = await _unitOfWork.UserAccounts.GetAllAsync();
+            var user = users.FirstOrDefault(u => u.Username == username);
+            
+            if (user == null)
+                throw new EntityNotFoundException("UserAccount", username);
+
+            // Simple password hashing for now - in production, use proper hashing
+            user.PasswordHash = newPassword;
+            await _unitOfWork.UserAccounts.UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }
