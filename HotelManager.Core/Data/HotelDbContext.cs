@@ -34,9 +34,11 @@ namespace HotelManager.Data
         public DbSet<Employee> Employees { get; set; }
         public DbSet<UserAccount> UserAccounts { get; set; }
         public DbSet<MaintenanceReport> MaintenanceReports { get; set; }
+
         public DbSet<Cleaning> Cleanings { get; set; }
         public DbSet<Maintenance> Maintenances { get; set; }
 
+        public DbSet<WorkAssignment> WorkAssignments { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -163,6 +165,7 @@ namespace HotelManager.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
+
             modelBuilder.Entity<Cleaning>(entity =>
             {
                 entity.HasKey(c => c.Id);
@@ -197,6 +200,36 @@ namespace HotelManager.Data
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
+
+
+            modelBuilder.Entity<WorkAssignment>(entity =>
+            {
+                entity.HasKey(w => w.Id);
+
+                entity.Property(w => w.RoomNumber).IsRequired();
+                entity.Property(w => w.Type)
+                      .HasConversion<int>()
+                      .IsRequired();
+                entity.Property(w => w.Status)
+                      .HasConversion<int>()
+                      .IsRequired();
+                entity.Property(w => w.AssignedDate).IsRequired();
+
+                entity.HasOne(w => w.Employee)
+                      .WithMany()
+                      .HasForeignKey(w => w.EmployeeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(w => w.AssignedByEmployee)
+                      .WithMany()
+                      .HasForeignKey(w => w.AssignedByEmployeeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(w => w.Room)
+                      .WithMany()
+                      .HasForeignKey(w => w.RoomNumber)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
 
         }

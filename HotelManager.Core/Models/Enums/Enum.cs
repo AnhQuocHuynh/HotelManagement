@@ -47,17 +47,34 @@
         Confirmed = 1,
         CheckedIn = 2,
         CheckedOut = 3,
-        Cancelled = 4,
-        NoShow = 5
+        Completed = 4,
+        Cancelled = 5,
+        NoShow = 6
     }
 
     public enum RoomStatus
     {
         Available = 0,
         Occupied = 1,
-        UnderMaintenance = 2,
-        Reserved = 3,
-        OutOfService = 4
+        Pending = 2,
+        UnderMaintenance = 3,
+        Reserved = 4,
+        OutOfService = 5
+    }
+
+    public enum AssignmentType
+    {
+        Cleaning = 0,
+        Maintenance = 1,
+        Inspection = 2
+    }
+
+    public enum AssignmentStatus
+    {
+        Pending = 0,
+        InProgress = 1,
+        Completed = 2,
+        Cancelled = 3
     }
 
     public static class EnumExtensions
@@ -69,5 +86,7 @@
         public static string ToDisplay(this CustomerType type) => type.ToString();
         public static string ToDisplay(this BookingStatus status) => status.ToString();
         public static string ToDisplay(this RoomStatus status) => status.ToString();
+        public static string ToDisplay(this AssignmentType type) => type.ToString();
+        public static string ToDisplay(this AssignmentStatus status) => status.ToString();
     }
 }

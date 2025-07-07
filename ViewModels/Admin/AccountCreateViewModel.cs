@@ -24,6 +24,8 @@ namespace HotelManager.ViewModels.Admin
         public string PasswordError => GetError(nameof(Password));
         public string ConfirmPasswordError => GetError(nameof(ConfirmPassword));
 
+        // Event for successful account creation
+        public event Action? AccountCreatedSuccessfully;
 
         public Employee Employee { get; set; }
         public Action? CloseAction { get; set; }
@@ -104,6 +106,14 @@ namespace HotelManager.ViewModels.Admin
         private string GetError(string propertyName) =>
             _errors.TryGetValue(propertyName, out var message) ? message : string.Empty;
 
+        public void ForcePasswordUpdate(string password, string confirmPassword)
+        {
+            Password = password;
+            ConfirmPassword = confirmPassword;
+            ValidateProperty(password, nameof(Password));
+            ValidateProperty(confirmPassword, nameof(ConfirmPassword));
+        }
+
         private bool ValidateAllProperties()
         {
             _errors.Clear();
@@ -112,7 +122,10 @@ namespace HotelManager.ViewModels.Admin
                 _errors[nameof(Username)] = "Username is required";
 
             if (string.IsNullOrEmpty(Password))
-               _errors[nameof(Password)] = "Password is required";
+                _errors[nameof(Password)] = "Password is required";
+
+            if (!string.IsNullOrEmpty(Password) && Password.Length < 6)
+                _errors[nameof(Password)] = "Password must be at least 6 characters";
 
             if (Password != ConfirmPassword)
                 _errors[nameof(ConfirmPassword)] = "Passwords do not match";
@@ -158,6 +171,9 @@ namespace HotelManager.ViewModels.Admin
                 
                 _notificationService?.ShowSuccess($"Account '{Username}' has been created successfully!");
                 _logger?.LogInformation("Account created successfully for employee {EmployeeId} with username {Username}", Employee.Id, Username);
+                
+                // Raise the success event
+                AccountCreatedSuccessfully?.Invoke();
                 
                 DialogResult = true;
                 CloseAction?.Invoke();

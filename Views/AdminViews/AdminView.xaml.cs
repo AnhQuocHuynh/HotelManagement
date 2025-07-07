@@ -32,5 +32,10 @@ namespace HotelManager.Views
                 DataContext = App.ServiceProvider.GetRequiredService<AdminViewModel>();
             }
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

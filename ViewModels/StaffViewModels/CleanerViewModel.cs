@@ -20,6 +20,7 @@ namespace HotelManager.ViewModels.StaffViewModels
     {
         private readonly ICleanRoomService _cleanroomService;
         private readonly IService<HotelManager.Models.Room> _roomService;
+        private readonly HotelManager.Interfaces.IWorkAssignmentService? _workAssignmentService;
         private ObservableCollection<Room> _roomsToClean;
         public ObservableCollection<Room> RoomsToClean
         {
@@ -86,6 +87,9 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             _cleanroomService = cleanroomService;
             _roomService = roomService;
+            _workAssignmentService = App.ServiceProvider != null
+                ? (HotelManager.Interfaces.IWorkAssignmentService?)App.ServiceProvider.GetService(typeof(HotelManager.Interfaces.IWorkAssignmentService))
+                : null;
             RoomsToClean = new ObservableCollection<Room>();
             MarkAsCleanedCommand = new RelayCommand<Room>(MarkRoomAsCleaned);
             ReportIssueCommand = new RelayCommand<Room>(ReportIssue);
@@ -160,6 +164,27 @@ namespace HotelManager.ViewModels.StaffViewModels
             try
             {
                 await _cleanroomService.MarkRoomAsCleanedAsync(room);
+
+                // Complete work assignment if exists
+                if (_workAssignmentService != null)
+                {
+                    try
+                    {
+                        var assignment = await _workAssignmentService.GetActiveAssignmentForRoomAsync(
+                            room.RoomNumber, 
+                            HotelManager.Models.Enums.AssignmentType.Cleaning);
+                        
+                        if (assignment != null)
+                        {
+                            await _workAssignmentService.CompleteAssignmentAsync(assignment.Id, "Room cleaning completed");
+                        }
+                    }
+                    catch (Exception assignEx)
+                    {
+                        // Log but don't fail the main operation
+                        System.Diagnostics.Debug.WriteLine($"Error completing assignment: {assignEx.Message}");
+                    }
+                }
                 
                 // Refresh data sau khi mark as cleaned
                 await LoadAllRoomsAsync();
