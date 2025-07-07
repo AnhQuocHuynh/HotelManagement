@@ -346,15 +346,15 @@
                                 BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
                                 BorderThickness="1">
                             <DataGrid ItemsSource="{Binding Employees}" 
-                      SelectedItem="{Binding SelectedEmployee, Mode=TwoWay}" 
-                      AutoGenerateColumns="False" 
-                      CanUserAddRows="False"               
-                      Style="{StaticResource ModernDataGrid}"
-                      ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
-                      CanUserResizeRows="False"
-                      CanUserSortColumns="True"
-                      IsReadOnly="True"
-                      MinHeight="300">
+                                      SelectedItem="{Binding SelectedEmployee, Mode=TwoWay}" 
+                                      AutoGenerateColumns="False" 
+                                      CanUserAddRows="False"               
+                                      Style="{StaticResource ModernDataGrid}"
+                                      ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
+                                      CanUserResizeRows="False"
+                                      CanUserSortColumns="True"
+                                      IsReadOnly="True"
+                                      MinHeight="300" MaxHeight="600">
                                 <DataGrid.Columns>
                                     <!-- Avatar Column -->
                                     <DataGridTemplateColumn Header="" Width="60">
