@@ -13,6 +13,7 @@ using HotelManager.Models.Enums;
 using HotelManager.Services;
 using System.Diagnostics;
 using System.ComponentModel;
+using Timer = System.Timers.Timer;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -21,6 +22,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         private readonly ICleanRoomService _cleanroomService;
         private readonly IService<HotelManager.Models.Room> _roomService;
         private readonly HotelManager.Interfaces.IWorkAssignmentService? _workAssignmentService;
+        private Timer? _autoRefreshTimer;
         private ObservableCollection<Room> _roomsToClean;
         public ObservableCollection<Room> RoomsToClean
         {
@@ -84,6 +86,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand ClearFilterCommand { get; }
         public ICommand NavigateProfileCommand { get; set; }
         public ICommand LogoutCommand { get; }
+        public ICommand LoadedCommand { get; }
 
         public CleanerViewModel(ICleanRoomService cleanroomService, IService<HotelManager.Models.Room> roomService)
         {
@@ -106,9 +109,16 @@ namespace HotelManager.ViewModels.StaffViewModels
             ClearFilterCommand = new RelayCommand(ClearFilter);
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
             LogoutCommand = new RelayCommand(Logout);
+            LoadedCommand = new AsyncRelayCommand(LoadDataAsync);
 
             // sequential async initialization to avoid concurrent DbContext operations
             _ = InitializeAsync();
+            
+            // Setup auto-refresh timer (30 seconds)
+            _autoRefreshTimer = new Timer(30000); // 30 seconds
+            _autoRefreshTimer.Elapsed += async (sender, e) => await LoadDataAsync();
+            _autoRefreshTimer.AutoReset = true;
+            _autoRefreshTimer.Start();
         }
 
         public CleanerViewModel() : base()
@@ -128,6 +138,25 @@ namespace HotelManager.ViewModels.StaffViewModels
             await LoadAllRoomsAsync();
             await LoadRoomsToCleanAsync();
             await LoadDamageReportHistoryAsync();
+        }
+
+        private async Task LoadDataAsync()
+        {
+            try
+            {
+                await LoadAllRoomsAsync();
+                await LoadRoomsToCleanAsync();
+                await LoadDamageReportHistoryAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi tải dữ liệu: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        protected override async Task OnLoadedAsync()
+        {
+            await LoadDataAsync();
         }
 
         private async Task LoadAllRoomsAsync()
@@ -337,6 +366,10 @@ namespace HotelManager.ViewModels.StaffViewModels
 
         private void Logout()
         {
+            // Stop auto-refresh timer
+            _autoRefreshTimer?.Stop();
+            _autoRefreshTimer?.Dispose();
+            
             var mainVM = System.Windows.Application.Current.MainWindow?.DataContext as HotelManager.ViewModels.MainViewModel;
             mainVM?.Logout();
         }

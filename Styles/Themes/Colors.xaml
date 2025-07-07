@@ -75,4 +75,7 @@
     <!-- Dark Separator -->
     <SolidColorBrush x:Key="MaterialDesignDarkSeparatorBackground" Color="#F3F4F6"/>
     
+    <!-- Gray Colors -->
+    <SolidColorBrush x:Key="Gray300Brush" Color="#FFE0E0E0"/>
+    
 </ResourceDictionary> 

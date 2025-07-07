@@ -18,7 +18,17 @@ namespace HotelManager.Data
                 context.Rooms.AddRange( 
                     new Room { RoomNumber = "101", RoomType = RoomType.Standard, PricePerNight = 500000m, RoomStatus = RoomStatus.Available },
                     new Room { RoomNumber = "102", RoomType = RoomType.Deluxe, PricePerNight = 750000m },
-                    new Room { RoomNumber = "103", RoomType = RoomType.Suite, PricePerNight = 1000000m }
+                    new Room { RoomNumber = "103", RoomType = RoomType.Suite, PricePerNight = 1000000m },
+                    // Thêm 10 phòng mới từ 2xx đến 4xx
+                    new Room { RoomNumber = "201", RoomType = RoomType.Standard, PricePerNight = 550000m, RoomStatus = RoomStatus.Available },
+                    new Room { RoomNumber = "202", RoomType = RoomType.Deluxe, PricePerNight = 800000m, RoomStatus = RoomStatus.Available },
+                    new Room { RoomNumber = "203", RoomType = RoomType.Suite, PricePerNight = 1100000m, RoomStatus = RoomStatus.Available },
+                    new Room { RoomNumber = "301", RoomType = RoomType.Standard, PricePerNight = 600000m, RoomStatus = RoomStatus.Available },
+                    new Room { RoomNumber = "302", RoomType = RoomType.Deluxe, PricePerNight = 850000m, RoomStatus = RoomStatus.Available },
+                    new Room { RoomNumber = "303", RoomType = RoomType.Suite, PricePerNight = 1200000m, RoomStatus = RoomStatus.Available },
+                    new Room { RoomNumber = "401", RoomType = RoomType.Standard, PricePerNight = 650000m, RoomStatus = RoomStatus.Available },
+                    new Room { RoomNumber = "402", RoomType = RoomType.Deluxe, PricePerNight = 900000m, RoomStatus = RoomStatus.Available },
+                    new Room { RoomNumber = "403", RoomType = RoomType.Suite, PricePerNight = 1300000m, RoomStatus = RoomStatus.Available }
                 );
             }
 
