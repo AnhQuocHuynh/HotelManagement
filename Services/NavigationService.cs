@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using HotelManager.Interfaces;
 using HotelManager.ViewModels;
+using Serilog;
 
 namespace HotelManager.Services
 {
@@ -59,6 +60,10 @@ namespace HotelManager.Services
 
         public void NavigateTo(BaseViewModel viewModel)
         {
+            // Check if the ViewModel is already the current one
+            if (_currentViewModel != null && _currentViewModel.GetType() == viewModel.GetType())
+                return;
+            // Ensure the ViewModel is not null
             if (viewModel == null)
                 throw new ArgumentNullException(nameof(viewModel));
 
@@ -67,24 +72,43 @@ namespace HotelManager.Services
 
         public void GoBack()
         {
-            if (!CanGoBack)
-                return;
+            LogStack("Before GoBack");
 
-            // Notify current ViewModel about navigation away
+            if (!CanGoBack)
+            {
+                Log.Warning("[NavigationService] Cannot go back — navigation history is empty.");
+                return;
+            }
+
             if (CurrentViewModel is INavigationAware currentNavigationAware)
             {
+                Log.Information("[NavigationService] Navigating away from {ViewModel}", CurrentViewModel.GetType().Name);
                 currentNavigationAware.OnNavigatedFrom();
             }
 
             var previousViewModel = _navigationHistory.Pop();
-            
-            // Notify previous ViewModel about navigation back
+
             if (previousViewModel is INavigationAware previousNavigationAware)
             {
+                Log.Information("[NavigationService] Navigating back to {ViewModel}", previousViewModel.GetType().Name);
                 previousNavigationAware.OnNavigatedTo(null);
             }
 
             CurrentViewModel = previousViewModel;
+
+            LogStack("After GoBack");
+        }
+
+        //debugging method to log the current navigation stack
+        private void LogStack(string context)
+        {
+            var stackSnapshot = _navigationHistory
+                .Select(vm => vm.GetType().Name)
+                .Reverse()
+                .ToList();
+
+            var stackInfo = string.Join(" -> ", stackSnapshot);
+            Log.Information("[NavigationService] {Context} | Stack: [TOP] {Stack}", context, stackInfo);
         }
 
         public void ClearHistory()

@@ -23,8 +23,8 @@ namespace HotelManager.Repositories
             _logger = logger;
         }
 
-        public async Task<T> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
-        public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
+        public virtual async Task<T> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
+        public virtual async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
         public async Task<T> AddAsync(T entity) { await _dbSet.AddAsync(entity); return entity; }
         public async Task<T> UpdateAsync(T entity) { _dbSet.Update(entity); return entity; }
         public async Task<bool> DeleteAsync(int id) { var entity = await _dbSet.FindAsync(id); if (entity == null) return false; _dbSet.Remove(entity); return true; }

@@ -17,10 +17,48 @@ namespace HotelManager.Core.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "9.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("HotelManager.Core.Models.Maintenance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("EmployeeId1")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaintenanceReportId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RepairDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("EmployeeId1");
+
+                    b.HasIndex("MaintenanceReportId");
+
+                    b.ToTable("Maintenances");
+                });
 
             modelBuilder.Entity("HotelManager.Models.Booking", b =>
                 {
@@ -74,6 +112,37 @@ namespace HotelManager.Core.Migrations
                     b.HasIndex("RoomNumber");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("HotelManager.Models.Cleaning", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CleaningDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoomNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("RoomNumber");
+
+                    b.ToTable("Cleanings");
                 });
 
             modelBuilder.Entity("HotelManager.Models.Customer", b =>
@@ -321,6 +390,73 @@ namespace HotelManager.Core.Migrations
                     b.ToTable("UserAccounts");
                 });
 
+            modelBuilder.Entity("HotelManager.Models.WorkAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AssignedByEmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("AssignedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoomNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedByEmployeeId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("RoomNumber");
+
+                    b.ToTable("WorkAssignments");
+                });
+
+            modelBuilder.Entity("HotelManager.Core.Models.Maintenance", b =>
+                {
+                    b.HasOne("HotelManager.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HotelManager.Models.Employee", null)
+                        .WithMany("Maintenances")
+                        .HasForeignKey("EmployeeId1");
+
+                    b.HasOne("HotelManager.Models.MaintenanceReport", "MaintenanceReport")
+                        .WithMany("Maintenances")
+                        .HasForeignKey("MaintenanceReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("MaintenanceReport");
+                });
+
             modelBuilder.Entity("HotelManager.Models.Booking", b =>
                 {
                     b.HasOne("HotelManager.Models.Employee", "BookingEmployee")
@@ -357,6 +493,25 @@ namespace HotelManager.Core.Migrations
                     b.Navigation("CheckOutEmployee");
 
                     b.Navigation("Customer");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("HotelManager.Models.Cleaning", b =>
+                {
+                    b.HasOne("HotelManager.Models.Employee", "Employee")
+                        .WithMany("Cleanings")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HotelManager.Models.Room", "Room")
+                        .WithMany("Cleanings")
+                        .HasForeignKey("RoomNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
 
                     b.Navigation("Room");
                 });
@@ -424,6 +579,32 @@ namespace HotelManager.Core.Migrations
                     b.Navigation("Employee");
                 });
 
+            modelBuilder.Entity("HotelManager.Models.WorkAssignment", b =>
+                {
+                    b.HasOne("HotelManager.Models.Employee", "AssignedByEmployee")
+                        .WithMany()
+                        .HasForeignKey("AssignedByEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HotelManager.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HotelManager.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomNumber")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssignedByEmployee");
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("HotelManager.Models.Booking", b =>
                 {
                     b.Navigation("Invoices");
@@ -436,6 +617,10 @@ namespace HotelManager.Core.Migrations
 
             modelBuilder.Entity("HotelManager.Models.Employee", b =>
                 {
+                    b.Navigation("Cleanings");
+
+                    b.Navigation("Maintenances");
+
                     b.Navigation("UserAccount")
                         .IsRequired();
                 });
@@ -447,9 +632,16 @@ namespace HotelManager.Core.Migrations
                     b.Navigation("Payments");
                 });
 
+            modelBuilder.Entity("HotelManager.Models.MaintenanceReport", b =>
+                {
+                    b.Navigation("Maintenances");
+                });
+
             modelBuilder.Entity("HotelManager.Models.Room", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("Cleanings");
 
                     b.Navigation("InvoiceDetails");
 

@@ -16,6 +16,8 @@ namespace HotelManager.Repositories
         private readonly ILoggerFactory _loggerFactory;
         private IDbContextTransaction _transaction;
         private readonly Dictionary<Type, object> _repositories = new();
+        private EmployeeRepository _employeeRepository;
+        private WorkAssignmentRepository _workAssignmentRepository;
 
         public UnitOfWork(HotelDbContext context, ILoggerFactory loggerFactory)
         {
@@ -32,6 +34,9 @@ namespace HotelManager.Repositories
         public IRepository<InvoiceDetail> InvoiceDetails => GetRepository<InvoiceDetail>();
         public IRepository<Payment> Payments => GetRepository<Payment>();
         public IRepository<MaintenanceReport> MaintenanceReports => GetRepository<MaintenanceReport>();
+        public IRepository<WorkAssignment> WorkAssignments => GetRepository<WorkAssignment>();
+        public EmployeeRepository EmployeeRepository => _employeeRepository ??= new EmployeeRepository(_context, _loggerFactory.CreateLogger<EmployeeRepository>());
+        public WorkAssignmentRepository WorkAssignmentRepository => _workAssignmentRepository ??= new WorkAssignmentRepository(_context, _loggerFactory.CreateLogger<WorkAssignmentRepository>());
 
         private IRepository<T> GetRepository<T>() where T : class
         {

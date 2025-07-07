@@ -29,9 +29,6 @@ namespace HotelManager.Views.StaffViews
             }
         }
 
-        private void comboBox_Options_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
 
-        }
     }
 }

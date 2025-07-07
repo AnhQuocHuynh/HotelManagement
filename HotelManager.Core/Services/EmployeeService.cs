@@ -35,15 +35,27 @@ namespace HotelManager.Services
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
+            if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.EmployeeRepository != null)
+                return await uowImpl.EmployeeRepository.GetAllAsync();
             return await _unitOfWork.Employees.GetAllAsync();
         }
 
         public async Task<Employee> GetByIdAsync(int id)
         {
-            var entity = await _unitOfWork.Employees.GetByIdAsync(id);
-            if (entity == null)
-                throw new EntityNotFoundException("Employee", id);
-            return entity;
+            if (_unitOfWork is HotelManager.Repositories.UnitOfWork uowImpl && uowImpl.EmployeeRepository != null)
+            {
+                var entity = await uowImpl.EmployeeRepository.GetByIdAsync(id);
+                if (entity == null)
+                    throw new EntityNotFoundException("Employee", id);
+                return entity;
+            }
+            else
+            {
+                var entity = await _unitOfWork.Employees.GetByIdAsync(id);
+                if (entity == null)
+                    throw new EntityNotFoundException("Employee", id);
+                return entity;
+            }
         }
 
         public async Task<Employee> UpdateAsync(Employee entity)

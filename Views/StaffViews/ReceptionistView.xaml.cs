@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.Views.StaffViews
 {
@@ -24,6 +25,17 @@ namespace HotelManager.Views.StaffViews
         public ReceptionistView()
         {
             InitializeComponent();
+            
+            // Set DataContext using DI
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<ReceptionistViewModel>();
+            }
+        }
+
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }
