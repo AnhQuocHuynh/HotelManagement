@@ -255,15 +255,16 @@
                                   BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
                                   BorderThickness="1">
                                 <DataGrid ItemsSource="{Binding Rooms}" 
-                      AutoGenerateColumns="False" 
-                      CanUserAddRows="False"               
-                      SelectionMode="Single"
+                                        AutoGenerateColumns="False" 
+                                        CanUserAddRows="False"               
+                                        SelectionMode="Single"
                                         Style="{StaticResource ModernDataGrid}"
                                         ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
                                         CanUserResizeRows="False"
                                         CanUserSortColumns="True"
-                      SelectedItem="{Binding SelectedRoom}"
-                                        MinHeight="400">
+                                        SelectedItem="{Binding SelectedRoom}"
+                                        MinHeight="400"
+                                         MaxHeight="600">
                 <DataGrid.Columns>
                                         <!-- Status Indicator -->
                                         <DataGridTemplateColumn Header="" Width="50">

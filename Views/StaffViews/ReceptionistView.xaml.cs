@@ -32,10 +32,5 @@ namespace HotelManager.Views.StaffViews
                 DataContext = App.ServiceProvider.GetRequiredService<ReceptionistViewModel>();
             }
         }
-
-        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
     }
 }
