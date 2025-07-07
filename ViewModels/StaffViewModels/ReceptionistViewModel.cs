@@ -337,45 +337,6 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
         }
 
-        private async Task DeleteAsync(Booking? booking)
-        {
-            try
-            {
-                _logger?.LogInformation("Deleting booking {BookingId}", booking?.Id);
-                if (booking == null)
-                {
-                    MessageBox.Show("Vui lòng chọn một booking để xóa.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var result = MessageBox.Show("Bạn có chắc chắn muốn xóa booking này?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (result == MessageBoxResult.Yes)
-                {
-                    await _bookingService.DeleteAsync(booking.Id);
-                    Bookings.Remove(booking);
-                    await UpdateAvailableRoomsAsync();
-                    MessageBox.Show("Xóa booking thành công!", "Thành công", MessageBoxButton.OK);
-                    _logger?.LogInformation("Successfully deleted booking {BookingId}", booking.Id);
-                    TotalBookings = Bookings.Count;
-                }
-            }
-            catch (EntityNotFoundException ex)
-            {
-                _logger?.LogWarning(ex, "Entity not found");
-                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            catch (BusinessException ex)
-            {
-                _logger?.LogWarning(ex, "Business error deleting booking");
-                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "Unexpected error deleting booking");
-                MessageBox.Show("Lỗi khi xóa booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
         private async Task UpdateAvailableRoomsAsync()
         {
             try
