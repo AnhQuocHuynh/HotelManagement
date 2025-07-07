@@ -114,12 +114,13 @@
                                         <TextBlock Text="{Binding TotalBookings, StringFormat='{}{0} Bookings'}" Style="{StaticResource LabelLarge}" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
+                                <!--
                                 <Button Command="{Binding NavigateToRoomViewCommand}" Style="{StaticResource OutlinedButton}" Margin="8,0" Background="White">
                                     <StackPanel Orientation="Horizontal">
                                         <materialDesign:PackIcon Kind="BedKingOutline" Foreground="{StaticResource SuccessBrush}" Width="20" Height="20" VerticalAlignment="Center"/>
                                         <TextBlock Text="Room Status" Style="{StaticResource LabelLarge}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
-                                </Button>
+                                </Button> -->
                             </StackPanel>
 
                             <!-- Action Buttons -->
@@ -361,7 +362,7 @@
                                 CornerRadius="{StaticResource RadiusS}" 
                                 BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
                                 BorderThickness="1">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="400">
+                            
                                 <DataGrid ItemsSource="{Binding Bookings}" 
                                           AutoGenerateColumns="False" 
                                           CanUserAddRows="False"               
@@ -489,7 +490,7 @@
                                         </DataGridTemplateColumn>
                                     </DataGrid.Columns>
                                 </DataGrid>
-                            </ScrollViewer>
+                            
                         </Border>
                     </StackPanel>
                 </materialDesign:Card>
