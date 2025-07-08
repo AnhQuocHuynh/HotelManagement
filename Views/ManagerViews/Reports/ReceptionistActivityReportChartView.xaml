@@ -29,6 +29,8 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                
             </Grid.ColumnDefinitions>
 
 
@@ -134,9 +136,17 @@
                   ItemsSource="{Binding RoomTypes}"
                   SelectedItem="{Binding SelectedRoomType}"/>
 
-            <Button Content="Export"
+
+            <Button Content="Apply"
                 Grid.Column="5"
-                Margin="0,0,0,0"
+                Margin="10,0,0,0"
+                Command="{Binding ApplyFilterCommand}"
+                Foreground="Navy"
+                Background="{StaticResource Primary100Brush}"/>
+
+            <Button Content="Export"
+                Grid.Column="6"
+                Margin="10,0,0,0"
                 Command="{Binding ExportChartAndDataCommand}"
                 Foreground="Navy"
                 Background="{StaticResource Primary100Brush}"/>

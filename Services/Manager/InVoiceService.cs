@@ -30,7 +30,7 @@ namespace HotelManager.Services.Manager
             if (!string.IsNullOrEmpty(roomType) && roomType != "All")
             {
                 // Chuyển từ string sang enum RoomType
-                if (Enum.TryParse<RoomType>(roomType, out var parsedRoomType))
+                if (Enum.TryParse<RoomType>(roomType.Trim(), true, out var parsedRoomType))
                 {
                     query = query.Where(i => i.Booking.Room.RoomType == parsedRoomType);
                 }
@@ -127,7 +127,7 @@ namespace HotelManager.Services.Manager
 
             if (!string.IsNullOrEmpty(roomType) && roomType != "All")
             {
-                if (Enum.TryParse<RoomType>(roomType, out var parsedRoomType))
+                if (Enum.TryParse<RoomType>(roomType.Trim(), true, out var parsedRoomType))
                 {
                     query = query.Where(i => i.Booking.Room.RoomType == parsedRoomType);
                 }

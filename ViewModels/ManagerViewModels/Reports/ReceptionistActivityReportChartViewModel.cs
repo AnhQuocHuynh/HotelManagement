@@ -30,16 +30,6 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         ReceptionistService _receptionistService;
         ExportService _exportService;
 
-        // khi start date hoặc end date đổi refresh chart
-        // khi dùng time ranges sẽ set nhanh cả start với end date
-        // ==> nếu set time range nhanh cần đợi set cả start và end date xong mới refresh chart
-        private bool _isUpdatingRange = false;
-
-
-        // khi gọi constructor sẽ set giá trị cho tất cả unit, startDate, endDate, roomType
-        // ==> refresh chart bị gọi 4 lần
-        // ==> cần vô hiệu hóa refresh chart khi đang set giá trị trong constructor đến khi hoàn tất
-        private bool _isInitializing = false;
 
         // tránh gọi update data liên tục khi data chưa update xong
         private bool _isLoading = false;
@@ -59,10 +49,6 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 {
                     _selectedUnit = value;
                     OnPropertyChanged(nameof(SelectedUnit));
-                    if (!_isInitializing)
-                    {
-                    _ = RefreshChartAsync();
-                    }
                 }
             }
         }
@@ -78,15 +64,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 {
                     _startDate = value;
                     OnPropertyChanged(nameof(StartDate));
-
-                    if (!_isUpdatingRange && !_isInitializing)
-                    {
-                        SelectedTimeRange = "Custom";
-
-                        _ = RefreshChartAsync();
-
-                        SetTimeBackground(false);
-                    }
+                    SetTimeBackground(false);
                 }
             }
         }
@@ -102,13 +80,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 {
                     _endDate = value;
                     OnPropertyChanged(nameof(EndDate));
-                    if (!_isUpdatingRange && !_isInitializing)
-                    {
-                        SelectedTimeRange = "Custom";
-                        _ = RefreshChartAsync();
-
-                        SetTimeBackground(false);
-                    }
+                    SetTimeBackground(false);
                 }
             }
         }
@@ -128,11 +100,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                     OnPropertyChanged(nameof(SelectedTimeRange));
                     SetTimeRange();
                     SetTimeBackground(true);
-                    if (!_isInitializing)
-                    {
-                        _ = RefreshChartAsync();
 
-                    }
                 }
             }
         }
@@ -150,8 +118,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 {
                     _selectedRoomType = value;
                     OnPropertyChanged(nameof(SelectedRoomType));
-                    if (!_isInitializing)
-                        _ = RefreshChartAsync();
+
 
                 }
             }
@@ -213,29 +180,38 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         // constructor
         private IServiceScope _scope;
         public ICommand ExportChartAndDataCommand { get; }
+        public ICommand ApplyFilterCommand { get; }
 
         public ReceptionistActivityReportChartViewModel()
         {
-            _isInitializing = true;
+
 
             _scope = App.ServiceProvider.CreateScope(); // GIỮ scope trong ViewModel
             var dbContext = _scope.ServiceProvider.GetRequiredService<HotelDbContext>();
             _receptionistService = new ReceptionistService(dbContext);
             _exportService = new ExportService();
 
-            UnitInit();
-            TimeRangeInit();
-            RoomTypeInit();
-
             ExportChartAndDataCommand = new RelayCommand(ExportChartAndData);
+            ApplyFilterCommand = new RelayCommand(async () =>
+            {
+                await RefreshChartAsync();
+            });
 
-            _isInitializing = false;
-            _ = RefreshChartAsync();
+            _ = InitAsync();
         }
 
         public void Dispose()
         {
             _scope?.Dispose();
+        }
+
+
+        public async Task InitAsync()
+        {
+            UnitInit();
+            TimeRangeInit();
+            RoomTypeInit();
+            await RefreshChartAsync();
         }
 
         private void ExportChartAndData() {
@@ -290,7 +266,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         void SetTimeRange()
         {
             DateTime today = DateTime.Today;
-            _isUpdatingRange = true;
+
             switch (SelectedTimeRange)
             {
                 case "Last 7 days":
@@ -318,10 +294,10 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                     EndDate = today;
                     break;
                 case "Custom":
-                    _isUpdatingRange = false;
+                    SetTimeBackground(false);
                     return;
             }
-            _isUpdatingRange = false;
+
         }
 
         void SetTimeBackground(bool isTimeRange)
