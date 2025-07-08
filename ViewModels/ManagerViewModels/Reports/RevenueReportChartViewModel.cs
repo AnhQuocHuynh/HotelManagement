@@ -222,7 +222,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             ApplyFilterCommand = new AsyncRelayCommand(RefreshChartAsync);
 
 
-            InitAsync();
+            _ = InitAsync();
 
         }
         public void Dispose()
@@ -281,7 +281,6 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 "Last 6 months",
                 "Last 1 year",
                 "Last 3 years",
-                "Custom"
             };
             SelectedTimeRange = TimeRanges.First();
         }
@@ -301,34 +300,29 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         void SetTimeRange()
         {
             DateTime today = DateTime.Today;
+
+            EndDate = today;
             switch (SelectedTimeRange)
             {
                 case "Last 7 days":
                     StartDate = today.AddDays(-7);
-                    EndDate = today;
                 break;
                 case "Last 1 month":
                     StartDate = today.AddMonths(-1);
-                    EndDate = today;
                     break;
                 case "Last 3 months":
                     StartDate = today.AddMonths(-3);
-                    EndDate = today;
                     break;
                 case "Last 6 months":
                     StartDate = today.AddMonths(-6);
-                    EndDate = today;
                     break;
                 case "Last 1 year":
                     StartDate = today.AddYears(-1);
-                    EndDate = today;
                     break;
                 case "Last 3 years":
                     StartDate = today.AddYears(-3);
-                    EndDate = today;
                     break;
-                case "Custom":
-                    SetTimeBackground(false);
+                Default:
                     return;
             }
         }
