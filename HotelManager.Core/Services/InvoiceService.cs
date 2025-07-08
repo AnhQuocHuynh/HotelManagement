@@ -22,11 +22,12 @@ namespace HotelManager.Services
                 .ToListAsync();
         }
 
-        public async Task<Invoice> CreateForBookingAsync(int bookingId, decimal totalAmount)
+        public async Task<Invoice> CreateForBookingAsync(Booking booking, decimal totalAmount)
         {
             var invoice = new Invoice
             {
-                BookingId = bookingId,
+                BookingId = booking.Id,
+                Booking = booking,
                 IssueDate = DateTime.Now,
                 TotalAmount = totalAmount
             };

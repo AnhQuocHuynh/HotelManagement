@@ -29,6 +29,11 @@ namespace HotelManager.ViewModels
         private ObservableCollection<Payment> _payments;
         private Payment _selectedPayment;
         private Invoice _currentInvoice;
+        private Booking currentBooking;
+
+        public ObservableCollection<Invoice> AvailableInvoices { get; set; } = new();
+
+
 
         public DateTime PaymentDate
         {
@@ -94,6 +99,8 @@ namespace HotelManager.ViewModels
             {
                 _currentInvoice = value;
                 OnPropertyChanged(nameof(CurrentInvoice));
+                currentBooking = value.Booking;
+                MessageBox.Show($"Current Booking: {currentBooking?.Id}", "Booking Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
         }
@@ -102,6 +109,7 @@ namespace HotelManager.ViewModels
         public ICommand SavePaymentCommand { get; set; }
         public ICommand DeletePaymentCommand { get; set; }
         public ICommand NavigateBackCommand { get; set; }
+        public ICommand LoadedCommand { get; set; }
 
         public PaymentViewModel()
         {
@@ -117,6 +125,7 @@ namespace HotelManager.ViewModels
                 SavePaymentCommand = new RelayCommand<Payment>(_ => { }, _ => false);
                 DeletePaymentCommand = new RelayCommand<Payment>(_ => { }, _ => false);
                 NavigateBackCommand = new RelayCommand(() => { });
+                LoadedCommand = new RelayCommand(() => { });
                 return;
             }
 
@@ -134,6 +143,7 @@ namespace HotelManager.ViewModels
             _invoiceService = App.ServiceProvider?.GetRequiredService<InvoiceService>() ?? throw new InvalidOperationException("InvoiceService not registered");
             _navigationService = App.ServiceProvider?.GetRequiredService<INavigationService>() ?? throw new InvalidOperationException("INavigationService not registered");
             CurrentInvoice = invoice;
+ 
             InitializeViewModel();
         }
 
@@ -147,6 +157,7 @@ namespace HotelManager.ViewModels
             SavePaymentCommand = new RelayCommand<Payment>(async (payment) => await SavePaymentAsync(payment), CanSavePayment);
             DeletePaymentCommand = new RelayCommand<Payment>(async (payment) => await DeletePaymentAsync(payment), CanDeletePayment);
             NavigateBackCommand = new RelayCommand(NavigateBack);
+            LoadedCommand = new RelayCommand(async () => await OnLoadedAsync());
 
             Debug.WriteLine("PaymentViewModel: Constructor called, SavePaymentCommand initialized.");
         }

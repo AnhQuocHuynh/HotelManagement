@@ -43,6 +43,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         private int _availableRoomsCount;
         private ObservableCollection<string> _availableRooms;
         private string _searchText;
+        //private Booking? _selectedBooking;
 
         public string CustomerFullName
         {
@@ -137,6 +138,16 @@ namespace HotelManager.ViewModels.StaffViewModels
             get => _availableRoomsCount;
             set { _availableRoomsCount = value; OnPropertyChanged(nameof(AvailableRoomsCount)); }
         }
+
+        //public Booking? SelectedBooking
+        //{
+        //    get => _selectedBooking;
+        //    set
+        //    {
+        //        _selectedBooking = value;
+        //        OnPropertyChanged(nameof(SelectedBooking));
+        //    }
+        //}
 
         public ICommand AddNewBookingCommand { get; private set; }
         public ICommand ShowBookingsCommand { get; private set; }
@@ -463,6 +474,12 @@ namespace HotelManager.ViewModels.StaffViewModels
 
         private async Task CheckoutAsync(Booking booking)
         {
+            if (booking == null)
+            {
+                _logger?.LogWarning("Checkout attempted with null booking");
+                MessageBox.Show("Please select a booking to checkout.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             try
             {
                 _logger?.LogInformation("Processing checkout for booking {BookingId}", booking.Id);
@@ -474,32 +491,32 @@ namespace HotelManager.ViewModels.StaffViewModels
                     MessageBoxImage.Question);
                 if (result != MessageBoxResult.Yes)
                     return;
-                booking.Status = BookingStatus.CheckedOut;
-                booking.CheckOutDate = DateTime.Now;
-                await _bookingService.UpdateAsync(booking);
-                var room = await _roomService.GetByRoomNumberAsync(booking.RoomNumber);
-                if (room != null)
-                {
-                    room.RoomStatus = RoomStatus.Pending;
-                    await _roomService.UpdateAsync(room);
-                    try
-                    {
-                        var workAssignmentService = App.ServiceProvider?.GetRequiredService<HotelManager.Interfaces.IWorkAssignmentService>();
-                        if (workAssignmentService != null)
-                        {
-                            var currentUser = AppSession.GetCurrentUserAccount();
-                            await workAssignmentService.AutoAssignWorkAsync(
-                                room.RoomNumber,
-                                HotelManager.Models.Enums.AssignmentType.Cleaning,
-                                currentUser?.EmployeeId);
-                        }
-                    }
-                    catch { }
-                }
+                //booking.Status = BookingStatus.CheckedOut;
+                //booking.CheckOutDate = DateTime.Now;
+                //await _bookingService.UpdateAsync(booking);
+                //var room = await _roomService.GetByRoomNumberAsync(booking.RoomNumber);
+                //if (room != null)
+                //{
+                //    room.RoomStatus = RoomStatus.Pending;
+                //    await _roomService.UpdateAsync(room);
+                //    try
+                //    {
+                //        var workAssignmentService = App.ServiceProvider?.GetRequiredService<HotelManager.Interfaces.IWorkAssignmentService>();
+                //        if (workAssignmentService != null)
+                //        {
+                //            var currentUser = AppSession.GetCurrentUserAccount();
+                //            await workAssignmentService.AutoAssignWorkAsync(
+                //                room.RoomNumber,
+                //                HotelManager.Models.Enums.AssignmentType.Cleaning,
+                //                currentUser?.EmployeeId);
+                //        }
+                //    }
+                //    catch { }
+                //}
                 await LoadDataAsync();
                 // Tạo mới invoice cho booking
                 var invoiceService = App.ServiceProvider.GetRequiredService<HotelManager.Services.InvoiceService>();
-                var invoice = await invoiceService.CreateForBookingAsync(booking.Id, booking.TotalAmount);
+                var invoice = await invoiceService.CreateForBookingAsync(booking, booking.TotalAmount);
                 // Điều hướng sang PaymentViewModel, truyền invoice
                 _navigationService?.NavigateTo<PaymentViewModel>(invoice);
                 _notificationService?.ShowSuccess($"Checkout completed for room {booking.RoomNumber}. Navigated to Payment View.");

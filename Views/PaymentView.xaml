@@ -250,10 +250,10 @@
 
                                 <!-- Action Button -->
                                 <Button Grid.Row="2" 
-                                      Command="{Binding AddPaymentCommand}"
-                        Style="{StaticResource ContainedButton}"
+                                      Command="{Binding Context.AddPaymentCommand}"
+                                        Style="{StaticResource ContainedButton}"
                                       HorizontalAlignment="Right">
-                    <StackPanel Orientation="Horizontal">
+                                        <StackPanel Orientation="Horizontal">
                                         <materialDesign:PackIcon Kind="Plus" Width="20" Height="20"/>
                         <TextBlock Text="Add Payment" Margin="8,0,0,0"/>
                     </StackPanel>
@@ -293,7 +293,7 @@
                           CanUserResizeRows="False"
                                         CanUserSortColumns="True"
                                         SelectedItem="{Binding SelectedPayment}"
-                                        MinHeight="300">
+                                        MinHeight="300" MaxHeight="800">
                     <DataGrid.Columns>
                                         <!-- Status Indicator -->
                                         <DataGridTemplateColumn Header="" Width="50">
