@@ -22,6 +22,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         private readonly ICleanRoomService _cleanroomService;
         private readonly IService<HotelManager.Models.Room> _roomService;
         private readonly HotelManager.Interfaces.IWorkAssignmentService? _workAssignmentService;
+        private readonly INavigationService _navigationService;
         private Timer? _autoRefreshTimer;
         private ObservableCollection<Room> _roomsToClean;
         public ObservableCollection<Room> RoomsToClean
@@ -88,14 +89,45 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand LogoutCommand { get; }
         public ICommand LoadedCommand { get; }
 
-        public CleanerViewModel(ICleanRoomService cleanroomService, IService<HotelManager.Models.Room> roomService)
+        public CleanerViewModel()
         {
-            _cleanroomService = cleanroomService;
-            _roomService = roomService;
-            _workAssignmentService = App.ServiceProvider != null
-                ? (HotelManager.Interfaces.IWorkAssignmentService?)App.ServiceProvider.GetService(typeof(HotelManager.Interfaces.IWorkAssignmentService))
-                : null;
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            {
+                // Design-time: mock or empty data
+                RoomsToClean = new ObservableCollection<Room>();
+                InitializeCommands();
+                return;
+            }
+
+            // Runtime: resolve dependencies
+            var serviceProvider = App.ServiceProvider;
+            if (serviceProvider != null)
+            {
+                _cleanroomService = serviceProvider.GetRequiredService<ICleanRoomService>();
+                _roomService = serviceProvider.GetRequiredService<IService<Room>>();
+                _workAssignmentService = serviceProvider.GetService<IWorkAssignmentService>();
+                _navigationService = serviceProvider.GetRequiredService<INavigationService>();
+            }
+            else
+            {
+                throw new InvalidOperationException("ServiceProvider is not available");
+            }
+
             RoomsToClean = new ObservableCollection<Room>();
+            InitializeCommands();
+
+            // sequential async initialization to avoid concurrent DbContext operations
+            _ = InitializeAsync();
+            
+            // Setup auto-refresh timer (30 seconds)
+            _autoRefreshTimer = new Timer(30000); // 30 seconds
+            _autoRefreshTimer.Elapsed += async (sender, e) => await LoadDataAsync();
+            _autoRefreshTimer.AutoReset = true;
+            _autoRefreshTimer.Start();
+        }
+
+        private void InitializeCommands()
+        {
             MarkAsCleanedCommand = new RelayCommand<Room>(MarkRoomAsCleaned);
             ReportIssueCommand = new RelayCommand<Room>(ReportIssue);
             SelectImageCommand = new RelayCommand(SelectImage);
@@ -110,27 +142,6 @@ namespace HotelManager.ViewModels.StaffViewModels
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
             LogoutCommand = new RelayCommand(Logout);
             LoadedCommand = new AsyncRelayCommand(LoadDataAsync);
-
-            // sequential async initialization to avoid concurrent DbContext operations
-            _ = InitializeAsync();
-            
-            // Setup auto-refresh timer (30 seconds)
-            _autoRefreshTimer = new Timer(30000); // 30 seconds
-            _autoRefreshTimer.Elapsed += async (sender, e) => await LoadDataAsync();
-            _autoRefreshTimer.AutoReset = true;
-            _autoRefreshTimer.Start();
-        }
-
-        public CleanerViewModel() : base()
-        {
-            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
-            {
-                // Design-time: mock or empty data
-            }
-            else
-            {
-                // Runtime: resolve dependencies as needed
-            }
         }
 
         private async Task InitializeAsync()
