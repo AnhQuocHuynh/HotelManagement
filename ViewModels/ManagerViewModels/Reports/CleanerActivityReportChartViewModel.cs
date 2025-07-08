@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
+using System.Windows.Media;
 
 namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
@@ -38,6 +39,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                     _startDate = value > EndDate ? EndDate : value;
                     OnPropertyChanged(nameof(StartDate));
                     _isChanged = true; // Đánh dấu đã thay đổi
+                    SetTimeBackground(false);
                 }
             }
         }
@@ -54,7 +56,115 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                     _endDate = value < StartDate ? StartDate : value;
                     OnPropertyChanged(nameof(EndDate));
                     _isChanged = true; // Đánh dấu đã thay đổi
+                    SetTimeBackground(false);
                 }
+            }
+        }
+
+
+        // time ranges
+        public ObservableCollection<string> TimeRanges { get; set; }
+
+        private string _selectedTimeRange;
+        public string SelectedTimeRange
+        {
+            get => _selectedTimeRange;
+            set
+            {
+                if (_selectedTimeRange != value)
+                {
+                    _selectedTimeRange = value;
+                    OnPropertyChanged(nameof(SelectedTimeRange));
+                    SetTimeRange();
+                    SetTimeBackground(true);
+                    _isChanged = true;
+                }
+            }
+        }
+
+        // high light
+        private Brush _timeRangeBackground;
+        public Brush TimeRangeBackground
+        {
+            get => _timeRangeBackground;
+            set
+            {
+                if (_timeRangeBackground != value)
+                {
+                    _timeRangeBackground = value;
+                    OnPropertyChanged(nameof(TimeRangeBackground));
+                }
+            }
+        }
+        private Brush _dateBackground;
+        public Brush DateBackground
+        {
+            get => _dateBackground;
+            set
+            {
+                if (_dateBackground != value)
+                {
+                    _dateBackground = value;
+                    OnPropertyChanged(nameof(DateBackground));
+                }
+            }
+        }
+
+        void TimeRangeInit()
+        {
+            TimeRanges = new ObservableCollection<string>
+            {
+                "Last 7 days",
+                "Last 1 month",
+                "Last 3 months",
+                "Last 6 months",
+                "Last 1 year",
+                "Last 3 years",
+            };
+            SelectedTimeRange = TimeRanges.FirstOrDefault();
+        }
+
+        void SetTimeRange()
+        {
+            DateTime today = DateTime.Today;
+
+            EndDate = today;
+            switch (SelectedTimeRange)
+            {
+                case "Last 7 days":
+                    StartDate = today.AddDays(-7);
+                    break;
+                case "Last 1 month":
+                    StartDate = today.AddMonths(-1);
+                    break;
+                case "Last 3 months":
+                    StartDate = today.AddMonths(-3);
+                    break;
+                case "Last 6 months":
+                    StartDate = today.AddMonths(-6);
+                    break;
+                case "Last 1 year":
+                    StartDate = today.AddYears(-1);
+                    break;
+                case "Last 3 years":
+                    StartDate = today.AddYears(-3);
+                    break;
+                Default:
+                    return;
+            }
+        }
+
+        void SetTimeBackground(bool isTimeRange)
+        {
+            if (isTimeRange)
+            {
+                TimeRangeBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8CCDEB"));
+                DateBackground = Brushes.White;
+            }
+            else
+            {
+                TimeRangeBackground = Brushes.White;
+                DateBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8CCDEB"));
             }
         }
 
@@ -99,8 +209,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             cleanerActivityService = new CleanerActivityService(dbContext);
             _exportService = new ExportService();
 
-            EndDate = DateTime.Now;
-            StartDate = DateTime.Now.AddDays(-7);
+            TimeRangeInit();
 
 
             _ = RefreshChartAsync();
