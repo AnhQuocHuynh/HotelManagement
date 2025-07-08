@@ -118,6 +118,7 @@
                             XAxes="{Binding XAxes}"
                             YAxes="{Binding YAxes}"
                             ZoomMode="Y"
+                            
                             ZoomingSpeed="0.5"
                             TooltipPosition="Left"
                             DrawMarginFrame="{x:Null}"
