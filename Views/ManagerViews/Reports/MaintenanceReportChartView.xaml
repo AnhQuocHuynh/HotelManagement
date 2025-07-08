@@ -47,18 +47,47 @@
                   ItemsSource="{Binding ViewTypeOptions}"
                   SelectedItem="{Binding SelectedViewType}"/>
 
-            <!-- Start date -->
-            <TextBlock Text="Start date"
+            <!-- Time range -->
+            <Border Background="{Binding TimeRangeBackground}"
+                Grid.Column="1"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Margin="10,0,0,0"/>
+            <TextBlock Text="Time range"
                    FontSize="16"
                    FontWeight="DemiBold"
                    Grid.Column="1"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
                    Margin="10,0,0,0"/>
+            <ComboBox Name="TimeRangeQuickselection"
+                  Width="100"
+                  Height="25"
+                  Grid.Column="1"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Bottom"
+                  Margin="10,0,0,0"
+                  ItemsSource="{Binding TimeRanges}"
+                  SelectedItem="{Binding SelectedTimeRange}"/>
+
+            <!-- Start date -->
+            <Border Background="{Binding DateBackground}"
+                Grid.Column="2"
+                    Grid.ColumnSpan="2"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Margin="10,0,0,0"/>
+            <TextBlock Text="Start date"
+                   FontSize="16"
+                   FontWeight="DemiBold"
+                   Grid.Column="2"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Top"
+                   Margin="10,0,0,0"/>
             <DatePicker x:Name="StartDatePicker"
                     Width="100"
                     Height="25"
-                    Grid.Column="1"
+                    Grid.Column="2"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
                     Margin="10,0,0,0"
@@ -68,14 +97,14 @@
             <TextBlock Text="End date"
                    FontSize="16"
                    FontWeight="DemiBold"
-                   Grid.Column="2"
+                   Grid.Column="3"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top"
                    Margin="10,0,0,0"/>
             <DatePicker x:Name="EndDatePicker"
                     Width="100"
                     Height="25"
-                    Grid.Column="2"
+                    Grid.Column="3"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Bottom"
                     Margin="10,0,0,0"
@@ -83,7 +112,7 @@
 
             <Button x:Name="FilterButton" 
                     Content="Apply"
-                    Grid.Column="3"
+                    Grid.Column="4"
                 Command="{Binding ApplyFilterCommand}"
                 Foreground="Navy"
                 Background="{StaticResource Primary100Brush}"
@@ -91,7 +120,7 @@
 
             <Button x:Name="exportButton" 
                     Content="Export"
-                    Grid.Column="4"
+                    Grid.Column="5"
                 Command="{Binding ExportChartAndDataCommand}"
                 Foreground="Navy"
                 Background="{StaticResource Primary100Brush}"
