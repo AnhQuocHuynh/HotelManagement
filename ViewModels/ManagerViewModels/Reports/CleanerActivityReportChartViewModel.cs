@@ -18,36 +18,14 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
-    public class CleanerActivityReportChartViewModel : BaseViewModel
+    public class CleanerActivityReportChartViewModel : BaseViewModel, IDisposable
     {
         CleanerActivityService cleanerActivityService;
         ExportService _exportService;
 
+        private bool _isChanged = false;
+
         public ObservableCollection<string> ViewTypeOptions { get; set; }
-
-        private string _selectedViewType;
-        public string SelectedViewType
-        {
-            get => _selectedViewType;
-            set
-            {
-                if (_selectedViewType != value)
-                {
-                    _selectedViewType = value;
-                    OnPropertyChanged(nameof(SelectedViewType));
-                }
-            }
-        }
-
-        private void ViewTypeOptionsInit()
-        {
-            ViewTypeOptions = new ObservableCollection<string>
-            {
-                "Total by time",
-                "Each cleaner on time",
-            };
-            SelectedViewType = ViewTypeOptions.FirstOrDefault();
-        }
 
         private DateTime _startDate;
         public DateTime StartDate
@@ -57,8 +35,9 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 if (_startDate != value)
                 {
-                    _startDate = value;
+                    _startDate = value > EndDate ? EndDate : value;
                     OnPropertyChanged(nameof(StartDate));
+                    _isChanged = true; // Đánh dấu đã thay đổi
                 }
             }
         }
@@ -72,8 +51,9 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 if (_endDate != value)
                 {
-                    _endDate = value;
+                    _endDate = value < StartDate ? StartDate : value;
                     OnPropertyChanged(nameof(EndDate));
+                    _isChanged = true; // Đánh dấu đã thay đổi
                 }
             }
         }
@@ -119,9 +99,9 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             cleanerActivityService = new CleanerActivityService(dbContext);
             _exportService = new ExportService();
 
-            ViewTypeOptionsInit();
-            StartDate = DateTime.Now.AddDays(-7);
             EndDate = DateTime.Now;
+            StartDate = DateTime.Now.AddDays(-7);
+
 
             _ = RefreshChartAsync();
 
@@ -156,9 +136,12 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         public Dictionary<string, (int DeluxeCount, int StandardCount, int SuiteCount)> _chartData;
         private async Task FetchChartDataAsync()
         {
-            var data = await cleanerActivityService.getCountNumbersOfRoomEachCleanerCleaned(
+            DateTime fixedEndDate = EndDate.Date.AddDays(1).AddTicks(-1);
+
+
+        var data = await cleanerActivityService.getCountNumbersOfRoomEachCleanerCleaned(
                 StartDate,
-                EndDate
+                fixedEndDate
             );
 
             _chartData = data ?? new Dictionary<string, (int DeluxeCount, int StandardCount, int SuiteCount)>();
@@ -252,11 +235,11 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         private async Task RefreshChartAsync()
         {
             // ngăn khi đang refresh
-            if (_isLoading) return;
-            _isLoading = true;
+            if (_isLoading || !_isChanged) return;
 
             try
             {
+                _isLoading = true;
                 await FetchChartDataAsync();
                 //update chart sau khi đủ data
                 UpdateChart();
@@ -268,6 +251,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             finally
             {
                 _isLoading = false;
+                _isChanged = false; // Reset flag sau khi cập nhật
             }
         }
 
