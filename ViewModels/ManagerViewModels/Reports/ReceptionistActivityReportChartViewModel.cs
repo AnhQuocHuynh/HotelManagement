@@ -25,7 +25,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
-    public class ReceptionistActivityReportChartViewModel : BaseViewModel
+    public class ReceptionistActivityReportChartViewModel : BaseViewModel, IDisposable
     {
         ReceptionistService _receptionistService;
         ExportService _exportService;

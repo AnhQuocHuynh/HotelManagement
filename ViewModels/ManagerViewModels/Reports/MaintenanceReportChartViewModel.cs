@@ -21,12 +21,12 @@ using HotelManager.Models.Enums;
 
 namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
-    public class MaintenanceReportChartViewModel : BaseViewModel
+    public class MaintenanceReportChartViewModel : BaseViewModel, IDisposable
     {
         MaintenanceDataService maintenanceDataService;
         ExportService _exportService;
 
-
+        private bool _isChanged = false;
 
         public ObservableCollection<string> ViewTypeOptions { get; set; }
         private void ViewTypeOptionsInit()
@@ -50,6 +50,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 {
                     _selectedViewType = value;
                     OnPropertyChanged(nameof(SelectedViewType));
+                    _isChanged = true; // Đánh dấu đã thay đổi
                 }
             }
         }
@@ -62,8 +63,9 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 if (_startDate != value)
                 {
-                    _startDate = value;
+                    _startDate = value > EndDate ? EndDate : value;
                     OnPropertyChanged(nameof(StartDate));
+                    _isChanged = true; // Đánh dấu đã thay đổi
                 }
             }
         }
@@ -77,8 +79,9 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 if (_endDate != value)
                 {
-                    _endDate = value;
+                    _endDate = value < StartDate ? StartDate : value;
                     OnPropertyChanged(nameof(EndDate));
+                    _isChanged = true; // Đánh dấu đã thay đổi
                 }
             }
         }
@@ -135,8 +138,9 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             _exportService = new ExportService();
 
             ViewTypeOptionsInit();
-            StartDate = DateTime.Now.AddDays(-7);
             EndDate = DateTime.Now;
+            StartDate = DateTime.Now.AddDays(-7);
+
 
             _ = RefreshChartAsync();
 
@@ -158,9 +162,11 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         public Dictionary<string, (int DeluxeCount, int StandardCount, int SuiteCount)> eachTechnicianData;
         private async Task FetchEachTechnicianChartDataAsync()
         {
+            var fixedEndDate = EndDate.Date.AddDays(1).AddTicks(-1);
+
             var data = await maintenanceDataService.GetCountNumbersOfRoomEachTechnicianMaintained(
                 StartDate,
-                EndDate
+                fixedEndDate
             );
 
             eachTechnicianData = data ?? new Dictionary<string, (int DeluxeCount, int StandardCount, int SuiteCount)>();
@@ -235,9 +241,11 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         Dictionary<string, (string RoomType, int MaintenanceCount)> eachRoomData;
         private async Task FetchEachRoomChartDataAsync()
         {
+            var fixedEndDate = EndDate.Date.AddDays(1).AddTicks(-1);
+
             var data = await maintenanceDataService.GetCountNumbersOfMaintenanceEachRoom(
                 StartDate,
-                EndDate
+                fixedEndDate
             );
 
             eachRoomData = data ?? new Dictionary<string, (string RoomType, int MaintenanceCount)>();
@@ -304,9 +312,11 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         private Dictionary<string, (int Deluxe, int Standard, int Suite)> _monthlyData;
         private async Task FetchMonthlyMaintenanceChartDataAsync()
         {
+            var fixedEndDate = EndDate.Date.AddDays(1).AddTicks(-1);
+
             var data = await maintenanceDataService.GetMonthlyMaintenanceCountsByRoomType(
                 StartDate,
-                EndDate
+                fixedEndDate
             );
 
             _monthlyData = data ?? new Dictionary<string, (int Deluxe, int Standard, int Suite)>();
@@ -373,11 +383,12 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         private bool _isLoading = false;
         private async Task RefreshChartAsync()
         {
-            if (_isLoading) return;
-            _isLoading = true;
+            if (_isLoading || !_isChanged) return;
 
             try
             {
+                _isLoading = true;
+
                 switch (SelectedViewType)
                 {
                     case "Each technician on time":
@@ -409,6 +420,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             finally
             {
                 _isLoading = false;
+                _isChanged = false; // Reset the change flag after loading
             }
         }
 
