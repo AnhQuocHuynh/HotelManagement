@@ -14,16 +14,18 @@ using HotelManager.Services;
 using System.Diagnostics;
 using System.ComponentModel;
 using Timer = System.Timers.Timer;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
-    public class CleanerViewModel : BaseViewModel
+    public class CleanerViewModel : BaseViewModel, IDisposable
     {
         private readonly ICleanRoomService _cleanroomService;
         private readonly IService<HotelManager.Models.Room> _roomService;
         private readonly HotelManager.Interfaces.IWorkAssignmentService? _workAssignmentService;
         private readonly INavigationService _navigationService;
         private Timer? _autoRefreshTimer;
+        private bool _disposed = false;
         private ObservableCollection<Room> _roomsToClean;
         public ObservableCollection<Room> RoomsToClean
         {
@@ -74,20 +76,20 @@ namespace HotelManager.ViewModels.StaffViewModels
         }
 
         // Commands
-        public ICommand MarkAsCleanedCommand { get; }
-        public ICommand ReportIssueCommand { get; }
-        public ICommand SelectImageCommand { get; }
-        public ICommand SendDamageReportCommand { get; }
-        public ICommand RemoveImageCommand { get; }
-        public ICommand RefreshDamageReportHistoryCommand { get; }
-        public ICommand ViewImageCommand { get; }
-        public ICommand CloseNotificationCommand { get; }
-        public ICommand FilterPendingCommand { get; }
-        public ICommand FilterCleanedCommand { get; }
-        public ICommand ClearFilterCommand { get; }
-        public ICommand NavigateProfileCommand { get; set; }
-        public ICommand LogoutCommand { get; }
-        public ICommand LoadedCommand { get; }
+        public ICommand MarkAsCleanedCommand { get; private set; }
+        public ICommand ReportIssueCommand { get; private set; }
+        public ICommand SelectImageCommand { get; private set; }
+        public ICommand SendDamageReportCommand { get; private set; }
+        public ICommand RemoveImageCommand { get; private set; }
+        public ICommand RefreshDamageReportHistoryCommand { get; private set; }
+        public ICommand ViewImageCommand { get; private set; }
+        public ICommand CloseNotificationCommand { get; private set; }
+        public ICommand FilterPendingCommand { get; private set; }
+        public ICommand FilterCleanedCommand { get; private set; }
+        public ICommand ClearFilterCommand { get; private set; }
+        public ICommand NavigateProfileCommand { get; private set; }
+        public ICommand LogoutCommand { get; private set; }
+        public ICommand LoadedCommand { get; private set; }
 
         public CleanerViewModel()
         {
@@ -116,12 +118,12 @@ namespace HotelManager.ViewModels.StaffViewModels
             RoomsToClean = new ObservableCollection<Room>();
             InitializeCommands();
 
-            // sequential async initialization to avoid concurrent DbContext operations
-            _ = InitializeAsync();
+            // Proper async initialization with error handling
+            InitializeAsyncSafely();
             
             // Setup auto-refresh timer (30 seconds)
             _autoRefreshTimer = new Timer(30000); // 30 seconds
-            _autoRefreshTimer.Elapsed += async (sender, e) => await LoadDataAsync();
+            _autoRefreshTimer.Elapsed += OnAutoRefreshElapsed;
             _autoRefreshTimer.AutoReset = true;
             _autoRefreshTimer.Start();
         }
@@ -142,6 +144,34 @@ namespace HotelManager.ViewModels.StaffViewModels
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
             LogoutCommand = new RelayCommand(Logout);
             LoadedCommand = new AsyncRelayCommand(LoadDataAsync);
+        }
+
+        private async void InitializeAsyncSafely()
+        {
+            try
+            {
+                await InitializeAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CleanerViewModel initialization failed: {ex.Message}");
+                // Log error but don't crash the application
+            }
+        }
+
+        private async void OnAutoRefreshElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (_disposed) return;
+            
+            try
+            {
+                await LoadDataAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Auto-refresh failed: {ex.Message}");
+                // Continue operation, don't crash
+            }
         }
 
         private async Task InitializeAsync()
@@ -378,11 +408,27 @@ namespace HotelManager.ViewModels.StaffViewModels
         private void Logout()
         {
             // Stop auto-refresh timer
-            _autoRefreshTimer?.Stop();
-            _autoRefreshTimer?.Dispose();
+            Dispose(); // Proper disposal instead of manual timer handling
             
             var mainVM = System.Windows.Application.Current.MainWindow?.DataContext as HotelManager.ViewModels.MainViewModel;
             mainVM?.Logout();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed && disposing)
+            {
+                _autoRefreshTimer?.Stop();
+                _autoRefreshTimer?.Dispose();
+                _autoRefreshTimer = null;
+                _disposed = true;
+            }
         }
     }
 }

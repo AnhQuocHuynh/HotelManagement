@@ -29,24 +29,20 @@ using LiveChartsCore.SkiaSharpView.SKCharts;
 
 namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
-    public class RevenueReportChartViewModel : BaseViewModel
+    public class RevenueReportChartViewModel : BaseViewModel, IDisposable
     {
         InVoiceService inVoiceService;
         ExportService _exportService;
 
-        // khi start date hoặc end date đổi refresh chart
-        // khi dùng time ranges sẽ set nhanh cả start với end date
-        // ==> nếu set time range nhanh cần đợi set cả start và end date xong mới refresh chart
+        // Loading state
         private bool _isUpdatingRange = false;
 
-
-        // khi gọi constructor sẽ set giá trị cho tất cả unit, startDate, endDate, roomType
-        // ==> refresh chart bị gọi 4 lần
-        // ==> cần vô hiệu hóa refresh chart khi đang set giá trị trong constructor đến khi hoàn tất
+        // khởi tạo thay đổi
         private bool _isInitializing = false;
 
-        // tránh gọi update data liên tục khi data chưa update xong
+        // loading to disable UI while refreshing chart
         private bool _isLoading = false;
+        private bool _disposed = false;
 
         // time units
         public ObservableCollection<string> TimeUnits { get; set; }
@@ -62,7 +58,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                     _selectedTimeUnit = value;
                     OnPropertyChanged(nameof(SelectedTimeUnit));
                     if (!_isInitializing)
-                        _ = RefreshChartAsync();
+                        _ = ExecuteSafelyAsync(() => RefreshChartAsync(), "Refresh chart data");
 
                 }
             }
@@ -215,6 +211,8 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         // constructor
         private IServiceScope _scope;
 
+        private string _selectedPeriod = "";
+
         public RevenueReportChartViewModel()
         {
             _isInitializing = true;
@@ -236,9 +234,29 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         }
         public void Dispose()
         {
-            _scope?.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed && disposing)
+            {
+                try
+                {
+                    _scope?.Dispose();
+                    // Dispose other resources nếu có
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error disposing RevenueReportChartViewModel: {ex.Message}");
+                }
+                finally
+                {
+                    _disposed = true;
+                }
+            }
+        }
 
         // export dữ liệu ra file excel
         private void ExportChartAndData()
@@ -354,14 +372,23 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         public Dictionary<string, (decimal revenue, int invoiceCount)> _chartData;
         private async Task FetchChartDataAsync()
         {
-            var data = await inVoiceService.GetInvoiceStatsGroupedAsync(
-                StartDate,
-                EndDate,
-                SelectedTimeUnit,
-                SelectedRoomType?.ToString()
-            );
+            try
+            {
+                var data = await inVoiceService.GetInvoiceStatsGroupedAsync(
+                    StartDate,
+                    EndDate,
+                    SelectedTimeUnit,
+                    SelectedRoomType?.ToString()
+                ).ConfigureAwait(false);
 
-            _chartData = data ?? new Dictionary<string, (decimal revenue, int invoiceCount)>();
+                _chartData = data ?? new Dictionary<string, (decimal revenue, int invoiceCount)>();
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "Error fetching chart data");
+                _chartData = new Dictionary<string, (decimal revenue, int invoiceCount)>();
+                throw; // Re-throw để caller handle
+            }
         }
 
         // update chart
@@ -481,18 +508,19 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         private async Task RefreshChartAsync()
         {
             // ngăn khi đang refresh
-            if (_isLoading) return;
+            if (_isLoading || _disposed) return;
             _isLoading = true;
 
             try
             {
-                await FetchChartDataAsync();
+                await FetchChartDataAsync().ConfigureAwait(false);
                 //update chart sau khi đủ data
                 UpdateChart();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"🚨 Error in RefreshChartAsync: {ex.Message}");
+                LogError(ex, "Error refreshing chart");
+                ShowError($"Lỗi khi cập nhật biểu đồ: {ex.Message}");
             }
             finally
             {
@@ -500,6 +528,12 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             }
         }
 
+        private void SetSelectedPeriod(string value)
+        {
+            _selectedPeriod = value;
+            OnPropertyChanged();
+            _ = ExecuteSafelyAsync(() => RefreshChartAsync(), "Refresh chart data");
+        }
 
     }
 
