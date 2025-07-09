@@ -48,19 +48,27 @@ namespace HotelManager.ViewModels.StaffViewModels
         public string CustomerFullName
         {
             get => _customerFullName;
-            set { _customerFullName = value; OnPropertyChanged(nameof(CustomerFullName)); }
+            set { _customerFullName = value; OnPropertyChanged(nameof(CustomerFullName));
+                ((AsyncRelayCommand)SaveEditCommand).NotifyCanExecuteChanged();
+            }
         }
 
         public string CustomerCCCD
         {
             get => _customerCCCD;
-            set { _customerCCCD = value; OnPropertyChanged(nameof(CustomerCCCD)); }
+            set
+            {
+                _customerCCCD = value; OnPropertyChanged(nameof(CustomerCCCD));
+                ((AsyncRelayCommand)SaveEditCommand).NotifyCanExecuteChanged();
+            }
         }
 
         public string CustomerPhoneNumber
         {
             get => _customerPhoneNumber;
-            set { _customerPhoneNumber = value; OnPropertyChanged(nameof(CustomerPhoneNumber)); }
+            set { _customerPhoneNumber = value; OnPropertyChanged(nameof(CustomerPhoneNumber));
+                ((AsyncRelayCommand)SaveEditCommand).NotifyCanExecuteChanged();
+            }
         }
 
         public CustomerType SelectedCustomerType
@@ -84,19 +92,25 @@ namespace HotelManager.ViewModels.StaffViewModels
         public string SelectedRoomNumber
         {
             get => _selectedRoomNumber;
-            set { _selectedRoomNumber = value; OnPropertyChanged(nameof(SelectedRoomNumber)); }
+            set { _selectedRoomNumber = value; OnPropertyChanged(nameof(SelectedRoomNumber));
+                ((AsyncRelayCommand)SaveEditCommand).NotifyCanExecuteChanged();
+            }
         }
 
         public DateTime? CheckInDate
         {
             get => _checkInDate;
-            set { _checkInDate = value; OnPropertyChanged(nameof(CheckInDate)); }
+            set { _checkInDate = value; OnPropertyChanged(nameof(CheckInDate));
+                ((AsyncRelayCommand)SaveEditCommand).NotifyCanExecuteChanged();
+            }
         }
 
         public DateTime? CheckOutDate
         {
             get => _checkOutDate;
-            set { _checkOutDate = value; OnPropertyChanged(nameof(CheckOutDate)); }
+            set { _checkOutDate = value; OnPropertyChanged(nameof(CheckOutDate));
+                ((AsyncRelayCommand)SaveEditCommand).NotifyCanExecuteChanged();
+            }
         }
 
         public BookingStatus SelectedStatus
@@ -152,6 +166,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 {
                     LoadBookingForEdit(value);
                 }
+                ((AsyncRelayCommand)SaveEditCommand).NotifyCanExecuteChanged();
             }
         }
 
@@ -243,9 +258,10 @@ namespace HotelManager.ViewModels.StaffViewModels
                 execute: b => EditBookingAsync(b!),
                 canExecute: b => b != null);
 
-            SaveEditCommand = new AsyncRelayCommand<Booking?>(
-                execute: b => SaveEditAsync(b!),
-                canExecute: b => b != null);
+
+            SaveEditCommand = new AsyncRelayCommand(
+               execute: () => SaveEditAsync(),
+               canExecute: () => CanSaveEdit() );
 
             CancelEditCommand = new AsyncRelayCommand<Booking?>(
                 execute: b => CancelEditAsync(b!),
@@ -320,6 +336,18 @@ namespace HotelManager.ViewModels.StaffViewModels
                     return;
                 }
 
+                //Vailadte date 
+                if (CheckInDate >= CheckOutDate)
+                {
+                    MessageBox.Show("Check-out date must be after check-in date.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                if (CheckInDate < DateTime.Now)
+                {
+                    MessageBox.Show("Check-in date cannot be in the past.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 var customer = new Customer
                 {
                     FullName = CustomerFullName,
@@ -328,6 +356,17 @@ namespace HotelManager.ViewModels.StaffViewModels
                     Type = SelectedCustomerType
                 };
 
+                //Calculate total amount based on room type and dates
+                var room = await _roomService.GetByRoomNumberAsync(SelectedRoomNumber);
+                if (room == null)
+                {
+                    MessageBox.Show("Selected room number does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                decimal totalAmount = room.PricePerNight * (CheckOutDate.Value.Date - CheckInDate.Value.Date).Days;
+                
+                var employee = AppSession.GetCurrentUserAccount()?.Employee;
+
                 var booking = new Booking
                 {
                     Customer = customer,
@@ -335,7 +374,10 @@ namespace HotelManager.ViewModels.StaffViewModels
                     RoomNumber = SelectedRoomNumber,
                     CheckInDate = CheckInDate.Value,
                     CheckOutDate = CheckOutDate.Value,
-                    Status = SelectedStatus
+                    Status = SelectedStatus,
+                    Room = room,
+                    TotalAmount = totalAmount,
+                    BookingEmployeeId = employee?.Id,
                 };
 
                 await _bookingService.CreateAsync(booking);
@@ -479,6 +521,8 @@ namespace HotelManager.ViewModels.StaffViewModels
             CheckInDate = null;
             CheckOutDate = null;
             SelectedStatus = BookingStatus.Pending;
+
+
         }
 
         private async Task ReportsAsync()
@@ -513,6 +557,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             try
             {
                 ClearInputFields();
+                IsEditMode = false;
                 MessageBox.Show("Form cleared successfully!", "Clear Form", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -562,11 +607,13 @@ namespace HotelManager.ViewModels.StaffViewModels
                 //    }
                 //    catch { }
                 //}
-                await LoadDataAsync();
+                //await LoadDataAsync();
                 // Tạo mới invoice cho booking
                 var invoiceService = App.ServiceProvider.GetRequiredService<HotelManager.Services.InvoiceService>();
                 var invoice = await invoiceService.CreateForBookingAsync(booking, booking.TotalAmount);
+
                 // Điều hướng sang PaymentViewModel, truyền invoice
+                Debug.WriteLine($"Navigating to PaymentViewModel with Invoice's Booking ID: {invoice.BookingId}, TotalAmount: {invoice.TotalAmount}");
                 _navigationService?.NavigateTo<PaymentViewModel>(invoice);
                 _notificationService?.ShowSuccess($"Checkout completed for room {booking.RoomNumber}. Navigated to Payment View.");
                 _logger?.LogInformation("Successfully processed checkout for booking {BookingId}", booking.Id);
@@ -696,6 +743,7 @@ namespace HotelManager.ViewModels.StaffViewModels
 
                 SelectedBookingForEdit = booking;
                 IsEditMode = true;
+
             }
             catch (Exception ex)
             {
@@ -704,21 +752,81 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
         }
 
-        private async Task SaveEditAsync(Booking? booking)
+        private bool CanSaveEdit()
+        {
+            return !string.IsNullOrWhiteSpace(CustomerFullName) &&
+                   !string.IsNullOrWhiteSpace(CustomerCCCD) &&
+                   !string.IsNullOrWhiteSpace(CustomerPhoneNumber) &&
+                   !string.IsNullOrWhiteSpace(SelectedRoomNumber) &&
+                   CheckInDate != null &&
+                   CheckOutDate != null &&
+                   CheckInDate < CheckOutDate;
+        }
+
+        private async Task SaveEditAsync()
         {
             try
             {
-                _logger?.LogInformation("Saving edited booking {BookingId}", booking?.Id);
-                if (booking == null)
+                _logger?.LogInformation("Saving edited booking {BookingId}", SelectedBookingForEdit.Id);
+                if (SelectedBookingForEdit == null)
                 {
                     MessageBox.Show("Please select a booking to save.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                await _bookingService.UpdateAsync(booking);
+                if (string.IsNullOrWhiteSpace(CustomerFullName) ||
+                    string.IsNullOrWhiteSpace(CustomerCCCD) ||
+                    string.IsNullOrWhiteSpace(CustomerPhoneNumber) ||
+                    string.IsNullOrWhiteSpace(SelectedRoomNumber) ||
+                    CheckInDate == null ||
+                    CheckOutDate == null)
+                {
+                    MessageBox.Show("Please fill in all required information.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                //Vailadte date 
+                if (CheckInDate >= CheckOutDate)
+                {
+                    MessageBox.Show("Check-out date must be after check-in date.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+
+
+                // Recalculate total amount
+                var room = await _roomService.GetByRoomNumberAsync(SelectedRoomNumber);
+                if (room == null)
+                {
+                    MessageBox.Show("Selected room number does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                int numberOfNights = (CheckOutDate.Value.Date - CheckInDate.Value.Date).Days;
+                decimal totalAmount = room.PricePerNight * numberOfNights;
+
+                // Update the booking's properties
+                SelectedBookingForEdit.Customer.FullName = CustomerFullName;
+                SelectedBookingForEdit.Customer.CCCD = CustomerCCCD;
+                SelectedBookingForEdit.Customer.PhoneNumber = CustomerPhoneNumber;
+                SelectedBookingForEdit.Customer.Type = SelectedCustomerType;
+
+                SelectedBookingForEdit.RoomType = SelectedRoomType;
+                SelectedBookingForEdit.RoomNumber = SelectedRoomNumber;
+                SelectedBookingForEdit.CheckInDate = CheckInDate.Value;
+                SelectedBookingForEdit.CheckOutDate = CheckOutDate.Value;
+                SelectedBookingForEdit.Status = SelectedStatus;
+                SelectedBookingForEdit.TotalAmount = totalAmount;
+                SelectedBookingForEdit.Room = room;
+
+                await _bookingService.UpdateAsync(SelectedBookingForEdit);
                 await UpdateAvailableRoomsAsync();
                 MessageBox.Show("Booking updated successfully!", "Success", MessageBoxButton.OK);
-                _logger?.LogInformation("Successfully updated booking {BookingId}", booking.Id);
+                _logger?.LogInformation("Successfully updated booking {BookingId}", SelectedBookingForEdit.Id);
+                // Clear the edit fields
+                ClearInputFields();
+                SelectedBookingForEdit = null;
+                IsEditMode = false;
             }
             catch (EntityNotFoundException ex)
             {
