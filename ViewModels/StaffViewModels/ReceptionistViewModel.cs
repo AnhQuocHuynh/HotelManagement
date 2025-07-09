@@ -821,6 +821,7 @@ namespace HotelManager.ViewModels.StaffViewModels
 
                 await _bookingService.UpdateAsync(SelectedBookingForEdit);
                 await UpdateAvailableRoomsAsync();
+                await LoadDataAsync();
                 MessageBox.Show("Booking updated successfully!", "Success", MessageBoxButton.OK);
                 _logger?.LogInformation("Successfully updated booking {BookingId}", SelectedBookingForEdit.Id);
                 // Clear the edit fields
