@@ -462,7 +462,7 @@
                                                     <StackPanel Orientation="Horizontal" 
                                                                 HorizontalAlignment="Center">
                                                         <Button ToolTip="Edit" 
-                                                                Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                                                Command="{Binding DataContext.EditBookingCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
                                                                 CommandParameter="{Binding}" 
                                                                 Style="{StaticResource IconButton}"
                                                                 Width="32" 
@@ -486,7 +486,32 @@
                                                                                      Height="16"
                                                                                      Foreground="{StaticResource SuccessBrush}"/>
                                                         </Button>
-                                                    </StackPanel>
+                                                    <Button ToolTip="Create Invoice" 
+                                                                Command="{Binding DataContext.CreateInvoiceCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                                                CommandParameter="{Binding}" 
+                                                                Style="{StaticResource IconButton}"
+                                                                Width="32" 
+                                                                Height="32"
+                                                                Margin="0,0,4,0">
+                                                        <materialDesign:PackIcon Kind="Receipt" 
+                                                                                     Width="16" 
+                                                                                     Height="16"
+                                                                                     Foreground="{StaticResource WarningBrush}"/>
+                                                    </Button>
+
+                                                    <Button ToolTip="Delete" 
+                                                                Command="{Binding DataContext.DeleteBookingCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                                                CommandParameter="{Binding}" 
+                                                                Style="{StaticResource IconButton}"
+                                                                Width="32" 
+                                                                Height="32"
+                                                                Margin="0,0,4,0">
+                                                        <materialDesign:PackIcon Kind="Delete" 
+                                                                                     Width="16" 
+                                                                                     Height="16"
+                                                                                     Foreground="{StaticResource ErrorBrush}"/>
+                                                    </Button>
+                                                </StackPanel>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>

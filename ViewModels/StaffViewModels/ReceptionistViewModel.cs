@@ -139,15 +139,36 @@ namespace HotelManager.ViewModels.StaffViewModels
             set { _availableRoomsCount = value; OnPropertyChanged(nameof(AvailableRoomsCount)); }
         }
 
-        //public Booking? SelectedBooking
-        //{
-        //    get => _selectedBooking;
-        //    set
-        //    {
-        //        _selectedBooking = value;
-        //        OnPropertyChanged(nameof(SelectedBooking));
-        //    }
-        //}
+        // Properties for editing
+        private Booking _selectedBookingForEdit;
+        public Booking SelectedBookingForEdit
+        {
+            get => _selectedBookingForEdit;
+            set
+            {
+                _selectedBookingForEdit = value;
+                OnPropertyChanged(nameof(SelectedBookingForEdit));
+                if (value != null)
+                {
+                    LoadBookingForEdit(value);
+                }
+            }
+        }
+
+        private bool _isEditMode;
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            set
+            {
+                _isEditMode = value;
+                OnPropertyChanged(nameof(IsEditMode));
+                OnPropertyChanged(nameof(IsAddMode));
+            }
+        }
+
+        public bool IsAddMode => !IsEditMode;
+        // end of properties for editing
 
         public ICommand AddNewBookingCommand { get; private set; }
         public ICommand ShowBookingsCommand { get; private set; }
@@ -160,9 +181,16 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand RefreshCommand { get; private set; }
         public ICommand ClearFormCommand { get; private set; }
         public ICommand SearchCommand { get; private set; }
-        public ICommand NavigateProfileCommand { get; set; }
-        public ICommand LogoutCommand { get; set; }
-
+        public ICommand NavigateProfileCommand { get; private set; }
+        public ICommand LogoutCommand { get; private set; }
+        public ICommand DeleteBookingCommand { get;private set; }
+        // edit booking commands
+        public ICommand EditBookingCommand { get; private set; }
+        public ICommand SaveEditCommand { get; private set; }
+        public ICommand CancelEditCommand { get; private set; }
+        // end of edit booking commands
+        // create invoice command
+        public ICommand CreateInvoiceCommand { get; private set; }
 
         // Constructor cho XAML (không tham số) – tự resolve qua DI
         public ReceptionistViewModel() : base()
@@ -211,6 +239,18 @@ namespace HotelManager.ViewModels.StaffViewModels
                 execute: b => CheckoutAsync(b!),
                 canExecute: b => b != null && b.Status == BookingStatus.CheckedIn);
 
+            EditBookingCommand = new AsyncRelayCommand<Booking?>(
+                execute: b => EditBookingAsync(b!),
+                canExecute: b => b != null);
+
+            SaveEditCommand = new AsyncRelayCommand<Booking?>(
+                execute: b => SaveEditAsync(b!),
+                canExecute: b => b != null);
+
+            CancelEditCommand = new AsyncRelayCommand<Booking?>(
+                execute: b => CancelEditAsync(b!),
+                canExecute: b => b != null);
+
             LoadedCommand = new AsyncRelayCommand(LoadDataAsync);
 
             ReportsCommand = new AsyncRelayCommand(ReportsAsync);
@@ -219,6 +259,15 @@ namespace HotelManager.ViewModels.StaffViewModels
             SearchCommand = new RelayCommand(PerformSearch);
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
             LogoutCommand = new RelayCommand(Logout);
+            // DeleteBookingCommand
+            DeleteBookingCommand = new AsyncRelayCommand<Booking?>(
+                execute: b => DeleteAsync(b!),
+                canExecute: b => b != null);
+
+            // CreateInvoiceCommand
+            CreateInvoiceCommand = new AsyncRelayCommand<Booking?>(
+                execute: b => CreateInvoiceAsync(b!),
+                canExecute: b => b != null);
         }
 
         protected override async Task OnLoadedAsync()
@@ -355,17 +404,17 @@ namespace HotelManager.ViewModels.StaffViewModels
                 _logger?.LogInformation("Deleting booking {BookingId}", booking?.Id);
                 if (booking == null)
                 {
-                    MessageBox.Show("Vui lòng chọn một booking để xóa.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Please select a booking to delete.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                var result = MessageBox.Show("Bạn có chắc chắn muốn xóa booking này?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = MessageBox.Show("Are you sure you want to delete this booking?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
                     await _bookingService.DeleteAsync(booking.Id);
                     Bookings.Remove(booking);
                     await UpdateAvailableRoomsAsync();
-                    MessageBox.Show("Xóa booking thành công!", "Thành công", MessageBoxButton.OK);
+                    MessageBox.Show("Booking deleted successfully!", "Success", MessageBoxButton.OK);
                     _logger?.LogInformation("Successfully deleted booking {BookingId}", booking.Id);
                     TotalBookings = Bookings.Count;
                 }
@@ -373,17 +422,17 @@ namespace HotelManager.ViewModels.StaffViewModels
             catch (EntityNotFoundException ex)
             {
                 _logger?.LogWarning(ex, "Entity not found");
-                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (BusinessException ex)
             {
                 _logger?.LogWarning(ex, "Business error deleting booking");
-                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Unexpected error deleting booking");
-                MessageBox.Show("Lỗi khi xóa booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error when deleting booking. Please try again", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -615,6 +664,133 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             var mainVM = System.Windows.Application.Current.MainWindow?.DataContext as HotelManager.ViewModels.MainViewModel;
             mainVM?.Logout();
+        }
+
+        // Method to load booking details for editing
+        private void LoadBookingForEdit(Booking booking)
+        {
+            if (booking?.Customer != null)
+            {
+                CustomerFullName = booking.Customer.FullName;
+                CustomerCCCD = booking.Customer.CCCD;
+                CustomerPhoneNumber = booking.Customer.PhoneNumber;
+                SelectedCustomerType = booking.Customer.Type;
+            }
+
+            SelectedRoomType = booking.RoomType;
+            SelectedRoomNumber = booking.RoomNumber;
+            CheckInDate = booking.CheckInDate;
+            CheckOutDate = booking.CheckOutDate;
+            SelectedStatus = booking.Status;
+        }
+        private async Task EditBookingAsync(Booking? booking)
+        {
+            try
+            {
+                _logger?.LogInformation("Editing booking {BookingId}", booking?.Id);
+                if (booking == null)
+                {
+                    MessageBox.Show("Please select a booking to edit.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                SelectedBookingForEdit = booking;
+                IsEditMode = true;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error editing booking");
+                MessageBox.Show("Error editing booking. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task SaveEditAsync(Booking? booking)
+        {
+            try
+            {
+                _logger?.LogInformation("Saving edited booking {BookingId}", booking?.Id);
+                if (booking == null)
+                {
+                    MessageBox.Show("Please select a booking to save.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                await _bookingService.UpdateAsync(booking);
+                await UpdateAvailableRoomsAsync();
+                MessageBox.Show("Booking updated successfully!", "Success", MessageBoxButton.OK);
+                _logger?.LogInformation("Successfully updated booking {BookingId}", booking.Id);
+            }
+            catch (EntityNotFoundException ex)
+            {
+                _logger?.LogWarning(ex, "Entity not found");
+                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (BusinessException ex)
+            {
+                _logger?.LogWarning(ex, "Business error updating booking");
+                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error updating booking");
+                MessageBox.Show("Error while updating booking. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task CancelEditAsync(Booking? booking)
+        {
+            try
+            {
+                _logger?.LogInformation("Canceling edit for booking {BookingId}", booking?.Id);
+                if (booking == null)
+                {
+                    MessageBox.Show("Please select a booking to cancel edit.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                SelectedBookingForEdit = null;
+                IsEditMode = false;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error canceling edit");
+                MessageBox.Show("Error canceling edit. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        private async Task CreateInvoiceAsync(Booking? booking)
+        {
+            try
+            {
+                _logger?.LogInformation("Creating invoice for booking {BookingId}", booking?.Id);
+                if (booking == null)
+                {
+                    MessageBox.Show("Please select a booking to create invoice.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var invoiceService = App.ServiceProvider.GetRequiredService<HotelManager.Services.InvoiceService>();
+                var invoice = await invoiceService.CreateForBookingAsync(booking, booking.TotalAmount);
+                _navigationService?.NavigateTo<PaymentViewModel>(invoice);
+                _notificationService?.ShowSuccess($"Invoice created for booking {booking.RoomNumber}. Navigated to Payment View.");
+                _logger?.LogInformation("Successfully created invoice for booking {BookingId}", booking.Id);
+            }
+            catch (EntityNotFoundException ex)
+            {
+                _logger?.LogWarning(ex, "Entity not found");
+                _notificationService?.ShowError(ex.UserMessage);
+            }
+            catch (BusinessException ex)
+            {
+                _logger?.LogWarning(ex, "Business error creating invoice");
+                _notificationService?.ShowError(ex.UserMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error creating invoice");
+                _notificationService?.ShowError("Error creating invoice. Please try again.");
+            }
         }
     }
 }
