@@ -607,6 +607,16 @@ namespace HotelManager.ViewModels.StaffViewModels
                     MessageBoxImage.Question);
                 if (result != MessageBoxResult.Yes)
                     return;
+
+                var invoiceService = App.ServiceProvider.GetRequiredService<HotelManager.Services.InvoiceService>();
+
+                // Try fetch existing invoice
+                var invoice = await invoiceService.GetByBookingIdAsync(booking.Id);
+                if (invoice == null)
+                {
+                    _logger?.LogInformation("No invoice found for booking {BookingId}, creating new one", booking.Id);
+                    invoice = await invoiceService.CreateForBookingAsync(booking, booking.TotalAmount);
+                }
                 //booking.Status = BookingStatus.CheckedOut;
                 //booking.CheckOutDate = DateTime.Now;
                 //await _bookingService.UpdateAsync(booking);
@@ -627,13 +637,14 @@ namespace HotelManager.ViewModels.StaffViewModels
                 //                currentUser?.EmployeeId);
                 //        }
                 //    }
-                //    catch { }
+                //    catch (Exception ex)
+                //    {
+                //        _logger?.LogWarning(ex, "Work assignment during checkout failed");
+                //    }
                 //}
-                //await LoadDataAsync();
-                // Tạo mới invoice cho booking
-                var invoiceService = App.ServiceProvider.GetRequiredService<HotelManager.Services.InvoiceService>();
-                var invoice = await invoiceService.CreateForBookingAsync(booking, booking.TotalAmount);
+                await LoadDataAsync();
 
+                // Tạo mới invoice cho booking
                 // Điều hướng sang PaymentViewModel, truyền invoice
                 Debug.WriteLine($"Navigating to PaymentViewModel with Invoice's Booking ID: {invoice.BookingId}, TotalAmount: {invoice.TotalAmount}");
                 _navigationService?.NavigateTo<PaymentViewModel>(invoice);
@@ -911,20 +922,27 @@ namespace HotelManager.ViewModels.StaffViewModels
 
         private async Task CreateInvoiceAsync(Booking? booking)
         {
+            if (booking == null)
+            {
+                MessageBox.Show("Please select a booking to create invoice.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             try
             {
                 _logger?.LogInformation("Creating invoice for booking {BookingId}", booking?.Id);
-                if (booking == null)
-                {
-                    MessageBox.Show("Please select a booking to create invoice.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
 
                 var invoiceService = App.ServiceProvider.GetRequiredService<HotelManager.Services.InvoiceService>();
-                var invoice = await invoiceService.CreateForBookingAsync(booking, booking.TotalAmount);
+
+                var invoice = await invoiceService.GetByBookingIdAsync(booking.Id);
+                if (invoice == null)
+                {
+                    _logger?.LogInformation("No invoice found for booking {BookingId}, creating new one", booking.Id);
+                    invoice = await invoiceService.CreateForBookingAsync(booking, booking.TotalAmount);
+                }
+
                 _navigationService?.NavigateTo<PaymentViewModel>(invoice);
-                _notificationService?.ShowSuccess($"Invoice created for booking {booking.RoomNumber}. Navigated to Payment View.");
-                _logger?.LogInformation("Successfully created invoice for booking {BookingId}", booking.Id);
+                _notificationService?.ShowSuccess($"Invoice ready for booking {booking.RoomNumber}. Navigated to Payment View.");
+                _logger?.LogInformation("Invoice ready for booking {BookingId}", booking.Id);
             }
             catch (EntityNotFoundException ex)
             {

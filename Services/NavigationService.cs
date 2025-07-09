@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using HotelManager.Interfaces;
 using HotelManager.ViewModels;
 using Serilog;
+using System.Diagnostics;
 
 namespace HotelManager.Services
 {
@@ -48,7 +49,9 @@ namespace HotelManager.Services
         public void NavigateTo<TViewModel>(object parameter) where TViewModel : BaseViewModel
         {
             var viewModel = CreateViewModel<TViewModel>();
-            
+
+            Debug.WriteLine($"Created view model of type {typeof(TViewModel).Name}");
+
             // Pass parameter to ViewModel if it implements INavigationAware
             if (viewModel is INavigationAware navigationAware && parameter != null)
             {
