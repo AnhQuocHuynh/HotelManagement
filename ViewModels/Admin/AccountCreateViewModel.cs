@@ -10,6 +10,7 @@ using HotelManager.Services;
 using HotelManager.Helpers;
 using HotelManager.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.Windows;
 
 namespace HotelManager.ViewModels.Admin
 {
@@ -150,7 +151,17 @@ namespace HotelManager.ViewModels.Admin
                 if (!ValidateAllProperties())
                     return;
 
+                // Check if employee already has an account
+                
                 var existingAccounts = await _userAccountService.GetAllAsync();
+                var existingByEmployee = existingAccounts.FirstOrDefault(x => x.EmployeeId == Employee.Id);
+                if (existingByEmployee != null)
+                {
+                    MessageBox.Show("Employee already has an account", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _notificationService?.ShowError("This employee already has an account!");
+                    return;
+                }
+
                 if (existingAccounts.Any(x => x.Username.Equals(Username, StringComparison.OrdinalIgnoreCase)))
                 {
                     _notificationService?.ShowError("Username already exists!");

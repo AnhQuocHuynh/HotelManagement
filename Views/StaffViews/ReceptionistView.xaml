@@ -10,7 +10,7 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type=vm:ReceptionistViewModel, IsDesignTimeCreatable=True}" d:DesignWidth="1400" Height="1384">
+             d:DataContext="{d:DesignInstance Type=vm:ReceptionistViewModel, IsDesignTimeCreatable=True}" d:DesignWidth="1400" Height="900">
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -114,12 +114,13 @@
                                         <TextBlock Text="{Binding TotalBookings, StringFormat='{}{0} Bookings'}" Style="{StaticResource LabelLarge}" Foreground="{StaticResource PrimaryBrush}" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
+                                <!--
                                 <Button Command="{Binding NavigateToRoomViewCommand}" Style="{StaticResource OutlinedButton}" Margin="8,0" Background="White">
                                     <StackPanel Orientation="Horizontal">
                                         <materialDesign:PackIcon Kind="BedKingOutline" Foreground="{StaticResource SuccessBrush}" Width="20" Height="20" VerticalAlignment="Center"/>
                                         <TextBlock Text="Room Status" Style="{StaticResource LabelLarge}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
-                                </Button>
+                                </Button> -->
                             </StackPanel>
 
                             <!-- Action Buttons -->
@@ -302,6 +303,11 @@
                         <StackPanel Orientation="Horizontal" 
                     HorizontalAlignment="Right"
                                     Margin="0,24,0,0">
+                            <Button Content="Save Edit"
+                                    Style="{StaticResource ContainedButton}"
+                                    Command="{Binding SaveEditCommand}"
+                                    Margin="0,0,12,0"
+                                    Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             <Button Content="Save"
                                     Style="{StaticResource ContainedButton}"
                                     Command="{Binding AddNewBookingCommand}"
@@ -361,7 +367,7 @@
                                 CornerRadius="{StaticResource RadiusS}" 
                                 BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
                                 BorderThickness="1">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="400">
+                            
                                 <DataGrid ItemsSource="{Binding Bookings}" 
                                           AutoGenerateColumns="False" 
                                           CanUserAddRows="False"               
@@ -370,7 +376,9 @@
                                           ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
                                           CanUserResizeRows="False"
                                           CanUserSortColumns="True"
-                                          MinHeight="400" SelectionChanged="DataGrid_SelectionChanged">
+                                          MinHeight="400" MaxHeight="600"
+                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                          ScrollViewer.CanContentScroll="True">
                                     <DataGrid.Columns>
                                         <!-- Status Indicator -->
                                         <DataGridTemplateColumn Header="" Width="50">
@@ -453,7 +461,7 @@
                                                             ElementStyle="{StaticResource BodyMedium}"/>
 
                                         <!-- Actions Column -->
-                                        <DataGridTemplateColumn Header="Actions" Width="240">
+                                        <DataGridTemplateColumn Header="Actions" Width="180">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Horizontal" 
@@ -483,39 +491,38 @@
                                                                                      Height="16"
                                                                                      Foreground="{StaticResource SuccessBrush}"/>
                                                         </Button>
-
-                                                        <Button ToolTip="Create Invoice" 
+                                                    <Button ToolTip="Create Invoice" 
                                                                 Command="{Binding DataContext.CreateInvoiceCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
                                                                 CommandParameter="{Binding}" 
                                                                 Style="{StaticResource IconButton}"
                                                                 Width="32" 
                                                                 Height="32"
                                                                 Margin="0,0,4,0">
-                                                            <materialDesign:PackIcon Kind="Receipt" 
+                                                        <materialDesign:PackIcon Kind="Receipt" 
                                                                                      Width="16" 
                                                                                      Height="16"
                                                                                      Foreground="{StaticResource WarningBrush}"/>
-                                                        </Button>
+                                                    </Button>
 
-                                                        <Button ToolTip="Delete" 
+                                                    <Button ToolTip="Delete" 
                                                                 Command="{Binding DataContext.DeleteBookingCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
                                                                 CommandParameter="{Binding}" 
                                                                 Style="{StaticResource IconButton}"
                                                                 Width="32" 
                                                                 Height="32"
                                                                 Margin="0,0,4,0">
-                                                            <materialDesign:PackIcon Kind="Delete" 
+                                                        <materialDesign:PackIcon Kind="Delete" 
                                                                                      Width="16" 
                                                                                      Height="16"
                                                                                      Foreground="{StaticResource ErrorBrush}"/>
-                                                        </Button>
-                                                    </StackPanel>
+                                                    </Button>
+                                                </StackPanel>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
                                     </DataGrid.Columns>
                                 </DataGrid>
-                            </ScrollViewer>
+                            
                         </Border>
                     </StackPanel>
                 </materialDesign:Card>

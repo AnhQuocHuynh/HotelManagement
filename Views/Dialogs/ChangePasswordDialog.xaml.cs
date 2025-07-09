@@ -1,6 +1,7 @@
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using HotelManager.Helpers;
+using HotelManager.ViewModels.Dialogs;
 
 namespace HotelManager.Views.Dialogs
 {
@@ -13,6 +14,11 @@ namespace HotelManager.Views.Dialogs
             if (App.ServiceProvider != null)
             {
                 DataContext = App.ServiceProvider.GetRequiredService<ViewModels.Dialogs.ChangePasswordDialogViewModel>();
+            }
+
+            if (DataContext is ChangePasswordDialogViewModel vm)
+            {
+                vm.CloseAction = this.Close;
             }
 
             // Set up PasswordBox assistants

@@ -276,16 +276,17 @@ namespace HotelManager.Services
         /// <summary>
         /// Kiểm tra xung đột booking cho một phòng trong khoảng thời gian
         /// </summary>
-        public async Task<List<Booking>> GetConflictingBookingsAsync(string roomNumber, DateTime checkInDate, DateTime checkOutDate)
+        public async Task<List<Booking>> GetConflictingBookingsAsync(string roomNumber, DateTime checkInDate, DateTime checkOutDate, int? excludeBookingId = null)
         {
             return await _dbContext.Bookings
                 .Include(b => b.Customer)
-                .Where(b => b.RoomNumber == roomNumber &&
-                           b.Status != BookingStatus.Cancelled &&
-                           b.Status != BookingStatus.CheckedOut &&
-                           ((b.CheckInDate <= checkInDate && b.CheckOutDate > checkInDate) ||
-                            (b.CheckInDate < checkOutDate && b.CheckOutDate >= checkOutDate) ||
-                            (b.CheckInDate >= checkInDate && b.CheckOutDate <= checkOutDate)))
+                .Where(b =>
+                    b.RoomNumber == roomNumber &&
+                    b.Status != BookingStatus.Cancelled &&
+                    b.Status != BookingStatus.CheckedOut &&
+                    (excludeBookingId == null || b.Id != excludeBookingId) &&
+                    b.CheckInDate < checkOutDate &&
+                    b.CheckOutDate > checkInDate)
                 .ToListAsync();
         }
 

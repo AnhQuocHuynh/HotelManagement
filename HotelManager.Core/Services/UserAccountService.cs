@@ -56,9 +56,9 @@ namespace HotelManager.Services
             
             if (targetUser == null)
                 return false;
-
+            string hashedPassword = HashHelper.HashPassword(password);
             // Simple password validation for now - in production, use proper hashing
-            return targetUser.PasswordHash == password;
+            return targetUser.PasswordHash == hashedPassword;
         }
         public async Task ChangePasswordAsync(string username, string newPassword)
         {
@@ -69,7 +69,7 @@ namespace HotelManager.Services
                 throw new EntityNotFoundException("UserAccount", username);
 
             // Simple password hashing for now - in production, use proper hashing
-            user.PasswordHash = newPassword;
+            user.PasswordHash = HashHelper.HashPassword(newPassword);
             await _unitOfWork.UserAccounts.UpdateAsync(user);
             await _unitOfWork.SaveChangesAsync();
         }

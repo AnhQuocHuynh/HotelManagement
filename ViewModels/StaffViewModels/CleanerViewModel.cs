@@ -105,10 +105,10 @@ namespace HotelManager.ViewModels.StaffViewModels
             var serviceProvider = App.ServiceProvider;
             if (serviceProvider != null)
             {
-                _cleanroomService = serviceProvider.GetRequiredService<ICleanRoomService>();
-                _roomService = serviceProvider.GetRequiredService<IService<Room>>();
-                _workAssignmentService = serviceProvider.GetService<IWorkAssignmentService>();
-                _navigationService = serviceProvider.GetRequiredService<INavigationService>();
+                _cleanroomService = App.ServiceProvider.GetRequiredService<ICleanRoomService>();
+                _roomService = App.ServiceProvider?.GetRequiredService<IService<Room>>();
+                _workAssignmentService = App.ServiceProvider?.GetService<IWorkAssignmentService>();
+                _navigationService = App.ServiceProvider?.GetRequiredService<INavigationService>();
             }
             else
             {

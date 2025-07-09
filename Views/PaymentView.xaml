@@ -127,8 +127,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                        </Grid.ColumnDefinitions>
 
                         <materialDesign:Card Grid.Column="0" Style="{StaticResource QuickStatsCard}">
                             <StackPanel>
@@ -148,25 +147,9 @@
                             </StackPanel>
                         </materialDesign:Card>
 
-                        <materialDesign:Card Grid.Column="1" Style="{StaticResource QuickStatsCard}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <materialDesign:PackIcon Kind="FileDocument" 
-                                                           Width="24" Height="24" 
-                                                           Foreground="{StaticResource PrimaryBrush}"/>
-                                    <TextBlock Text="Pending Invoices" 
-                                             Style="{StaticResource BodyLarge}" 
-                                             Margin="12,0,0,0" 
-                                             VerticalAlignment="Center"/>
-                                </StackPanel>
-                                <TextBlock Text="{Binding AvailableInvoices.Count}" 
-                                         Style="{StaticResource HeadlineMedium}" 
-                                         Foreground="{StaticResource PrimaryBrush}" 
-                                         FontWeight="Bold"/>
-                            </StackPanel>
-                        </materialDesign:Card>
+                        
 
-                        <materialDesign:Card Grid.Column="2" Style="{StaticResource QuickStatsCard}">
+                        <materialDesign:Card Grid.Column="1" Style="{StaticResource QuickStatsCard}">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                     <materialDesign:PackIcon Kind="CurrencyUsd" 
@@ -249,15 +232,41 @@
                                 </UniformGrid>
 
                                 <!-- Action Button -->
-                                <Button Grid.Row="2" 
-                                      Command="{Binding AddPaymentCommand}"
-                        Style="{StaticResource ContainedButton}"
-                                      HorizontalAlignment="Right">
-                    <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon Kind="Plus" Width="20" Height="20"/>
-                        <TextBlock Text="Add Payment" Margin="8,0,0,0"/>
-                    </StackPanel>
-                </Button>
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0"
+                                            Command="{Binding SaveEditedPaymentCommand}"
+                                            Style="{StaticResource ContainedButton}"
+                                            Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                          HorizontalAlignment="Right">      
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Verified" Width="20" Height="20"/>
+                                            <TextBlock Text="Save Edit" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Grid.Column="1" Margin="16,0,0,0"
+                                            Command="{Binding AddPaymentCommand}"
+                                            Style="{StaticResource ContainedButton }"
+                                          HorizontalAlignment="Right">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Plus" Width="20" Height="20"/>
+                                            <TextBlock Text="Add Payment" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Grid.Column="2" Margin="16,0,0,0"
+                                            Command="{Binding CancelPaymentCommand}"
+                                            Style="{StaticResource OutlinedButton}"
+                                          HorizontalAlignment="Right">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Close" Width="20" Height="20"/>
+                                            <TextBlock Text="Cancel" Margin="8,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
                             </Grid>
                         </StackPanel>
                     </materialDesign:Card>
@@ -293,7 +302,7 @@
                           CanUserResizeRows="False"
                                         CanUserSortColumns="True"
                                         SelectedItem="{Binding SelectedPayment}"
-                                        MinHeight="300">
+                                        MinHeight="300" MaxHeight="800">
                     <DataGrid.Columns>
                                         <!-- Status Indicator -->
                                         <DataGridTemplateColumn Header="" Width="50">
@@ -357,7 +366,7 @@
                                                     <StackPanel Orientation="Horizontal" 
                                                               HorizontalAlignment="Center">
                                                         <Button ToolTip="Edit Payment" 
-                                                              Command="{Binding DataContext.SavePaymentCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
+                                                              Command="{Binding DataContext.EnableEditPayment, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" 
                                                               CommandParameter="{Binding}" 
                                                               Style="{StaticResource IconButton}"
                                                               Width="32" 

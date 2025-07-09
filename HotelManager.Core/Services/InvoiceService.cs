@@ -22,17 +22,45 @@ namespace HotelManager.Services
                 .ToListAsync();
         }
 
-        public async Task<Invoice> CreateForBookingAsync(int bookingId, decimal totalAmount)
+        public async Task<Invoice> CreateForBookingAsync(Booking booking, decimal totalAmount)
         {
             var invoice = new Invoice
             {
-                BookingId = bookingId,
+                BookingId = booking.Id,
+                Booking = booking,
                 IssueDate = DateTime.Now,
                 TotalAmount = totalAmount
             };
             _dbContext.Invoices.Add(invoice);
             await _dbContext.SaveChangesAsync();
             return invoice;
+        }
+        public async Task<List<Payment>> GetPaymentsByBookingIdAsync(int bookingId)
+        {
+            var invoiceIds = await _dbContext.Invoices
+                .Where(i => i.BookingId == bookingId)
+                .Select(i => i.Id)
+                .ToListAsync();
+
+            return await _dbContext.Payments
+                .Where(p => invoiceIds.Contains(p.InvoiceId))
+                .ToListAsync();
+        }
+
+        public async Task<Invoice> GetByBookingIdAsync(int id)
+        {
+            return await _dbContext.Invoices
+                .Include(i => i.Booking)
+                .FirstOrDefaultAsync(i => i.BookingId == id);
+        }
+
+        public async Task UpdateAsync(Invoice currentInvoice)
+        {
+            if (currentInvoice == null)
+                throw new ArgumentNullException(nameof(currentInvoice));
+
+            _dbContext.Invoices.Update(currentInvoice); 
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Microsoft.Extensions.DependencyInjection;
+using HotelManager.Interfaces;
 
 namespace HotelManager.Views
 {
@@ -26,10 +27,19 @@ namespace HotelManager.Views
         {
             InitializeComponent();
             
-            // Set DataContext using DI
+            // Reuse the existing PaymentViewModel created by NavigationService if available
             if (App.ServiceProvider != null)
             {
-                DataContext = App.ServiceProvider.GetRequiredService<PaymentViewModel>();
+                var navService = App.ServiceProvider.GetRequiredService<INavigationService>();
+                if (navService?.CurrentViewModel is PaymentViewModel vm)
+                {
+                    DataContext = vm; // Use the already-initialized ViewModel (with navigation parameter)
+                }
+                else
+                {
+                    // Fallback – resolve a new instance (e.g., design-time or direct view usage)
+                    DataContext = App.ServiceProvider.GetRequiredService<PaymentViewModel>();
+                }
             }
         }
     }

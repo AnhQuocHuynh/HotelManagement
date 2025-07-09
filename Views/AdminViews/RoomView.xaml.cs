@@ -31,18 +31,5 @@ namespace HotelManager.Views
                 DataContext = App.ServiceProvider.GetRequiredService<RoomViewModel>();
             }
         }
-
-        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is RoomViewModel vm)
-            {
-                vm.RefreshRooms();
-            }
-        }
     }
 }
