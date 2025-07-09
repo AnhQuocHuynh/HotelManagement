@@ -377,8 +377,19 @@ namespace HotelManager.ViewModels.StaffViewModels
                     Status = SelectedStatus,
                     Room = room,
                     TotalAmount = totalAmount,
-                    BookingEmployeeId = employee?.Id,
                 };
+                // Setting conditional booking employee
+                if (SelectedStatus == BookingStatus.CheckedIn)
+                {
+                    booking.CheckInEmployeeID = employee?.Id;
+                }
+                else if (SelectedStatus == BookingStatus.CheckedOut)
+                {
+                    booking.CheckOutEmployeeID = employee?.Id;
+                } else
+                {
+                    booking.BookingEmployeeId = employee?.Id;
+                }
 
                 await _bookingService.CreateAsync(booking);
                 Bookings.Add(booking);
@@ -818,6 +829,16 @@ namespace HotelManager.ViewModels.StaffViewModels
                 SelectedBookingForEdit.Status = SelectedStatus;
                 SelectedBookingForEdit.TotalAmount = totalAmount;
                 SelectedBookingForEdit.Room = room;
+                //Setting conditional booking employee
+                var employee = AppSession.GetCurrentUserAccount()?.Employee;
+                if(SelectedStatus == BookingStatus.CheckedIn)
+                {
+                    SelectedBookingForEdit.CheckInEmployeeID = employee?.Id;
+                }
+                else if (SelectedStatus == BookingStatus.CheckedOut)
+                {
+                    SelectedBookingForEdit.CheckOutEmployeeID = employee?.Id;
+                }
 
                 await _bookingService.UpdateAsync(SelectedBookingForEdit);
                 await UpdateAvailableRoomsAsync();
