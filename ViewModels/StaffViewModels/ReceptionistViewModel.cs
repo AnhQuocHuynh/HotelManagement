@@ -348,6 +348,17 @@ namespace HotelManager.ViewModels.StaffViewModels
                     return;
                 }
 
+                // Check for conflicts
+                var conflicting = await _bookingService.GetConflictingBookingsAsync(
+                    SelectedRoomNumber, CheckInDate.Value, CheckOutDate.Value
+                );
+                if (conflicting.Any())
+                {
+                    MessageBox.Show($"Room {SelectedRoomNumber} is not available during the selected period.",
+                        "Room Conflict", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 var customer = new Customer
                 {
                     FullName = CustomerFullName,
@@ -803,7 +814,16 @@ namespace HotelManager.ViewModels.StaffViewModels
                     return;
                 }
 
-
+                // Conflict check excluding itself
+                var conflicting = await _bookingService.GetConflictingBookingsAsync(
+                    SelectedRoomNumber, CheckInDate.Value, CheckOutDate.Value, SelectedBookingForEdit.Id
+                );
+                if (conflicting.Any())
+                {
+                    MessageBox.Show($"Room {SelectedRoomNumber} is not available during the selected period.",
+                        "Room Conflict", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
                 // Recalculate total amount
                 var room = await _roomService.GetByRoomNumberAsync(SelectedRoomNumber);
