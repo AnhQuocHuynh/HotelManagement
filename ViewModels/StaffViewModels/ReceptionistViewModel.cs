@@ -289,12 +289,12 @@ namespace HotelManager.ViewModels.StaffViewModels
             catch (BusinessException ex)
             {
                 _logger?.LogWarning(ex, "Business error loading data");
-                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Unexpected error loading data");
-                MessageBox.Show("Lỗi khi tải dữ liệu. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error loading data. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -310,7 +310,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                     CheckInDate == null ||
                     CheckOutDate == null)
                 {
-                    MessageBox.Show("Vui lòng điền đầy đủ thông tin.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Please fill in all required information.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -382,23 +382,23 @@ namespace HotelManager.ViewModels.StaffViewModels
                 TotalBookings = Bookings.Count;
 
                 ClearInputFields();
-                MessageBox.Show("Đã thêm booking thành công!", "Thành công", MessageBoxButton.OK);
+                MessageBox.Show("Booking added successfully!", "Success", MessageBoxButton.OK);
                 _logger?.LogInformation("Successfully created booking for customer {CustomerName} in room {RoomNumber}", customer.FullName, booking.RoomNumber);
             }
             catch (DuplicateEntityException ex)
             {
                 _logger?.LogWarning(ex, "Duplicate entity detected");
-                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (BusinessException ex)
             {
                 _logger?.LogWarning(ex, "Business error creating booking");
-                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Unexpected error creating booking");
-                MessageBox.Show("Lỗi khi thêm booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error adding booking. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -409,14 +409,53 @@ namespace HotelManager.ViewModels.StaffViewModels
                 _logger?.LogInformation("Updating booking {BookingId}", booking?.Id);
                 if (booking == null)
                 {
-                    MessageBox.Show("Vui lòng chọn một booking để cập nhật.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Please select a booking to update.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 await _bookingService.UpdateAsync(booking);
                 await UpdateAvailableRoomsAsync();
-                MessageBox.Show("Cập nhật booking thành công!", "Thành công", MessageBoxButton.OK);
+                MessageBox.Show("Booking updated successfully!", "Success", MessageBoxButton.OK);
                 _logger?.LogInformation("Successfully updated booking {BookingId}", booking.Id);
+            }
+            catch (EntityNotFoundException ex)
+            {
+                _logger?.LogWarning(ex, "Entity not found");
+                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (BusinessException ex)
+            {
+                _logger?.LogWarning(ex, "Business error updating booking");
+                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error updating booking");
+                MessageBox.Show("Error while creating booking. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task DeleteAsync(Booking? booking)
+        {
+            try
+            {
+                _logger?.LogInformation("Deleting booking {BookingId}", booking?.Id);
+                if (booking == null)
+                {
+                    MessageBox.Show("Vui lòng chọn một booking để xóa.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var result = MessageBox.Show("Bạn có chắc chắn muốn xóa booking này?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.Yes)
+                {
+                    await _bookingService.DeleteAsync(booking.Id);
+                    Bookings.Remove(booking);
+                    await UpdateAvailableRoomsAsync();
+                    MessageBox.Show("Xóa booking thành công!", "Thành công", MessageBoxButton.OK);
+                    _logger?.LogInformation("Successfully deleted booking {BookingId}", booking.Id);
+                    TotalBookings = Bookings.Count;
+                }
             }
             catch (EntityNotFoundException ex)
             {
@@ -425,7 +464,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
             catch (BusinessException ex)
             {
-                _logger?.LogWarning(ex, "Business error updating booking");
+                _logger?.LogWarning(ex, "Business error deleting booking");
                 MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
@@ -486,142 +525,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Unexpected error updating booking");
-                MessageBox.Show("Error while updating booking. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async Task CancelEditAsync(Booking? booking)
-        {
-            try
-            {
-                _logger?.LogInformation("Canceling edit for booking {BookingId}", booking?.Id);
-                if (booking == null)
-                {
-                    MessageBox.Show("Please select a booking to cancel edit.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                SelectedBookingForEdit = null;
-                IsEditMode = false;
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "Unexpected error canceling edit");
-                MessageBox.Show("Error canceling edit. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async Task EditBookingAsync(Booking? booking)
-        {
-            try
-            {
-                _logger?.LogInformation("Editing booking {BookingId}", booking?.Id);
-                if (booking == null)
-                {
-                    MessageBox.Show("Please select a booking to edit.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                SelectedBookingForEdit = booking;
-                IsEditMode = true;
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "Unexpected error editing booking");
-                MessageBox.Show("Error editing booking. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async Task SaveEditAsync(Booking? booking)
-        {
-            try
-            {
-                _logger?.LogInformation("Saving edited booking {BookingId}", booking?.Id);
-                if (booking == null)
-                {
-                    MessageBox.Show("Please select a booking to save.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                await _bookingService.UpdateAsync(booking);
-                await UpdateAvailableRoomsAsync();
-                MessageBox.Show("Booking updated successfully!", "Success", MessageBoxButton.OK);
-                _logger?.LogInformation("Successfully updated booking {BookingId}", booking.Id);
-            }
-            catch (EntityNotFoundException ex)
-            {
-                _logger?.LogWarning(ex, "Entity not found");
-                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            catch (BusinessException ex)
-            {
-                _logger?.LogWarning(ex, "Business error updating booking");
-                MessageBox.Show(ex.UserMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "Unexpected error updating booking");
-                MessageBox.Show("Error while updating booking. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async Task CancelEditAsync(Booking? booking)
-        {
-            try
-            {
-                _logger?.LogInformation("Canceling edit for booking {BookingId}", booking?.Id);
-                if (booking == null)
-                {
-                    MessageBox.Show("Please select a booking to cancel edit.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                SelectedBookingForEdit = null;
-                IsEditMode = false;
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "Unexpected error canceling edit");
-                MessageBox.Show("Error canceling edit. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private async Task DeleteAsync(Booking? booking)
-        {
-            try
-            {
-                _logger?.LogInformation("Deleting booking {BookingId}", booking?.Id);
-                if (booking == null)
-                {
-                    MessageBox.Show("Vui lòng chọn một booking để xóa.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                var result = MessageBox.Show("Bạn có chắc chắn muốn xóa booking này?", "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (result == MessageBoxResult.Yes)
-                {
-                    await _bookingService.DeleteAsync(booking.Id);
-                    Bookings.Remove(booking);
-                    await UpdateAvailableRoomsAsync();
-                    MessageBox.Show("Xóa booking thành công!", "Thành công", MessageBoxButton.OK);
-                    _logger?.LogInformation("Successfully deleted booking {BookingId}", booking.Id);
-                    TotalBookings = Bookings.Count;
-                }
-            }
-            catch (EntityNotFoundException ex)
-            {
-                _logger?.LogWarning(ex, "Entity not found");
-                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            catch (BusinessException ex)
-            {
-                _logger?.LogWarning(ex, "Business error deleting booking");
-                MessageBox.Show(ex.UserMessage, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "Unexpected error deleting booking");
-                MessageBox.Show("Lỗi khi xóa booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Lỗi khi cập nhật booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -653,7 +557,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Error updating available rooms.");
-                MessageBox.Show("Lỗi khi tải danh sách phòng trống. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error while loading available rooms. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -777,12 +681,12 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 // Hiển thị danh sách bookings trong một MessageBox hoặc một cửa sổ mới
                 var bookingsList = string.Join(Environment.NewLine, Bookings.Select(b => $"{b.Customer.FullName} - {b.RoomNumber} ({b.Status})"));
-                MessageBox.Show(bookingsList, "Danh sách Booking", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(bookingsList, "Bookings List", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Error showing bookings");
-                MessageBox.Show("Lỗi khi hiển thị danh sách booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error while displaying bookings list. Please try again!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -792,16 +696,16 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 if (AvailableRooms.Count == 0)
                 {
-                    MessageBox.Show("Không có phòng nào khả dụng cho loại phòng đã chọn.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("No available room for selected room type!", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
                 var roomsList = string.Join(Environment.NewLine, AvailableRooms);
-                MessageBox.Show(roomsList, "Danh sách Phòng Khả Dụng", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(roomsList, "Available Rooms List", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Error showing available rooms");
-                MessageBox.Show("Lỗi khi hiển thị danh sách phòng khả dụng. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Error while displaying available rooms. Please try again!.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
