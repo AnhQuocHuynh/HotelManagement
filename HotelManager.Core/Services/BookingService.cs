@@ -247,25 +247,46 @@ namespace HotelManager.Services
         /// </summary>
         public async Task<List<(Employee Employee, decimal Revenue, int BookingCount)>> GetTopEmployeesByRevenueAsync(int topCount = 10, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            var revenueByEmployee = await GetRevenueByBookingEmployeeAsync(fromDate, toDate);
-            
-            var bookingCounts = await _dbContext.Bookings
-                .Where(b => b.BookingEmployeeId != null && 
-                           b.Status == BookingStatus.CheckedOut &&
-                           (!fromDate.HasValue || b.CheckOutDate >= fromDate.Value) &&
-                           (!toDate.HasValue || b.CheckOutDate <= toDate.Value))
-                .GroupBy(b => b.BookingEmployeeId)
-                .ToDictionaryAsync(g => g.Key!.Value, g => g.Count());
+            var query = _dbContext.Bookings
+                .Include(b => b.BookingEmployee)
+                .Include(b => b.Invoices)
+                .Where(b => b.Status == BookingStatus.CheckedOut && 
+                           b.BookingEmployeeId != null);
 
-            return revenueByEmployee
-                .OrderByDescending(kvp => kvp.Value)
-                .Take(topCount)
-                .Select(kvp => (
-                    Employee: kvp.Key,
-                    Revenue: kvp.Value,
-                    BookingCount: bookingCounts.TryGetValue(kvp.Key.Id, out var count) ? count : 0
+            if (fromDate.HasValue)
+                query = query.Where(b => b.CheckOutDate >= fromDate.Value);
+            
+            if (toDate.HasValue)
+                query = query.Where(b => b.CheckOutDate <= toDate.Value);
+
+            var bookings = await query.ToListAsync();
+
+            return bookings
+                .GroupBy(b => b.BookingEmployee)
+                .Select(g => (
+                    Employee: g.Key!,
+                    Revenue: g.SelectMany(b => b.Invoices).Sum(i => i.TotalAmount),
+                    BookingCount: g.Count()
                 ))
+                .OrderByDescending(x => x.Revenue)
+                .Take(topCount)
                 .ToList();
+        }
+
+        /// <summary>
+        /// Kiểm tra xung đột booking cho một phòng trong khoảng thời gian
+        /// </summary>
+        public async Task<List<Booking>> GetConflictingBookingsAsync(string roomNumber, DateTime checkInDate, DateTime checkOutDate)
+        {
+            return await _dbContext.Bookings
+                .Include(b => b.Customer)
+                .Where(b => b.RoomNumber == roomNumber &&
+                           b.Status != BookingStatus.Cancelled &&
+                           b.Status != BookingStatus.CheckedOut &&
+                           ((b.CheckInDate <= checkInDate && b.CheckOutDate > checkInDate) ||
+                            (b.CheckInDate < checkOutDate && b.CheckOutDate >= checkOutDate) ||
+                            (b.CheckInDate >= checkInDate && b.CheckOutDate <= checkOutDate)))
+                .ToListAsync();
         }
 
         #endregion
