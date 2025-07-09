@@ -349,14 +349,6 @@ namespace HotelManager.ViewModels.StaffViewModels
                     return;
                 }
 
-                // Kiểm tra xem phòng có available trong khoảng thời gian này không
-                var conflictingBookings = await _bookingService.GetConflictingBookingsAsync(SelectedRoomNumber, CheckInDate.Value, CheckOutDate.Value);
-                if (conflictingBookings.Any())
-                {
-                    MessageBox.Show($"Room {SelectedRoomNumber} is not available for the selected dates. Please choose different dates or another room.", 
-                        "Room Not Available", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
 
                 var customer = new Customer
                 {
@@ -526,6 +518,27 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 _logger?.LogError(ex, "Unexpected error updating booking");
                 MessageBox.Show("Lỗi khi cập nhật booking. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task CancelEditAsync(Booking? booking)
+        {
+            try
+            {
+                _logger?.LogInformation("Cancelling edit for booking {BookingId}", booking?.Id);
+                if (booking == null)
+                {
+                    MessageBox.Show("Please select a booking to cancel edit.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                SelectedBookingForEdit = null;
+                IsEditMode = false;
+                ClearInputFields();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Unexpected error cancelling edit");
+                MessageBox.Show("Error cancelling edit. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

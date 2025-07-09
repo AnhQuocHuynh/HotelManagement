@@ -14,6 +14,7 @@ using HotelManager.Services;
 using System.Diagnostics;
 using System.ComponentModel;
 using Timer = System.Timers.Timer;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -74,20 +75,20 @@ namespace HotelManager.ViewModels.StaffViewModels
         }
 
         // Commands
-        public ICommand MarkAsCleanedCommand { get; }
-        public ICommand ReportIssueCommand { get; }
-        public ICommand SelectImageCommand { get; }
-        public ICommand SendDamageReportCommand { get; }
-        public ICommand RemoveImageCommand { get; }
-        public ICommand RefreshDamageReportHistoryCommand { get; }
-        public ICommand ViewImageCommand { get; }
-        public ICommand CloseNotificationCommand { get; }
-        public ICommand FilterPendingCommand { get; }
-        public ICommand FilterCleanedCommand { get; }
-        public ICommand ClearFilterCommand { get; }
-        public ICommand NavigateProfileCommand { get; set; }
-        public ICommand LogoutCommand { get; }
-        public ICommand LoadedCommand { get; }
+        public ICommand MarkAsCleanedCommand { get; private set; }
+        public ICommand ReportIssueCommand { get; private set; }
+        public ICommand SelectImageCommand { get; private set; }
+        public ICommand SendDamageReportCommand { get; private set; }
+        public ICommand RemoveImageCommand { get; private set; }
+        public ICommand RefreshDamageReportHistoryCommand { get; private set; }
+        public ICommand ViewImageCommand { get; private set; }
+        public ICommand CloseNotificationCommand { get; private set; }
+        public ICommand FilterPendingCommand { get; private set; }
+        public ICommand FilterCleanedCommand { get; private set; }
+        public ICommand ClearFilterCommand { get; private set; }
+        public ICommand NavigateProfileCommand { get; private set; }
+        public ICommand LogoutCommand { get; private set; }
+        public ICommand LoadedCommand { get; private set; }
 
         public CleanerViewModel()
         {
@@ -103,10 +104,10 @@ namespace HotelManager.ViewModels.StaffViewModels
             var serviceProvider = App.ServiceProvider;
             if (serviceProvider != null)
             {
-                _cleanroomService = serviceProvider.GetRequiredService<ICleanRoomService>();
-                _roomService = serviceProvider.GetRequiredService<IService<Room>>();
-                _workAssignmentService = serviceProvider.GetService<IWorkAssignmentService>();
-                _navigationService = serviceProvider.GetRequiredService<INavigationService>();
+                _cleanroomService = App.ServiceProvider.GetRequiredService<ICleanRoomService>();
+                _roomService = App.ServiceProvider?.GetRequiredService<IService<Room>>();
+                _workAssignmentService = App.ServiceProvider?.GetService<IWorkAssignmentService>();
+                _navigationService = App.ServiceProvider?.GetRequiredService<INavigationService>();
             }
             else
             {
