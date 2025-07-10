@@ -2,33 +2,28 @@
 
 Welcome to the **Hotel Manager** source-code repository. This application is being developed as a multi-phase learning & production project that showcases clean architecture, rich WPF UI and modern DevOps practices.
 
-## 📚 Documentation Map
+## 📚 Documentation
 
-To keep the repository root tidy we consolidated markdown files and now use a single entry point for all docs:
+All project documentation has been consolidated into the `.md_docs` folder for better organization:
 
-| Area | File |
-|------|------|
-| Project Setup Guide | `SETUP.md` |
-| Architecture Overview | `ARCHITECTURE_ANALYSIS.md` |
-| Phase 1 – Core Infrastructure (✅ complete) | `PHASE1_COMPLETION_SUMMARY.md` |
-| Phase 2 – Logging & Monitoring (✅ complete) | `PHASE2_LOGGING_MONITORING_REPORT.md` |
-| Phase 3 – Unit Testing & Testability (✅ complete) | `PHASE3_UNIT_TESTING.md` |
-| **🏆 Final Project Analysis & Production Readiness** | `FINAL_PROJECT_ANALYSIS.md` |
-
-> Historical documents **IMPROVEMENT_SUMMARY.md** and **UNIT_TESTING_REPORT.md** were merged into the phase summaries and deleted to reduce duplication.
+| Documentation Type | File |
+|-------------------|------|
+| **Project Analysis & Reports** | [`.md_docs/PROJECT_ANALYSIS_AND_REPORTS.md`](.md_docs/PROJECT_ANALYSIS_AND_REPORTS.md) |
+| **Setup Guide & Standards** | [`.md_docs/PROJECT_GUIDE_AND_STANDARDS.md`](.md_docs/PROJECT_GUIDE_AND_STANDARDS.md) |
+| **TODO & Future Plans** | [`.md_docs/PROJECT_TODO_AND_PLANS.md`](.md_docs/PROJECT_TODO_AND_PLANS.md) |
 
 ## ⚡ Quick Start
 
 ```bash
 # Restore & build
- dotnet restore
- dotnet build
+dotnet restore
+dotnet build
 
 # Run the application
- dotnet run --project HotelManager.csproj
+dotnet run --project HotelManager.csproj
 ```
 
-For detailed environment-specific instructions (e.g. database configuration) please refer to **SETUP.md**.
+For detailed setup instructions, database configuration, and development guidelines, please refer to the documentation files above.
 
 ## 🤝 Contributing
 
@@ -36,7 +31,9 @@ For detailed environment-specific instructions (e.g. database configuration) ple
 2. Commit your changes with clear messages.
 3. Open a pull request targeting the **main** branch.
 
-All pull requests must pass the unit-test suite and have at least 80 % code coverage on the affected modules.
+All pull requests must pass the unit-test suite and have at least 80% code coverage on the affected modules.
 
 ---
+
+*Note: Historical documentation files have been consolidated to reduce clutter in the repository root.*
 
