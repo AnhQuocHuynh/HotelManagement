@@ -30,7 +30,9 @@ namespace HotelManager.Services
 
         public async Task<List<Booking>> GetAllAsync()
         {
-            return (await _dbContext.Bookings.Include(b => b.Customer).ToListAsync());
+            // Lấy dữ liệu qua repository để thuận tiện mock trong unit test
+            var bookings = await _unitOfWork.Bookings.GetAllAsync();
+            return bookings.ToList();
         }
 
         public async Task CreateAsync(Booking booking)

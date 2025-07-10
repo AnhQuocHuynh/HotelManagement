@@ -77,6 +77,32 @@
         Cancelled = 3
     }
 
+    public enum WorkDay
+    {
+        Monday = 0,
+        Tuesday = 1,
+        Wednesday = 2,
+        Thursday = 3,
+        Friday = 4,
+        Saturday = 5,
+        Sunday = 6
+    }
+
+    public enum WorkShift
+    {
+        Morning = 0,
+        Afternoon = 1,
+        Evening = 2,
+        Night = 3
+    }
+
+    public enum ScheduleStatus
+    {
+        Scheduled = 0,
+        Completed = 1,
+        Cancelled = 2
+    }
+
     public static class EnumExtensions
     {
         public static string ToDisplay(this RoomType type) => type.ToString();
@@ -88,5 +114,8 @@
         public static string ToDisplay(this RoomStatus status) => status.ToString();
         public static string ToDisplay(this AssignmentType type) => type.ToString();
         public static string ToDisplay(this AssignmentStatus status) => status.ToString();
+        public static string ToDisplay(this WorkDay day) => day.ToString();
+        public static string ToDisplay(this WorkShift shift) => shift.ToString();
+        public static string ToDisplay(this ScheduleStatus status) => status.ToString();
     }
 }
