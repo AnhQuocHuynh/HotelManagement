@@ -60,6 +60,54 @@ namespace HotelManager.Core.Migrations
                     b.ToTable("Maintenances");
                 });
 
+            modelBuilder.Entity("HotelManager.Core.Models.WorkSchedule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AssignedByEmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Shift")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("WorkDay")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedByEmployeeId");
+
+                    b.HasIndex("EmployeeId", "WorkDay", "Shift", "StartDate")
+                        .HasDatabaseName("IX_WorkSchedule_Employee_Day_Shift_Date");
+
+                    b.ToTable("WorkSchedules");
+                });
+
             modelBuilder.Entity("HotelManager.Models.Booking", b =>
                 {
                     b.Property<int>("Id")
@@ -392,6 +440,7 @@ namespace HotelManager.Core.Migrations
 
                     b.ToTable("UserAccounts");
                 });
+
             modelBuilder.Entity("HotelManager.Models.WorkAssignment", b =>
                 {
                     b.Property<int>("Id")
@@ -457,6 +506,24 @@ namespace HotelManager.Core.Migrations
                     b.Navigation("Employee");
 
                     b.Navigation("MaintenanceReport");
+                });
+
+            modelBuilder.Entity("HotelManager.Core.Models.WorkSchedule", b =>
+                {
+                    b.HasOne("HotelManager.Models.Employee", "AssignedByEmployee")
+                        .WithMany()
+                        .HasForeignKey("AssignedByEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HotelManager.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssignedByEmployee");
+
+                    b.Navigation("Employee");
                 });
 
             modelBuilder.Entity("HotelManager.Models.Booking", b =>

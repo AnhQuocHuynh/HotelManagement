@@ -1,4 +1,5 @@
-using HotelManager.Core.Models.Enums;
+using HotelManager.Models.Enums;
+using HotelManager.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace HotelManager.Core.Models

@@ -1,11 +1,13 @@
 using CommunityToolkit.Mvvm.Input;
 using HotelManager.Core.Interfaces;
 using HotelManager.Core.Models;
-using HotelManager.Core.Models.Enums;
+using HotelManager.Models.Enums;
+using HotelManager.Models;
 using HotelManager.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using HotelManager.Utilities;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
