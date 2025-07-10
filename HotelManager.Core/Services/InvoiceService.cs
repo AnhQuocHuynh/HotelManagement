@@ -62,5 +62,38 @@ namespace HotelManager.Services
             _dbContext.Invoices.Update(currentInvoice); 
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<Invoice> GetByIdAsync(int invoiceId)
+        {
+            return await _dbContext.Invoices
+                .Include(i => i.Booking)
+                .FirstOrDefaultAsync(i => i.Id == invoiceId);
+        }
+
+        public async Task<int> DeleteAsync(int invoiceId)
+        {
+            var invoice = await _dbContext.Invoices
+                .Include(i => i.Payments) // Include payments to delete them
+                .FirstOrDefaultAsync(i => i.Id == invoiceId);
+                
+            if (invoice != null)
+            {
+                int paymentCount = invoice.Payments?.Count ?? 0;
+                
+                // Delete all payments associated with this invoice first
+                if (invoice.Payments != null && invoice.Payments.Any())
+                {
+                    _dbContext.Payments.RemoveRange(invoice.Payments);
+                }
+                
+                // Then delete the invoice
+                _dbContext.Invoices.Remove(invoice);
+                await _dbContext.SaveChangesAsync();
+                
+                return paymentCount;
+            }
+            
+            return 0;
+        }
     }
 }

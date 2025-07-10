@@ -8,6 +8,7 @@
              xmlns:vm="clr-namespace:HotelManager.ViewModels.StaffViewModels"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:ReceptionistViewModel, IsDesignTimeCreatable=True}" d:DesignWidth="1400" Height="900">
@@ -338,8 +339,24 @@
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
-                            <!-- Search Box -->
+                            <!-- Search Box and Page Size -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <!-- Page Size Selector -->
+                                <StackPanel Orientation="Horizontal" Margin="0,0,16,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Page Size:" 
+                                             Style="{StaticResource BodyMedium}" 
+                                             VerticalAlignment="Center" 
+                                             Margin="0,0,8,0"/>
+                                    <ComboBox Width="80" 
+                                            SelectedItem="{Binding PageSize, Mode=TwoWay}"
+                                            Style="{StaticResource MaterialDesignOutlinedComboBox}">
+                                        <System:Int32>5</System:Int32>
+                                        <System:Int32>10</System:Int32>
+                                        <System:Int32>20</System:Int32>
+                                        <System:Int32>50</System:Int32>
+                                    </ComboBox>
+                                </StackPanel>
+
                                 <TextBox Style="{StaticResource OutlinedTextField}"
                                          materialDesign:HintAssist.Hint="Search bookings..."
                                          materialDesign:HintAssist.IsFloating="False"
@@ -362,12 +379,13 @@
                             </StackPanel>
                         </Grid>
 
-                        <!-- Data Grid -->
-                        <Border Background="{StaticResource BackgroundBrush}" 
-                                CornerRadius="{StaticResource RadiusS}" 
-                                BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
-                                BorderThickness="1">
-                            
+                        <!-- Loading Overlay -->
+                        <Grid>
+                            <Border Background="{StaticResource BackgroundBrush}" 
+                                    CornerRadius="{StaticResource RadiusS}" 
+                                    BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
+                                    BorderThickness="1">
+                                
                                 <DataGrid ItemsSource="{Binding Bookings}" 
                                           AutoGenerateColumns="False" 
                                           CanUserAddRows="False"               
@@ -376,7 +394,7 @@
                                           ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
                                           CanUserResizeRows="False"
                                           CanUserSortColumns="True"
-                                          MinHeight="400" MaxHeight="600"
+                                          MinHeight="400" MaxHeight="850"
                                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                                           ScrollViewer.CanContentScroll="True">
                                     <DataGrid.Columns>
@@ -522,8 +540,123 @@
                                         </DataGridTemplateColumn>
                                     </DataGrid.Columns>
                                 </DataGrid>
-                            
-                        </Border>
+                            </Border>
+
+                            <!-- Loading Overlay -->
+                            <Border Background="{StaticResource SurfaceBrush}" 
+                                    Opacity="0.8" 
+                                    Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <StackPanel HorizontalAlignment="Center" 
+                                          VerticalAlignment="Center">
+                                    <ProgressBar IsIndeterminate="True" 
+                                               Width="100" 
+                                               Height="4" 
+                                               Margin="0,0,0,16"/>
+                                    <TextBlock Text="Loading bookings..." 
+                                             Style="{StaticResource BodyMedium}" 
+                                             HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- Pagination Controls -->
+                        <materialDesign:Card Margin="0,16,0,0" 
+                                           Padding="16" 
+                                           Effect="{StaticResource Elevation1}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Page Info -->
+                                <StackPanel Grid.Column="0" 
+                                          Orientation="Horizontal" 
+                                          VerticalAlignment="Center">
+                                    <TextBlock Text="Showing " 
+                                             Style="{StaticResource BodyMedium}"/>
+                                    <TextBlock Text="{Binding TotalBookings}" 
+                                             Style="{StaticResource BodyMedium}" 
+                                             FontWeight="SemiBold" 
+                                             Margin="4,0"/>
+                                    <TextBlock Text=" of " 
+                                             Style="{StaticResource BodyMedium}"/>
+                                    <TextBlock Text="{Binding TotalItems}" 
+                                             Style="{StaticResource BodyMedium}" 
+                                             FontWeight="SemiBold" 
+                                             Margin="4,0"/>
+                                    <TextBlock Text=" bookings" 
+                                             Style="{StaticResource BodyMedium}"/>
+                                </StackPanel>
+
+                                <!-- Pagination Buttons -->
+                                <StackPanel Grid.Column="1" 
+                                          Orientation="Horizontal" 
+                                          HorizontalAlignment="Center">
+                                    <Button Command="{Binding GoToFirstPageCommand}"
+                                          Style="{StaticResource IconButton}"
+                                          ToolTip="First Page"
+                                          Margin="4,0">
+                                        <materialDesign:PackIcon Kind="PageFirst" 
+                                                               Width="20" 
+                                                               Height="20"/>
+                                    </Button>
+
+                                    <Button Command="{Binding GoToPreviousPageCommand}"
+                                          Style="{StaticResource IconButton}"
+                                          ToolTip="Previous Page"
+                                          Margin="4,0">
+                                        <materialDesign:PackIcon Kind="ChevronLeft" 
+                                                               Width="20" 
+                                                               Height="20"/>
+                                    </Button>
+
+                                    <Border Background="{StaticResource Primary100Brush}" 
+                                          CornerRadius="{StaticResource RadiusS}" 
+                                          Padding="12,8" 
+                                          Margin="8,0">
+                                        <TextBlock Style="{StaticResource BodyMedium}" 
+                                                 FontWeight="SemiBold">
+                                            <Run Text="Page "/>
+                                            <Run Text="{Binding CurrentPage}"/>
+                                            <Run Text=" of "/>
+                                            <Run Text="{Binding TotalPages}"/>
+                                        </TextBlock>
+                                    </Border>
+
+                                    <Button Command="{Binding GoToNextPageCommand}"
+                                          Style="{StaticResource IconButton}"
+                                          ToolTip="Next Page"
+                                          Margin="4,0">
+                                        <materialDesign:PackIcon Kind="ChevronRight" 
+                                                               Width="20" 
+                                                               Height="20"/>
+                                    </Button>
+
+                                    <Button Command="{Binding GoToLastPageCommand}"
+                                          Style="{StaticResource IconButton}"
+                                          ToolTip="Last Page"
+                                          Margin="4,0">
+                                        <materialDesign:PackIcon Kind="PageLast" 
+                                                               Width="20" 
+                                                               Height="20"/>
+                                    </Button>
+                                </StackPanel>
+
+                                <!-- Page Size Info -->
+                                <StackPanel Grid.Column="2" 
+                                          Orientation="Horizontal" 
+                                          HorizontalAlignment="Right" 
+                                          VerticalAlignment="Center">
+                                    <TextBlock Text="Page Size: " 
+                                             Style="{StaticResource BodyMedium}"/>
+                                    <TextBlock Text="{Binding PageSize}" 
+                                             Style="{StaticResource BodyMedium}" 
+                                             FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Grid>
+                        </materialDesign:Card>
                     </StackPanel>
                 </materialDesign:Card>
             </StackPanel>
