@@ -37,6 +37,9 @@ namespace HotelManager.Data
         public DbSet<Cleaning> Cleanings { get; set; }
         public DbSet<Maintenance> Maintenances { get; set; }
         public DbSet<WorkAssignment> WorkAssignments { get; set; }
+        
+        // TODO (Tuấn): Thêm DbSet cho WorkSchedule
+        public DbSet<WorkSchedule> WorkSchedules { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -219,6 +222,41 @@ namespace HotelManager.Data
                       .WithMany()
                       .HasForeignKey(w => w.AssignedByEmployeeId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // TODO (Tuấn): Thêm entity configuration cho WorkSchedule
+            modelBuilder.Entity<WorkSchedule>(entity =>
+            {
+                entity.HasKey(ws => ws.Id);
+
+                entity.Property(ws => ws.WorkDay)
+                      .HasConversion<int>()
+                      .IsRequired();
+
+                entity.Property(ws => ws.Shift)
+                      .HasConversion<int>()
+                      .IsRequired();
+
+                entity.Property(ws => ws.Status)
+                      .HasConversion<int>()
+                      .IsRequired();
+
+                entity.Property(ws => ws.StartDate).IsRequired();
+                entity.Property(ws => ws.CreatedDate).IsRequired();
+
+                entity.HasOne(ws => ws.Employee)
+                      .WithMany()
+                      .HasForeignKey(ws => ws.EmployeeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(ws => ws.AssignedByEmployee)
+                      .WithMany()
+                      .HasForeignKey(ws => ws.AssignedByEmployeeId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // TODO (Tuấn): Thêm indexes để optimize queries
+                entity.HasIndex(ws => new { ws.EmployeeId, ws.WorkDay, ws.Shift, ws.StartDate })
+                      .HasDatabaseName("IX_WorkSchedule_Employee_Day_Shift_Date");
             });
         }
     }
