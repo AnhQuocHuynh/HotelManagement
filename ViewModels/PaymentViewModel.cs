@@ -135,7 +135,7 @@ namespace HotelManager.ViewModels
                 _currentInvoice = value;
                 OnPropertyChanged(nameof(CurrentInvoice));
                 //currentBooking = value.Booking;
-                MessageBox.Show($"Current Invoice: {value.Id}", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                //MessageBox.Show($"Current Invoice: {value.Id}", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 LoadData();
             }
         }
@@ -304,6 +304,10 @@ namespace HotelManager.ViewModels
             try
             {
                 var payments = await _paymentService.GetAllAsync();
+                
+                // Update _allPayments list to keep it in sync
+                _allPayments = payments.ToList();
+                
                 var filteredPayments = payments.Where(p => p.InvoiceId == CurrentInvoice.Id).ToList();
                 
                 Payments.Clear();
@@ -337,6 +341,12 @@ namespace HotelManager.ViewModels
 
                 await _paymentService.CreateAsync(payment);
                 Payments.Add(payment);
+                
+                // Also add to _allPayments list for "Show All" functionality
+                if (_allPayments != null)
+                {
+                    _allPayments.Add(payment);
+                }
                 
                 // Update remaining amount and invoice total
                 RemainingAmount -= Amount;
@@ -451,6 +461,13 @@ namespace HotelManager.ViewModels
                 {
                     await _paymentService.DeleteAsync(payment.Id);
                     Payments.Remove(payment);
+                    
+                    // Also remove from _allPayments list for "Show All" functionality
+                    if (_allPayments != null)
+                    {
+                        _allPayments.Remove(payment);
+                    }
+                    
                     RemainingAmount += payment.Amount;
 
                     // Update the invoice for this payment
@@ -641,11 +658,9 @@ namespace HotelManager.ViewModels
         {
             try
             {
-                if (_allPayments == null)
-                {
-                    var all = await _paymentService.GetAllAsync();
-                    _allPayments = all.ToList();
-                }
+                // Always refresh the data to ensure it's up to date
+                var all = await _paymentService.GetAllAsync();
+                _allPayments = all.ToList();
 
                 Payments.Clear();
                 foreach (var payment in _allPayments)
