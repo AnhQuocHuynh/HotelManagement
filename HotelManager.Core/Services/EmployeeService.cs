@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HotelManager.Data;
+using HotelManager.Core.Interfaces;
 using HotelManager.Interfaces;
 using HotelManager.Models;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ using HotelManager.Exceptions;
 
 namespace HotelManager.Services
 {
-    public class EmployeeService : IService<Employee>
+    public class EmployeeService : IEmployeeService
     {
         private readonly IUnitOfWork _unitOfWork;
         public EmployeeService(IUnitOfWork unitOfWork)

@@ -1,8 +1,10 @@
-using HotelManager.Core.Data;
+using HotelManager.Data;
 using HotelManager.Core.Interfaces;
 using HotelManager.Core.Models;
-using HotelManager.Core.Models.Enums;
+using HotelManager.Models.Enums;
+using HotelManager.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HotelManager.Core.Repositories
 {
@@ -12,7 +14,7 @@ namespace HotelManager.Core.Repositories
     /// </summary>
     public class WorkScheduleRepository : Repository<WorkSchedule>, IWorkScheduleRepository
     {
-        public WorkScheduleRepository(HotelDbContext context) : base(context)
+        public WorkScheduleRepository(HotelDbContext context, ILogger<WorkScheduleRepository> logger) : base(context, logger)
         {
         }
 

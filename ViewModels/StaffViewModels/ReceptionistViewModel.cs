@@ -1123,5 +1123,37 @@ namespace HotelManager.ViewModels.StaffViewModels
                    CheckOutDate != null &&
                    CheckInDate < CheckOutDate;
         }
+
+#pragma warning disable IDE0060 //Remove unused parameter
+        private async Task GoToPreviousPageAsync()
+        {
+            // TODO: Implement pagination logic
+            await Task.CompletedTask;
+        }
+
+        private async Task GoToNextPageAsync()
+        {
+            // TODO: Implement pagination logic
+            await Task.CompletedTask;
+        }
+
+        private async Task GoToFirstPageAsync()
+        {
+            // TODO: Implement pagination logic
+            await Task.CompletedTask;
+        }
+
+        private async Task GoToLastPageAsync()
+        {
+            // TODO: Implement pagination logic
+            await Task.CompletedTask;
+        }
+
+        private async Task LoadCurrentPageAsync()
+        {
+            // TODO: Implement pagination logic
+            await Task.CompletedTask;
+        }
+#pragma warning restore IDE0060
     }
 }
