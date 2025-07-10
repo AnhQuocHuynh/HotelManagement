@@ -1,5 +1,6 @@
 using HotelManager.Core.Models;
-using HotelManager.Core.Models.Enums;
+using HotelManager.Models.Enums;
+using HotelManager.Models;
 
 namespace HotelManager.Core.Data
 {
@@ -28,7 +29,7 @@ namespace HotelManager.Core.Data
                     Notes = "Hoàn thành tốt",
                     AssignedByEmployeeId = 10,
                     CreatedDate = DateTime.Today.AddDays(-10),
-                    Employee = new Employee { Id = 1, FullName = "Nguyễn Văn A", Position = "Lễ Tân" }
+                    Employee = new Employee { Id = 1, FullName = "Nguyễn Văn A", Position = EmployeePosition.Receptionist }
                 },
                 
                 new WorkSchedule
@@ -42,7 +43,7 @@ namespace HotelManager.Core.Data
                     Notes = "Ca chiều receptionist",
                     AssignedByEmployeeId = 10,
                     CreatedDate = DateTime.Today.AddDays(-3),
-                    Employee = new Employee { Id = 2, FullName = "Trần Thị B", Position = "Lễ Tân" }
+                    Employee = new Employee { Id = 2, FullName = "Trần Thị B", Position = EmployeePosition.Receptionist }
                 },
                 
                 new WorkSchedule
@@ -56,7 +57,7 @@ namespace HotelManager.Core.Data
                     Notes = "Dọn dẹp phòng VIP",
                     AssignedByEmployeeId = 10,
                     CreatedDate = DateTime.Today.AddDays(-2),
-                    Employee = new Employee { Id = 3, FullName = "Lê Văn C", Position = "Nhân Viên Dọn Phòng" }
+                    Employee = new Employee { Id = 3, FullName = "Lê Văn C", Position = EmployeePosition.Cleaner }
                 },
                 
                 new WorkSchedule
@@ -70,7 +71,7 @@ namespace HotelManager.Core.Data
                     Notes = "Bảo trì hệ thống điện",
                     AssignedByEmployeeId = 10,
                     CreatedDate = DateTime.Today.AddDays(-1),
-                    Employee = new Employee { Id = 4, FullName = "Phạm Minh D", Position = "Kỹ Thuật Viên" }
+                    Employee = new Employee { Id = 4, FullName = "Phạm Minh D", Position = EmployeePosition.Technician }
                 },
                 
                 new WorkSchedule
@@ -84,7 +85,7 @@ namespace HotelManager.Core.Data
                     Notes = "Ca đêm cuối tuần",
                     AssignedByEmployeeId = 10,
                     CreatedDate = DateTime.Today,
-                    Employee = new Employee { Id = 1, FullName = "Nguyễn Văn A", Position = "Lễ Tân" }
+                    Employee = new Employee { Id = 1, FullName = "Nguyễn Văn A", Position = EmployeePosition.Receptionist }
                 }
             };
 
@@ -98,11 +99,11 @@ namespace HotelManager.Core.Data
         {
             return new List<Employee>
             {
-                new Employee { Id = 1, FullName = "Nguyễn Văn A", Position = "Lễ Tân", Email = "nva@hotel.com" },
-                new Employee { Id = 2, FullName = "Trần Thị B", Position = "Lễ Tân", Email = "ttb@hotel.com" },
-                new Employee { Id = 3, FullName = "Lê Văn C", Position = "Nhân Viên Dọn Phòng", Email = "lvc@hotel.com" },
-                new Employee { Id = 4, FullName = "Phạm Minh D", Position = "Kỹ Thuật Viên", Email = "pmd@hotel.com" },
-                new Employee { Id = 5, FullName = "Hoàng Thị E", Position = "Quản Lý", Email = "hte@hotel.com" }
+                new Employee { Id = 1, FullName = "Nguyễn Văn A", Position = EmployeePosition.Receptionist, Email = "nva@hotel.com" },
+                new Employee { Id = 2, FullName = "Trần Thị B", Position = EmployeePosition.Receptionist, Email = "ttb@hotel.com" },
+                new Employee { Id = 3, FullName = "Lê Văn C", Position = EmployeePosition.Cleaner, Email = "lvc@hotel.com" },
+                new Employee { Id = 4, FullName = "Phạm Minh D", Position = EmployeePosition.Technician, Email = "pmd@hotel.com" },
+                new Employee { Id = 5, FullName = "Hoàng Thị E", Position = EmployeePosition.Manager, Email = "hte@hotel.com" }
             };
         }
 

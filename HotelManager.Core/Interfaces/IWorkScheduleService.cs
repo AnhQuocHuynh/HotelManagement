@@ -1,5 +1,7 @@
 using HotelManager.Core.Models;
-using HotelManager.Core.Models.Enums;
+using HotelManager.Models.Enums;
+using HotelManager.Interfaces;
+using HotelManager.Models;
 
 namespace HotelManager.Core.Interfaces
 {
