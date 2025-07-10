@@ -10,7 +10,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="900" d:DesignWidth="1400"
+             d:DesignHeight="950" d:DesignWidth="1400"
              Background="{StaticResource SurfaceGradient}">
 
     <i:Interaction.Triggers>
@@ -122,51 +122,118 @@
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="32">
 
-                    <!-- Quick Stats -->
-                    <Grid Margin="0,0,0,24">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <materialDesign:Card Grid.Column="0" Style="{StaticResource QuickStatsCard}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <materialDesign:PackIcon Kind="CashMultiple" 
-                                                           Width="24" Height="24" 
-                                                           Foreground="{StaticResource SuccessBrush}"/>
-                                    <TextBlock Text="Total Payments" 
-                                             Style="{StaticResource BodyLarge}" 
-                                             Margin="12,0,0,0" 
-                                             VerticalAlignment="Center"/>
-                                </StackPanel>
-                                <TextBlock Text="{Binding Payments.Count}" 
-                                         Style="{StaticResource HeadlineMedium}" 
-                                         Foreground="{StaticResource SuccessBrush}" 
-                                         FontWeight="Bold"/>
+                    <!-- Booking Information -->
+                    <materialDesign:Card Margin="0,0,0,24" Style="{StaticResource QuickStatsCard}">
+                        <StackPanel>
+                            <!-- Header -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                                <materialDesign:PackIcon Kind="Information" 
+                                                       Width="24" Height="24" 
+                                                       Foreground="{StaticResource PrimaryBrush}"/>
+                                <TextBlock Text="Booking Information" 
+                                         Style="{StaticResource TitleLarge}" 
+                                         Margin="12,0,0,0" 
+                                         VerticalAlignment="Center"/>
                             </StackPanel>
-                        </materialDesign:Card>
+                            
+                            <!-- Booking Details Grid -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
 
-                        
-
-                        <materialDesign:Card Grid.Column="1" Style="{StaticResource QuickStatsCard}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <materialDesign:PackIcon Kind="CurrencyUsd" 
-                                                           Width="24" Height="24" 
-                                                           Foreground="{StaticResource WarningBrush}"/>
-                                    <TextBlock Text="Remaining Amount" 
-                                             Style="{StaticResource BodyLarge}" 
-                                             Margin="12,0,0,0" 
-                                             VerticalAlignment="Center"/>
+                                <!-- Row 1 -->
+                                <StackPanel Grid.Column="0" Grid.Row="0" Margin="8,0">
+                                    <TextBlock Text="Customer Name" 
+                                             Style="{StaticResource LabelMedium}" 
+                                             Foreground="{StaticResource OnSurfaceVariantBrush}"/>
+                                    <TextBlock Text="{Binding CustomerName}" 
+                                             Style="{StaticResource BodyMedium}" 
+                                             FontWeight="Medium"/>
                                 </StackPanel>
-                                <TextBlock Text="{Binding RemainingAmount, StringFormat='{}{0:C}'}" 
-                                         Style="{StaticResource HeadlineMedium}" 
-                                         Foreground="{StaticResource WarningBrush}" 
-                                         FontWeight="Bold"/>
-                            </StackPanel>
-                        </materialDesign:Card>
-                    </Grid>
+
+                                <StackPanel Grid.Column="1" Grid.Row="0" Margin="8,0">
+                                    <TextBlock Text="Customer ID" 
+                                             Style="{StaticResource LabelMedium}" 
+                                             Foreground="{StaticResource OnSurfaceVariantBrush}"/>
+                                    <TextBlock Text="{Binding CustomerId}" 
+                                             Style="{StaticResource BodyMedium}" 
+                                             FontWeight="Medium"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Grid.Row="0" Margin="8,0">
+                                    <TextBlock Text="Booking Employee ID" 
+                                             Style="{StaticResource LabelMedium}" 
+                                             Foreground="{StaticResource OnSurfaceVariantBrush}"/>
+                                    <TextBlock Text="{Binding BookingEmployeeId}" 
+                                             Style="{StaticResource BodyMedium}" 
+                                             FontWeight="Medium"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="3" Grid.Row="0" Margin="8,0">
+                                    <TextBlock Text="Room Number" 
+                                             Style="{StaticResource LabelMedium}" 
+                                             Foreground="{StaticResource OnSurfaceVariantBrush}"/>
+                                    <TextBlock Text="{Binding RoomNumber}" 
+                                             Style="{StaticResource BodyMedium}" 
+                                             FontWeight="Medium"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="4" Grid.Row="0" Margin="8,0">
+                                    <TextBlock Text="Total Days" 
+                                             Style="{StaticResource LabelMedium}" 
+                                             Foreground="{StaticResource OnSurfaceVariantBrush}"/>
+                                    <TextBlock Text="{Binding TotalDaysOfStay}" 
+                                             Style="{StaticResource BodyMedium}" 
+                                             FontWeight="Medium"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="5" Grid.Row="0" Margin="8,0">
+                                    <TextBlock Text="Total Amount" 
+                                             Style="{StaticResource LabelMedium}" 
+                                             Foreground="{StaticResource OnSurfaceVariantBrush}"/>
+                                    <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:C}'}" 
+                                             Style="{StaticResource BodyMedium}" 
+                                             FontWeight="Medium"/>
+                                </StackPanel>
+
+                                <!-- Remaining Amount Card -->
+                                <materialDesign:Card Grid.Column="6" Grid.Row="0" Grid.RowSpan="2" 
+                                                   Background="{StaticResource Warning100Brush}" 
+                                                   BorderBrush="{StaticResource WarningBrush}" 
+                                                   BorderThickness="1" 
+                                                   Margin="8,0,0,0">
+                                    <StackPanel Margin="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8" HorizontalAlignment="Center">
+                                            <materialDesign:PackIcon Kind="CurrencyUsd" 
+                                                                   Width="20" Height="20" 
+                                                                   Foreground="{StaticResource WarningBrush}"/>
+                                            <TextBlock Text="Remaining Amount" 
+                                                     Style="{StaticResource LabelMedium}" 
+                                                     Margin="8,0,0,0" 
+                                                     VerticalAlignment="Center"
+                                                     Foreground="{StaticResource WarningBrush}"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding RemainingAmount, StringFormat='{}{0:C}'}" 
+                                                 Style="{StaticResource HeadlineMedium}" 
+                                                 Foreground="{StaticResource WarningBrush}" 
+                                                 FontWeight="Bold"
+                                                 HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </materialDesign:Card>
+                            </Grid>
+                        </StackPanel>
+                    </materialDesign:Card>
 
                     <!-- Payment Form Section -->
                     <materialDesign:Card Margin="0,0,0,24" 
@@ -286,6 +353,43 @@
                                              Margin="12,0,0,0" 
                                              VerticalAlignment="Center"/>
                                 </StackPanel>
+
+                                <!-- Search Box and Show All Button -->
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Style="{StaticResource OutlinedButton}"
+                                            Command="{Binding ShowAllPaymentsCommand}"
+                                            Margin="0,0,8,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="FormatListBulleted" 
+                                                                     Width="16" 
+                                                                     Height="16" 
+                                                                     VerticalAlignment="Center"/>
+                                            <TextBlock Text="Show All" 
+                                                       Margin="4,0,0,0" 
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    
+                                    <TextBox Style="{StaticResource OutlinedTextField}"
+                                             materialDesign:HintAssist.Hint="Search payments..."
+                                             materialDesign:HintAssist.IsFloating="False"
+                                             Width="250"
+                                             Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Key="Enter"
+                                                        Command="{Binding SearchCommand}"/>
+                                        </TextBox.InputBindings>
+                                    </TextBox>
+
+                                    <Button Style="{StaticResource IconButton}"
+                                            Command="{Binding SearchCommand}"
+                                            ToolTip="Search"
+                                            Margin="8,0,0,0">
+                                        <materialDesign:PackIcon Kind="Magnify" 
+                                                                 Width="20" 
+                                                                 Height="20"/>
+                                    </Button>
+                                </StackPanel>
                             </Grid>
 
                             <!-- Data Grid -->
@@ -298,11 +402,16 @@
                           CanUserAddRows="False" 
                           SelectionMode="Single"
                           Style="{StaticResource ModernDataGrid}"
-                                        ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
+                          ColumnHeaderStyle="{StaticResource ModernDataGridColumnHeader}"
                           CanUserResizeRows="False"
-                                        CanUserSortColumns="True"
-                                        SelectedItem="{Binding SelectedPayment}"
-                                        MinHeight="300" MaxHeight="800">
+                          CanUserSortColumns="True"
+                          SelectedItem="{Binding SelectedPayment}"
+                          MinHeight="300" MaxHeight="800">
+                    <DataGrid.InputBindings>
+                        <MouseBinding Gesture="LeftDoubleClick" 
+                                      Command="{Binding ShowPaymentDetailsCommand}" 
+                                      CommandParameter="{Binding SelectedPayment}"/>
+                    </DataGrid.InputBindings>
                     <DataGrid.Columns>
                                         <!-- Status Indicator -->
                                         <DataGridTemplateColumn Header="" Width="50">
@@ -350,14 +459,8 @@
                         <DataGridTextColumn Header="Invoice ID" 
                                             Binding="{Binding InvoiceId}" 
                                             Width="*"
-                                                          IsReadOnly="True"
-                                                          ElementStyle="{StaticResource BodyMedium}"/>
-
-                                        <DataGridTextColumn Header="Remaining" 
-                                                          Binding="{Binding RemainingAmount, StringFormat='{}{0:C}'}" 
-                                            Width="*"
-                                                          IsReadOnly="True"
-                                                          ElementStyle="{StaticResource BodyMedium}"/>
+                                            IsReadOnly="True"
+                                            ElementStyle="{StaticResource BodyMedium}"/>
 
                                         <!-- Actions Column -->
                                         <DataGridTemplateColumn Header="Actions" Width="120">

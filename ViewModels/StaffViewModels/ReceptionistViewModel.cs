@@ -45,6 +45,13 @@ namespace HotelManager.ViewModels.StaffViewModels
         private string _searchText;
         //private Booking? _selectedBooking;
 
+        // Pagination properties
+        private int _currentPage = 1;
+        private int _pageSize = 10;
+        private int _totalPages;
+        private int _totalItems;
+        private bool _isLoading;
+
         public string CustomerFullName
         {
             get => _customerFullName;
@@ -85,7 +92,22 @@ namespace HotelManager.ViewModels.StaffViewModels
                 _selectedRoomType = value;
                 OnPropertyChanged(nameof(SelectedRoomType));
                 // Gọi trực tiếp để đảm bảo chạy trên thread UI (fire-and-forget)
-                _ = UpdateAvailableRoomsAsync();
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await UpdateAvailableRoomsAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger?.LogError(ex, "Error updating available rooms");
+                        // Optionally dispatch to UI thread to show error
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show("Error updating room availability. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        });
+                    }
+                });
             }
         }
 
@@ -153,6 +175,74 @@ namespace HotelManager.ViewModels.StaffViewModels
             set { _availableRoomsCount = value; OnPropertyChanged(nameof(AvailableRoomsCount)); }
         }
 
+        // Pagination properties
+        public int CurrentPage
+        {
+            get => _currentPage;
+            set
+            {
+                _currentPage = value;
+                OnPropertyChanged(nameof(CurrentPage));
+                OnPropertyChanged(nameof(CanGoToPreviousPage));
+                OnPropertyChanged(nameof(CanGoToNextPage));
+            }
+        }
+
+        public int PageSize
+        {
+            get => _pageSize;
+            set
+            {
+                _pageSize = value;
+                OnPropertyChanged(nameof(PageSize));
+                CurrentPage = 1; // Reset to first page when page size changes
+                // Reload data when page size changes
+                _ = LoadDataAsync();
+            }
+        }
+
+        public int TotalPages
+        {
+            get => _totalPages;
+            set
+            {
+                _totalPages = value;
+                OnPropertyChanged(nameof(TotalPages));
+                OnPropertyChanged(nameof(CanGoToNextPage));
+            }
+        }
+
+        public int TotalItems
+        {
+            get => _totalItems;
+            set
+            {
+                _totalItems = value;
+                OnPropertyChanged(nameof(TotalItems));
+            }
+        }
+
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged(nameof(IsLoading));
+            }
+        }
+
+        public bool CanGoToPreviousPage => CurrentPage > 1;
+        public bool CanGoToNextPage => CurrentPage < TotalPages;
+
+        private void NotifyPaginationCommandsChanged()
+        {
+            if (GoToPreviousPageCommand is AsyncRelayCommand prevCmd) prevCmd.NotifyCanExecuteChanged();
+            if (GoToNextPageCommand is AsyncRelayCommand nextCmd) nextCmd.NotifyCanExecuteChanged();
+            if (GoToFirstPageCommand is AsyncRelayCommand firstCmd) firstCmd.NotifyCanExecuteChanged();
+            if (GoToLastPageCommand is AsyncRelayCommand lastCmd) lastCmd.NotifyCanExecuteChanged();
+        }
+
         // Properties for editing
         private Booking _selectedBookingForEdit;
         public Booking SelectedBookingForEdit
@@ -206,6 +296,12 @@ namespace HotelManager.ViewModels.StaffViewModels
         // end of edit booking commands
         // create invoice command
         public ICommand CreateInvoiceCommand { get; private set; }
+        
+        // Pagination commands
+        public ICommand GoToPreviousPageCommand { get; private set; }
+        public ICommand GoToNextPageCommand { get; private set; }
+        public ICommand GoToFirstPageCommand { get; private set; }
+        public ICommand GoToLastPageCommand { get; private set; }
 
         // Constructor cho XAML (không tham số) – tự resolve qua DI
         public ReceptionistViewModel() : base()
@@ -284,6 +380,23 @@ namespace HotelManager.ViewModels.StaffViewModels
             CreateInvoiceCommand = new AsyncRelayCommand<Booking?>(
                 execute: b => CreateInvoiceAsync(b!),
                 canExecute: b => b != null);
+
+            // Pagination commands
+            GoToPreviousPageCommand = new AsyncRelayCommand(
+                execute: () => GoToPreviousPageAsync(),
+                canExecute: () => CanGoToPreviousPage);
+
+            GoToNextPageCommand = new AsyncRelayCommand(
+                execute: () => GoToNextPageAsync(),
+                canExecute: () => CanGoToNextPage);
+
+            GoToFirstPageCommand = new AsyncRelayCommand(
+                execute: () => GoToFirstPageAsync(),
+                canExecute: () => CanGoToPreviousPage);
+
+            GoToLastPageCommand = new AsyncRelayCommand(
+                execute: () => GoToLastPageAsync(),
+                canExecute: () => CanGoToNextPage);
         }
 
         protected override async Task OnLoadedAsync()
@@ -295,18 +408,27 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             try
             {
+                IsLoading = true;
                 _logger?.LogInformation("Loading receptionist data");
                 var bookings = await _bookingService.GetAllAsync();
-                Bookings.Clear();
-                _allBookings = bookings.ToList();
-                foreach (var booking in _allBookings)
-                {
-                    Bookings.Add(booking);
-                }
-                TotalBookings = Bookings.Count;
-
+                
+                // Order bookings by check-in date (recent first) then by check-out date (recent first)
+                _allBookings = bookings
+                    .OrderByDescending(b => b.CheckInDate)
+                    .ThenByDescending(b => b.CheckOutDate)
+                    .ToList();
+                
+                TotalItems = _allBookings.Count;
+                TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                
+                // Notify pagination command changes
+                NotifyPaginationCommandsChanged();
+                
+                // Load first page
+                await LoadCurrentPageAsync();
+                
                 await UpdateAvailableRoomsAsync();
-                _logger?.LogInformation("Successfully loaded {BookingCount} bookings", bookings.Count);
+                _logger?.LogInformation("Successfully loaded {BookingCount} bookings ordered by check-in date (recent first)", bookings.Count);
             }
             catch (BusinessException ex)
             {
@@ -317,6 +439,10 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 _logger?.LogError(ex, "Unexpected error loading data");
                 MessageBox.Show("Error loading data. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
@@ -389,7 +515,11 @@ namespace HotelManager.ViewModels.StaffViewModels
                     Room = room,
                     TotalAmount = totalAmount,
                 };
-                // Setting conditional booking employee
+                // Setting employee IDs based on booking status
+                // Always set the booking employee ID (the person who created the booking)
+                booking.BookingEmployeeId = employee?.Id;
+                
+                // Set check-in/check-out employee IDs based on status
                 if (SelectedStatus == BookingStatus.CheckedIn)
                 {
                     booking.CheckInEmployeeID = employee?.Id;
@@ -397,15 +527,13 @@ namespace HotelManager.ViewModels.StaffViewModels
                 else if (SelectedStatus == BookingStatus.CheckedOut)
                 {
                     booking.CheckOutEmployeeID = employee?.Id;
-                } else
-                {
-                    booking.BookingEmployeeId = employee?.Id;
                 }
 
                 await _bookingService.CreateAsync(booking);
-                Bookings.Add(booking);
+                
+                // Refresh the data to maintain proper ordering
+                await LoadDataAsync();
                 await UpdateAvailableRoomsAsync();
-                TotalBookings = Bookings.Count;
 
                 ClearInputFields();
                 MessageBox.Show("Booking added successfully!", "Success", MessageBoxButton.OK);
@@ -475,6 +603,16 @@ namespace HotelManager.ViewModels.StaffViewModels
                 var result = MessageBox.Show("Are you sure you want to delete this booking?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
+                    // Check if there's an associated invoice and delete it first
+                    var invoiceService = App.ServiceProvider.GetRequiredService<HotelManager.Services.InvoiceService>();
+                    var existingInvoice = await invoiceService.GetByBookingIdAsync(booking.Id);
+                    if (existingInvoice != null)
+                    {
+                        int paymentCount = await invoiceService.DeleteAsync(existingInvoice.Id);
+                        _logger?.LogInformation("Deleted invoice {InvoiceId} and {PaymentCount} associated payments for booking {BookingId}", 
+                            existingInvoice.Id, paymentCount, booking.Id);
+                    }
+                    
                     await _bookingService.DeleteAsync(booking.Id);
                     Bookings.Remove(booking);
                     await UpdateAvailableRoomsAsync();
@@ -617,33 +755,34 @@ namespace HotelManager.ViewModels.StaffViewModels
                     _logger?.LogInformation("No invoice found for booking {BookingId}, creating new one", booking.Id);
                     invoice = await invoiceService.CreateForBookingAsync(booking, booking.TotalAmount);
                 }
-                //booking.Status = BookingStatus.CheckedOut;
-                //booking.CheckOutDate = DateTime.Now;
-                //await _bookingService.UpdateAsync(booking);
-                //var room = await _roomService.GetByRoomNumberAsync(booking.RoomNumber);
-                //if (room != null)
-                //{
-                //    room.RoomStatus = RoomStatus.Pending;
-                //    await _roomService.UpdateAsync(room);
-                //    try
-                //    {
-                //        var workAssignmentService = App.ServiceProvider?.GetRequiredService<HotelManager.Interfaces.IWorkAssignmentService>();
-                //        if (workAssignmentService != null)
-                //        {
-                //            var currentUser = AppSession.GetCurrentUserAccount();
-                //            await workAssignmentService.AutoAssignWorkAsync(
-                //                room.RoomNumber,
-                //                HotelManager.Models.Enums.AssignmentType.Cleaning,
-                //                currentUser?.EmployeeId);
-                //        }
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        _logger?.LogWarning(ex, "Work assignment during checkout failed");
-                //    }
-                //}
+                booking.Status = BookingStatus.CheckedOut;
+                booking.CheckOutDate = DateTime.Now;
+                await _bookingService.UpdateAsync(booking);
+                var room = await _roomService.GetByRoomNumberAsync(booking.RoomNumber);
+                if (room != null)
+                {
+                    room.RoomStatus = RoomStatus.Pending;
+                    await _roomService.UpdateAsync(room);
+                    try
+                    {
+                        var workAssignmentService = App.ServiceProvider?.GetRequiredService<HotelManager.Interfaces.IWorkAssignmentService>();
+                        if (workAssignmentService != null)
+                        {
+                            var currentUser = AppSession.GetCurrentUserAccount();
+                            await workAssignmentService.AutoAssignWorkAsync(
+                                room.RoomNumber,
+                                HotelManager.Models.Enums.AssignmentType.Cleaning,
+                                currentUser?.EmployeeId);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger?.LogWarning(ex, "Work assignment during checkout failed");
+                    }
+                }
                 await LoadDataAsync();
 
+                //Đảm bảo phải pay hêt khi checkout
                 // Tạo mới invoice cho booking
                 // Điều hướng sang PaymentViewModel, truyền invoice
                 Debug.WriteLine($"Navigating to PaymentViewModel with Invoice's Booking ID: {invoice.BookingId}, TotalAmount: {invoice.TotalAmount}");
@@ -673,7 +812,8 @@ namespace HotelManager.ViewModels.StaffViewModels
             try
             {
                 // Hiển thị danh sách bookings trong một MessageBox hoặc một cửa sổ mới
-                var bookingsList = string.Join(Environment.NewLine, Bookings.Select(b => $"{b.Customer.FullName} - {b.RoomNumber} ({b.Status})"));
+                var bookingsList = string.Join(Environment.NewLine, Bookings.Select(b => 
+                    $"{b.Customer?.FullName ?? "Unknown"} - {b.RoomNumber} ({b.Status})"));
                 MessageBox.Show(bookingsList, "Bookings List", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -707,32 +847,55 @@ namespace HotelManager.ViewModels.StaffViewModels
             _navigationService?.NavigateTo<ReceptionistRoomViewModel>();
         }
 
-        private void PerformSearch()
+        private async void PerformSearch()
         {
-            if (string.IsNullOrWhiteSpace(SearchText))
+            try
             {
-                Bookings.Clear();
-                foreach (var booking in _allBookings)
-                    Bookings.Add(booking);
-                return;
+                IsLoading = true;
+                
+                if (string.IsNullOrWhiteSpace(SearchText))
+                {
+                    // Reset to all bookings
+                    _allBookings = (await _bookingService.GetAllAsync())
+                        .OrderByDescending(b => b.CheckInDate)
+                        .ThenByDescending(b => b.CheckOutDate)
+                        .ToList();
+                }
+                else
+                {
+                    string searchText = SearchText.Trim().ToLowerInvariant();
+                    var allBookings = await _bookingService.GetAllAsync();
+                    
+                    _allBookings = allBookings
+                        .Where(b =>
+                            (b.Customer?.FullName?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                            (b.Customer?.CCCD?.ToLowerInvariant().Contains(searchText) ?? false) ||
+                            (b.Customer?.PhoneNumber?.Contains(searchText) ?? false) ||
+                            b.RoomNumber.ToLowerInvariant().Contains(searchText) ||
+                            b.Status.ToString().ToLowerInvariant().Contains(searchText) ||
+                            (b.Customer?.Type.ToString().ToLowerInvariant().Contains(searchText) ?? false) ||
+                            b.RoomType.ToString().ToLowerInvariant().Contains(searchText)
+                        )
+                        .OrderByDescending(b => b.CheckInDate)
+                        .ThenByDescending(b => b.CheckOutDate)
+                        .ToList();
+                }
+
+                TotalItems = _allBookings.Count;
+                TotalPages = (int)Math.Ceiling((double)TotalItems / PageSize);
+                CurrentPage = 1; // Reset to first page when searching
+                
+                await LoadCurrentPageAsync();
             }
-
-            string searchText = SearchText.Trim().ToLowerInvariant();
-            var filteredBookings = _allBookings
-            .Where(b =>
-                b.Customer.FullName.ToLowerInvariant().Contains(searchText) ||
-                b.Customer.CCCD.ToLowerInvariant().Contains(searchText) ||
-                b.Customer.PhoneNumber.Contains(searchText) ||
-                b.RoomNumber.ToLowerInvariant().Contains(searchText) ||
-                b.Status.ToString().ToLowerInvariant().Contains(searchText) ||
-                b.Customer.Type.ToString().ToLowerInvariant().Contains(searchText) ||
-                b.RoomType.ToString().ToLowerInvariant().Contains(searchText)
-            )
-            .ToList();
-
-            Bookings.Clear();
-            foreach (var booking in filteredBookings)
-                Bookings.Add(booking);
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error performing search");
+                MessageBox.Show("Error performing search. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private void NavigateProfile()
@@ -751,17 +914,24 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             if (booking?.Customer != null)
             {
-                CustomerFullName = booking.Customer.FullName;
-                CustomerCCCD = booking.Customer.CCCD;
-                CustomerPhoneNumber = booking.Customer.PhoneNumber;
+                CustomerFullName = booking.Customer.FullName ?? string.Empty;
+                CustomerCCCD = booking.Customer.CCCD ?? string.Empty;
+                CustomerPhoneNumber = booking.Customer.PhoneNumber ?? string.Empty;
                 SelectedCustomerType = booking.Customer.Type;
             }
+            else
+            {
+                CustomerFullName = string.Empty;
+                CustomerCCCD = string.Empty;
+                CustomerPhoneNumber = string.Empty;
+                SelectedCustomerType = default;
+            }
 
-            SelectedRoomType = booking.RoomType;
-            SelectedRoomNumber = booking.RoomNumber;
-            CheckInDate = booking.CheckInDate;
-            CheckOutDate = booking.CheckOutDate;
-            SelectedStatus = booking.Status;
+            SelectedRoomType = booking?.RoomType ?? default;
+            SelectedRoomNumber = booking?.RoomNumber ?? string.Empty;
+            CheckInDate = booking?.CheckInDate ?? DateTime.Now;
+            CheckOutDate = booking?.CheckOutDate ?? DateTime.Now.AddDays(1);
+            SelectedStatus = booking?.Status ?? BookingStatus.Pending;
         }
         private async Task EditBookingAsync(Booking? booking)
         {
@@ -848,6 +1018,10 @@ namespace HotelManager.ViewModels.StaffViewModels
                 decimal totalAmount = room.PricePerNight * numberOfNights;
 
                 // Update the booking's properties
+                if (SelectedBookingForEdit.Customer == null)
+                {
+                    SelectedBookingForEdit.Customer = new Customer();
+                }
                 SelectedBookingForEdit.Customer.FullName = CustomerFullName;
                 SelectedBookingForEdit.Customer.CCCD = CustomerCCCD;
                 SelectedBookingForEdit.Customer.PhoneNumber = CustomerPhoneNumber;
@@ -872,6 +1046,18 @@ namespace HotelManager.ViewModels.StaffViewModels
                 }
 
                 await _bookingService.UpdateAsync(SelectedBookingForEdit);
+                
+                // Update the corresponding invoice if it exists
+                var invoiceService = App.ServiceProvider.GetRequiredService<HotelManager.Services.InvoiceService>();
+                var existingInvoice = await invoiceService.GetByBookingIdAsync(SelectedBookingForEdit.Id);
+                if (existingInvoice != null)
+                {
+                    existingInvoice.TotalAmount = totalAmount;
+                    await invoiceService.UpdateAsync(existingInvoice);
+                    _logger?.LogInformation("Updated invoice {InvoiceId} total amount to {TotalAmount} for booking {BookingId}", 
+                        existingInvoice.Id, totalAmount, SelectedBookingForEdit.Id);
+                }
+                
                 await UpdateAvailableRoomsAsync();
                 await LoadDataAsync();
                 MessageBox.Show("Booking updated successfully!", "Success", MessageBoxButton.OK);
@@ -958,6 +1144,81 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 _logger?.LogError(ex, "Unexpected error creating invoice");
                 _notificationService?.ShowError("Error creating invoice. Please try again.");
+            }
+        }
+
+        // Pagination methods
+        private async Task LoadCurrentPageAsync()
+        {
+            try
+            {
+                if (_allBookings == null || !_allBookings.Any())
+                {
+                    Bookings.Clear();
+                    TotalBookings = 0;
+                    return;
+                }
+
+                var startIndex = (CurrentPage - 1) * PageSize;
+                var pageBookings = _allBookings
+                    .Skip(startIndex)
+                    .Take(PageSize)
+                    .ToList();
+
+                Bookings.Clear();
+                foreach (var booking in pageBookings)
+                {
+                    Bookings.Add(booking);
+                }
+                TotalBookings = Bookings.Count;
+
+                _logger?.LogDebug("Loaded page {CurrentPage} of {TotalPages} with {BookingCount} bookings", 
+                    CurrentPage, TotalPages, pageBookings.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error loading current page");
+                MessageBox.Show("Error loading page. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task GoToPreviousPageAsync()
+        {
+            if (CanGoToPreviousPage)
+            {
+                CurrentPage--;
+                await LoadCurrentPageAsync();
+                NotifyPaginationCommandsChanged();
+            }
+        }
+
+        private async Task GoToNextPageAsync()
+        {
+            if (CanGoToNextPage)
+            {
+                CurrentPage++;
+                await LoadCurrentPageAsync();
+                NotifyPaginationCommandsChanged();
+            }
+        }
+
+        private async Task GoToFirstPageAsync()
+        {
+            if (CanGoToPreviousPage)
+            {
+                CurrentPage = 1;
+                await LoadCurrentPageAsync();
+                NotifyPaginationCommandsChanged();
+            }
+        }
+
+        private async Task GoToLastPageAsync()
+        {
+            if (CanGoToNextPage)
+            {
+                CurrentPage = TotalPages;
+                await LoadCurrentPageAsync();
+                NotifyPaginationCommandsChanged();
             }
         }
     }

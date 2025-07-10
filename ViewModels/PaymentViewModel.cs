@@ -29,7 +29,28 @@ namespace HotelManager.ViewModels
         private ObservableCollection<Payment> _payments;
         private Payment _selectedPayment;
         private Invoice _currentInvoice;
+        private Invoice _editingInvoice; // Invoice for the payment being edited
         private Booking currentBooking;
+        private string _searchText;
+        private List<Payment> _allPayments; // Store all payments for search functionality
+
+        // Properties for displaying booking information
+        public string CustomerName => currentBooking?.Customer?.FullName ?? "N/A";
+        public string CustomerId => currentBooking?.CustomerId.ToString() ?? "N/A";
+        public string BookingEmployeeId => currentBooking?.BookingEmployeeId?.ToString() ?? "N/A";
+        public string RoomNumber => currentBooking?.RoomNumber ?? "N/A";
+        public int TotalDaysOfStay => currentBooking != null ? (currentBooking.CheckOutDate - currentBooking.CheckInDate).Days : 0;
+        public decimal TotalAmount => currentBooking?.TotalAmount ?? 0m;
+
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                _searchText = value;
+                OnPropertyChanged(nameof(SearchText));
+            }
+        }
 
         public ObservableCollection<Invoice> AvailableInvoices { get; set; } = new();
 
@@ -38,7 +59,12 @@ namespace HotelManager.ViewModels
         public DateTime PaymentDate
         {
             get => _paymentDate;
-            set { _paymentDate = value; OnPropertyChanged(nameof(PaymentDate)); }
+            set 
+            { 
+                _paymentDate = value; 
+                OnPropertyChanged(nameof(PaymentDate));
+                OnCanExecuteChanged();
+            }
         }
 
         public decimal Amount
@@ -48,15 +74,18 @@ namespace HotelManager.ViewModels
             {
                 _amount = value;
                 OnPropertyChanged(nameof(Amount));
-                if (AddPaymentCommand is RelayCommand command) command.NotifyCanExecuteChanged();
+                OnCanExecuteChanged();
             }
         }
 
         public PaymentMethod PaymentMethod
         {
             get => _paymentMethod;
-            set { _paymentMethod = value; OnPropertyChanged(nameof(PaymentMethod));
-                if (AddPaymentCommand is RelayCommand command) command.NotifyCanExecuteChanged();
+            set 
+            { 
+                _paymentMethod = value; 
+                OnPropertyChanged(nameof(PaymentMethod));
+                OnCanExecuteChanged();
             }
         }
 
@@ -87,14 +116,14 @@ namespace HotelManager.ViewModels
                 Debug.WriteLine($"SelectedPayment changed: {(_selectedPayment != null ? $"ID={_selectedPayment.Id}, Amount={_selectedPayment.Amount}" : "null")}");
                 OnPropertyChanged(nameof(SelectedPayment));
 
-                IsEditing = _selectedPayment != null;
+                // Don't automatically set IsEditing when payment is selected
+                // IsEditing should only be set when explicitly editing via the edit button
 
                 if (_selectedPayment == null)
                 {
                     ClearInputFields();
                 }
-                if (SaveEditedPaymentCommand is RelayCommand<Payment> command) command.NotifyCanExecuteChanged();
-                if (DeletePaymentCommand is RelayCommand<Payment> command2) command2.NotifyCanExecuteChanged();
+                OnCanExecuteChanged();
             }
         }
 
@@ -111,22 +140,17 @@ namespace HotelManager.ViewModels
             }
         }
 
-        //Editing properties
-        private Payment _selectedPaymentForEdit;
-        public Payment SelectedPaymentForEdit
+        public Invoice EditingInvoice
         {
-            get => _selectedPaymentForEdit;
+            get => _editingInvoice;
             set
             {
-                _selectedPaymentForEdit = value;
-                OnPropertyChanged(nameof(SelectedPaymentForEdit));
-                if (_selectedPaymentForEdit != null)
-                {
-                    LoadPaymentForEdit(value);
-                }
-
+                _editingInvoice = value;
+                OnPropertyChanged(nameof(EditingInvoice));
             }
         }
+
+
 
         private bool _isEditing;
         public bool IsEditing
@@ -148,6 +172,9 @@ namespace HotelManager.ViewModels
         public ICommand LoadedCommand { get; set; }
         public ICommand CancelPaymentCommand { get; set; }
         public ICommand EnableEditPayment { get; set; }
+        public ICommand SearchCommand { get; set; }
+        public ICommand ShowAllPaymentsCommand { get; set; }
+        public ICommand ShowPaymentDetailsCommand { get; set; }
 
         public PaymentViewModel()
         {
@@ -192,7 +219,7 @@ namespace HotelManager.ViewModels
 
         private void InitializeViewModel()
         {
-            AddPaymentCommand = new RelayCommand(async () => await AddPaymentAsync(),() => true);
+            AddPaymentCommand = new RelayCommand(async () => await AddPaymentAsync(), CanAddPayment);
 
 
             SaveEditedPaymentCommand = new AsyncRelayCommand<Payment>(
@@ -204,7 +231,10 @@ namespace HotelManager.ViewModels
             NavigateBackCommand = new RelayCommand(NavigateBack);
             LoadedCommand = new RelayCommand(async () => await OnLoadedAsync());
             CancelPaymentCommand = new RelayCommand(() => CancelInput());
-            EnableEditPayment = new RelayCommand<Payment>(p => EditPaymentAsync(p!), p => p != null);
+            EnableEditPayment = new RelayCommand<Payment>(p => EditPaymentAsync(p!), p => p != null && !IsEditing);
+            SearchCommand = new RelayCommand(PerformSearch);
+            ShowAllPaymentsCommand = new RelayCommand(async () => await ShowAllPaymentsAsync());
+            ShowPaymentDetailsCommand = new RelayCommand<Payment>(p => ShowPaymentDetailsAsync(p!), p => p != null);
 
             Payments = new ObservableCollection<Payment>();
             PaymentDate = DateTime.Now;
@@ -219,6 +249,7 @@ namespace HotelManager.ViewModels
             ClearInputFields();
             IsEditing = false;
             SelectedPayment = null; // Clear selected payment
+            EditingInvoice = null; // Clear editing invoice
         }
 
         public void OnNavigatedFrom()
@@ -239,6 +270,14 @@ namespace HotelManager.ViewModels
                 Amount = invoice.TotalAmount; // Set initial amount to total amount of the invoice
                 currentBooking = invoice.Booking;
                 Debug.WriteLine($"Assigned CurrentInvoice's Booking ID: {invoice.BookingId}");
+                
+                // Trigger property change notifications for booking information properties
+                OnPropertyChanged(nameof(CustomerName));
+                OnPropertyChanged(nameof(CustomerId));
+                OnPropertyChanged(nameof(BookingEmployeeId));
+                OnPropertyChanged(nameof(RoomNumber));
+                OnPropertyChanged(nameof(TotalDaysOfStay));
+                OnPropertyChanged(nameof(TotalAmount));
             }
             else
             {
@@ -251,38 +290,33 @@ namespace HotelManager.ViewModels
             await LoadDataAsync();
         }
 
-        public async Task LoadDataAsync()
-        {
-            try
-            {
-                LogInformation("Loading payment data");
-                Debug.WriteLine("PaymentViewModel: LoadDataAsync started");
-                var invoices = await _invoiceService.GetAllAsync();
-                var payments = await _paymentService.GetAllAsync();
 
-                Payments.Clear();
-                foreach (var payment in payments)
-                {
-                    Payments.Add(payment);
-                }
-
-                LogInformation("Successfully loaded {InvoiceCount} invoices and {PaymentCount} payments",
-                    invoices.Count, Payments.Count);
-                Debug.WriteLine($"PaymentViewModel: LoadDataAsync completed - {invoices.Count} invoices, {Payments.Count} payments");
-            }
-            catch (Exception ex)
-            {
-                LogError(ex, "Failed to load payment data");
-                Debug.WriteLine($"PaymentViewModel: LoadDataAsync error - {ex.Message}");
-                throw;
-            }
-        }
 
         private async void LoadData()
         {
             var payments = await _paymentService.GetAllAsync();
             Payments = new ObservableCollection<Payment>(payments.Where(p => p.InvoiceId == CurrentInvoice.Id));
             //RemainingAmount = 10000000;
+        }
+
+        private async Task RefreshPaymentsAsync()
+        {
+            try
+            {
+                var payments = await _paymentService.GetAllAsync();
+                var filteredPayments = payments.Where(p => p.InvoiceId == CurrentInvoice.Id).ToList();
+                
+                Payments.Clear();
+                foreach (var payment in filteredPayments)
+                {
+                    Payments.Add(payment);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "Failed to refresh payments");
+                Debug.WriteLine($"RefreshPaymentsAsync error: {ex.Message}");
+            }
         }
 
         private async Task AddPaymentAsync()
@@ -303,9 +337,15 @@ namespace HotelManager.ViewModels
 
                 await _paymentService.CreateAsync(payment);
                 Payments.Add(payment);
+                
+                // Update remaining amount and invoice total
                 RemainingAmount -= Amount;
-                CurrentInvoice.TotalAmount -= Amount; // Update invoice total amount
-                await _invoiceService.UpdateAsync(CurrentInvoice); // Save updated invoice
+                CurrentInvoice.TotalAmount -= Amount;
+                await _invoiceService.UpdateAsync(CurrentInvoice);
+                
+                // Refresh the payments list to show updated data
+                await RefreshPaymentsAsync();
+                
                 ClearInputFields();
                 IsEditing = false;
 
@@ -334,25 +374,48 @@ namespace HotelManager.ViewModels
                 {
                     LogInformation("Updating payment with ID {PaymentId}", SelectedPayment.Id);
 
+                    // Store original amount for calculation
+                    var originalAmount = SelectedPayment.Amount;
+                    
                     SelectedPayment.PaymentDate = PaymentDate;
                     SelectedPayment.Amount = Amount;
                     SelectedPayment.PaymentMethod = PaymentMethod;
 
-                    RemainingAmount += SelectedPayment.Amount - Amount; // Adjust remaining amount based on changes
-                    CurrentInvoice.TotalAmount += SelectedPayment.Amount - Amount; // Update invoice total amount
-                    await _invoiceService.UpdateAsync(CurrentInvoice); // Save updated invoice
+                    // Update the editing invoice (not the current invoice)
+                    if (EditingInvoice != null)
+                    {
+                        EditingInvoice.TotalAmount += originalAmount - Amount;
+                        await _invoiceService.UpdateAsync(EditingInvoice);
+                        
+                        // Also update the current invoice if it's the same invoice
+                        if (CurrentInvoice != null && CurrentInvoice.Id == EditingInvoice.Id)
+                        {
+                            CurrentInvoice.TotalAmount = EditingInvoice.TotalAmount;
+                        }
+                    }
 
                     Debug.WriteLine($"Saving: SelectedPayment - ID={SelectedPayment.Id}, Amount={SelectedPayment.Amount}");
                     await _paymentService.UpdateAsync(SelectedPayment);
 
+                    // Store payment info before clearing
+                    var paymentId = SelectedPayment.Id;
+                    var paymentAmount = SelectedPayment.Amount;
+                    var paymentMethod = SelectedPayment.PaymentMethod;
+
+                    // Log user activity for audit
+                    await LogUserActivityAsync("UPDATE", "Payment", paymentId.ToString(),
+                        $"Updated payment: {paymentAmount:C} via {paymentMethod}");
+
+                    LogInformation("Payment updated successfully with ID {PaymentId}", paymentId);
+                    
                     IsEditing = false;
                     ClearInputFields();
                     SelectedPayment = null; // Clear selection after saving
-                    // Log user activity for audit
-                    await LogUserActivityAsync("UPDATE", "Payment", SelectedPayment.Id.ToString(),
-                        $"Updated payment: {SelectedPayment.Amount:C} via {SelectedPayment.PaymentMethod}");
-
-                    LogInformation("Payment updated successfully with ID {PaymentId}", SelectedPayment.Id);
+                    EditingInvoice = null; // Clear editing invoice
+                    
+                    // Refresh the payments list to show updated data
+                    await RefreshPaymentsAsync();
+                    
                     Application.Current.Dispatcher.Invoke(() =>
                         MessageBox.Show("Payment saved successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information)
                     );
@@ -390,14 +453,34 @@ namespace HotelManager.ViewModels
                     Payments.Remove(payment);
                     RemainingAmount += payment.Amount;
 
-                    CurrentInvoice.TotalAmount += payment.Amount; // Update invoice total amount
-                    await _invoiceService.UpdateAsync(CurrentInvoice); // Save updated invoice
+                    // Update the invoice for this payment
+                    var paymentInvoice = await _invoiceService.GetByIdAsync(payment.InvoiceId);
+                    if (paymentInvoice != null)
+                    {
+                        paymentInvoice.TotalAmount += payment.Amount;
+                        await _invoiceService.UpdateAsync(paymentInvoice);
+                        
+                        // Also update the current invoice if it's the same invoice
+                        if (CurrentInvoice != null && CurrentInvoice.Id == paymentInvoice.Id)
+                        {
+                            CurrentInvoice.TotalAmount = paymentInvoice.TotalAmount;
+                        }
+                    }
 
 
                     ClearInputFields();
                     SelectedPayment = null;
                     OnCanExecuteChanged();
                     IsEditing = false;
+                    
+                    // Clear editing invoice if the deleted payment was being edited
+                    if (EditingInvoice != null && EditingInvoice.Id == payment.InvoiceId)
+                    {
+                        EditingInvoice = null;
+                    }
+
+                    // Refresh the payments list to show updated data
+                    await RefreshPaymentsAsync();
 
                     await LogUserActivityAsync("DELETE", "Payment", payment.Id.ToString(),
                         $"Deleted payment: {payment.Amount:C} via {payment.PaymentMethod}");
@@ -417,21 +500,26 @@ namespace HotelManager.ViewModels
 
         private bool CanAddPayment()
         {
-            Debug.WriteLine($"CanAddPayment: Amount={Amount}, RemainingAmount={RemainingAmount}");
+            Debug.WriteLine($"CanAddPayment: Amount={Amount}, RemainingAmount={RemainingAmount}, IsEditing={IsEditing}");
             return CurrentInvoice != null && Amount > 0 && RemainingAmount >= Amount && !IsEditing;
         }
 
         private bool CanSavePayment()
         {
-            if (SelectedPayment == null)
+            if (SelectedPayment == null || !IsEditing || EditingInvoice == null)
                 return false;
 
             // Optional: prevent saving with zero/negative amounts
             if (Amount <= 0)
                 return false;
 
+            // Calculate the total amount already paid for this invoice
+            var totalPaid = Payments.Where(p => p.InvoiceId == EditingInvoice.Id && p.Id != SelectedPayment.Id)
+                                   .Sum(p => p.Amount);
+            var newTotalPaid = totalPaid + Amount;
+            
             // Optional: prevent overpaying
-            if (Amount > RemainingAmount + SelectedPayment.Amount) // allow reusing the original amount
+            if (newTotalPaid > EditingInvoice.TotalAmount)
                 return false;
 
             // Optional: disable save if no real changes
@@ -458,8 +546,9 @@ namespace HotelManager.ViewModels
         private void OnCanExecuteChanged()
         {
             if (AddPaymentCommand is RelayCommand command) command.NotifyCanExecuteChanged();
-            if (SaveEditedPaymentCommand is RelayCommand<Payment> command2) command2.NotifyCanExecuteChanged();
+            if (SaveEditedPaymentCommand is AsyncRelayCommand<Payment> command2) command2.NotifyCanExecuteChanged();
             if (DeletePaymentCommand is RelayCommand<Payment> command3) command3.NotifyCanExecuteChanged();
+            if (EnableEditPayment is RelayCommand<Payment> command4) command4.NotifyCanExecuteChanged();
         }
 
         private void NavigateBack()
@@ -477,9 +566,24 @@ namespace HotelManager.ViewModels
                     MessageBox.Show("No payment selected for editing.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                SelectedPaymentForEdit = payment;
+                
+                // Fetch the specific invoice for this payment
+                var paymentInvoice = await _invoiceService.GetByIdAsync(payment.InvoiceId);
+                if (paymentInvoice == null)
+                {
+                    MessageBox.Show($"Could not find invoice with ID {payment.InvoiceId} for this payment.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                
+                // Set the editing invoice (separate from current invoice)
+                EditingInvoice = paymentInvoice;
+                
+                // Set the selected payment and load its data into the form
+                SelectedPayment = payment;
+                LoadPaymentForEdit(payment);
                 IsEditing = true;
-                Debug.WriteLine($"EditPaymentAsync: Editing payment ID={payment.Id}, Amount={payment.Amount}");
+                
+                Debug.WriteLine($"EditPaymentAsync: Editing payment ID={payment.Id}, Amount={payment.Amount}, Invoice ID={paymentInvoice.Id}");
             }
             catch (Exception ex)
             {
@@ -488,14 +592,146 @@ namespace HotelManager.ViewModels
                 MessageBox.Show($"Failed to edit payment: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        
         private void LoadPaymentForEdit(Payment payment)
         {
             if (payment == null) return;
             PaymentDate = payment.PaymentDate;
             Amount = payment.Amount;
             PaymentMethod = payment.PaymentMethod;
-            IsEditing = true;
             Debug.WriteLine($"LoadPaymentForEdit: Loaded payment ID={payment.Id}, Amount={payment.Amount}");
+        }
+
+        // Search functionality
+        private void PerformSearch()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                // If search is empty, show current invoice payments
+                if (CurrentInvoice != null)
+                {
+                    var currentPayments = _allPayments?.Where(p => p.InvoiceId == CurrentInvoice.Id).ToList() ?? new List<Payment>();
+                    Payments.Clear();
+                    foreach (var payment in currentPayments)
+                    {
+                        Payments.Add(payment);
+                    }
+                }
+                return;
+            }
+
+            string searchText = SearchText.Trim().ToLowerInvariant();
+            var filteredPayments = _allPayments?.Where(p =>
+                p.Id.ToString().Contains(searchText) ||
+                p.PaymentDate.ToString("dd/MM/yyyy").Contains(searchText) ||
+                p.Amount.ToString().Contains(searchText) ||
+                p.PaymentMethod.ToString().ToLowerInvariant().Contains(searchText) ||
+                p.InvoiceId.ToString().Contains(searchText)
+            ).ToList() ?? new List<Payment>();
+
+            Payments.Clear();
+            foreach (var payment in filteredPayments)
+            {
+                Payments.Add(payment);
+            }
+        }
+
+        // Show all payments
+        private async Task ShowAllPaymentsAsync()
+        {
+            try
+            {
+                if (_allPayments == null)
+                {
+                    var all = await _paymentService.GetAllAsync();
+                    _allPayments = all.ToList();
+                }
+
+                Payments.Clear();
+                foreach (var payment in _allPayments)
+                {
+                    Payments.Add(payment);
+                }
+
+                SearchText = string.Empty;
+                MessageBox.Show("Showing all payments", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "Failed to show all payments");
+                MessageBox.Show($"Failed to show all payments: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Show payment details
+        private async Task ShowPaymentDetailsAsync(Payment payment)
+        {
+            try
+            {
+                if (payment == null) return;
+
+                // Get the invoice for this payment
+                var paymentInvoice = await _invoiceService.GetByIdAsync(payment.InvoiceId);
+                if (paymentInvoice?.Booking == null) return;
+
+                var booking = paymentInvoice.Booking;
+                var customer = booking.Customer;
+
+                var details = $"Payment Details:\n\n" +
+                             $"Payment ID: {payment.Id}\n" +
+                             $"Payment Date: {payment.PaymentDate:dd/MM/yyyy}\n" +
+                             $"Amount: {payment.Amount:C}\n" +
+                             $"Payment Method: {payment.PaymentMethod}\n" +
+                             $"Invoice ID: {payment.InvoiceId}\n\n" +
+                             $"Booking Information:\n" +
+                             $"Customer Name: {customer?.FullName ?? "N/A"}\n" +
+                             $"Customer ID: {(customer?.Id != null ? customer.Id.ToString() : "N/A")}\n" +
+                             $"Booking Employee ID: {(booking.BookingEmployeeId.HasValue ? booking.BookingEmployeeId.Value.ToString() : "N/A")}\n" +
+                             $"Room Number: {booking.RoomNumber ?? "N/A"}\n" +
+                             $"Total Days: {(booking.CheckOutDate - booking.CheckInDate).Days}\n" +
+                             $"Total Amount: {booking.TotalAmount:C}\n" +
+                             $"Check-in: {booking.CheckInDate:dd/MM/yyyy}\n" +
+                             $"Check-out: {booking.CheckOutDate:dd/MM/yyyy}\n" +
+                             $"Status: {booking.Status}";
+
+                MessageBox.Show(details, "Payment Details", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "Failed to show payment details");
+                MessageBox.Show($"Failed to show payment details: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Update LoadDataAsync to store all payments
+        public async Task LoadDataAsync()
+        {
+            try
+            {
+                LogInformation("Loading payment data");
+                Debug.WriteLine("PaymentViewModel: LoadDataAsync started");
+                var invoices = await _invoiceService.GetAllAsync();
+                var payments = await _paymentService.GetAllAsync();
+
+                // Store all payments for search functionality
+                _allPayments = payments.ToList();
+
+                Payments.Clear();
+                foreach (var payment in payments)
+                {
+                    Payments.Add(payment);
+                }
+
+                LogInformation("Successfully loaded {InvoiceCount} invoices and {PaymentCount} payments",
+                    invoices.Count, Payments.Count);
+                Debug.WriteLine($"PaymentViewModel: LoadDataAsync completed - {invoices.Count} invoices, {Payments.Count} payments");
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "Failed to load payment data");
+                Debug.WriteLine($"PaymentViewModel: LoadDataAsync error - {ex.Message}");
+                throw;
+            }
         }
     }
 }
