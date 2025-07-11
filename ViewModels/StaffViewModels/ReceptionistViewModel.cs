@@ -918,7 +918,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 _logger?.LogInformation("Processing checkout for booking {BookingId}", booking.Id);
                 var result = MessageBox.Show(
                     $"Confirm checkout for customer {booking.Customer?.FullName} from room {booking.RoomNumber}?\n\n" +
-                    "This will:\n• Navigate to Payment View for processing\n• Update room status to Pending (awaiting cleaning)",
+                    "This will:\n• Mark room as pending cleaning\n• Automatically process payment",
                     "Confirm Checkout",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
@@ -961,13 +961,20 @@ namespace HotelManager.ViewModels.StaffViewModels
                 }
                 await LoadDataAsync();
 
-                //Đảm bảo phải pay hêt khi checkout
-                // Tạo mới invoice cho booking
-                // Điều hướng sang PaymentViewModel, truyền invoice
-                Debug.WriteLine($"Navigating to PaymentViewModel with Invoice's Booking ID: {invoice.BookingId}, TotalAmount: {invoice.TotalAmount}");
-                _navigationService?.NavigateTo<PaymentViewModel>(invoice);
-                _notificationService?.ShowSuccess($"Checkout completed for room {booking.RoomNumber}. Navigated to Payment View.");
-                _logger?.LogInformation("Successfully processed checkout for booking {BookingId}", booking.Id);
+                // Ensure payment is recorded for the (existing or newly-created) invoice
+                var paymentService = App.ServiceProvider.GetRequiredService<HotelManager.Services.PaymentService>();
+                var payment = new HotelManager.Models.Payment
+                {
+                    InvoiceId = invoice.Id,
+                    Amount = booking.TotalAmount,
+                    PaymentDate = DateTime.Now,
+                    PaymentMethod = HotelManager.Models.Enums.PaymentMethod.Cash // default payment method
+                };
+                await paymentService.CreateAsync(payment);
+                // TODO: Nếu có bảng/tính revenue, cộng tiền vào revenue ở đây
+                MessageBox.Show($"Đã checkout và thanh toán thành công cho phòng {booking.RoomNumber}.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                _notificationService?.ShowSuccess($"Checkout and payment completed for room {booking.RoomNumber}.");
+                _logger?.LogInformation("Successfully processed checkout and payment for booking {BookingId}", booking.Id);
             }
             catch (EntityNotFoundException ex)
             {

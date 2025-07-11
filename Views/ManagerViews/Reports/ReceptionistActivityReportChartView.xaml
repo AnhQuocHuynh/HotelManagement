@@ -29,6 +29,8 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                
             </Grid.ColumnDefinitions>
 
 
@@ -52,11 +54,9 @@
 
             <!-- Time range -->
             <Border Background="{Binding TimeRangeBackground}"
-                Height="50"
-                Width="100"
                 Grid.Column="1"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
                 Margin="10,0,0,0"/>
             <TextBlock Text="Time range"
                    FontSize="16"
@@ -78,9 +78,9 @@
             
             <Border Background="{Binding DateBackground}"
                 Grid.Column="2"
-                    Grid.ColumnSpan="3"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
+                    Grid.ColumnSpan="2"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
                 Margin="10,0,0,0"/>
             <!-- Start date -->
             <TextBlock Text="Start date"
@@ -134,9 +134,17 @@
                   ItemsSource="{Binding RoomTypes}"
                   SelectedItem="{Binding SelectedRoomType}"/>
 
-            <Button Content="Export"
+
+            <Button Content="Apply"
                 Grid.Column="5"
-                Margin="0,0,0,0"
+                Margin="10,0,0,0"
+                Command="{Binding ApplyFilterCommand}"
+                Foreground="Navy"
+                Background="{StaticResource Primary100Brush}"/>
+
+            <Button Content="Export"
+                Grid.Column="6"
+                Margin="10,0,0,0"
                 Command="{Binding ExportChartAndDataCommand}"
                 Foreground="Navy"
                 Background="{StaticResource Primary100Brush}"/>

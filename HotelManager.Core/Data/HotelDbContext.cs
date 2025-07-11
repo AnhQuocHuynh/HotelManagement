@@ -37,8 +37,6 @@ namespace HotelManager.Data
         public DbSet<Cleaning> Cleanings { get; set; }
         public DbSet<Maintenance> Maintenances { get; set; }
         public DbSet<WorkAssignment> WorkAssignments { get; set; }
-        
-        // TODO (Tuấn): Thêm DbSet cho WorkSchedule
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -224,7 +222,7 @@ namespace HotelManager.Data
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // TODO (Tuấn): Thêm entity configuration cho WorkSchedule
+            // Entity configuration cho WorkSchedule
             modelBuilder.Entity<WorkSchedule>(entity =>
             {
                 entity.HasKey(ws => ws.Id);
@@ -254,7 +252,6 @@ namespace HotelManager.Data
                       .HasForeignKey(ws => ws.AssignedByEmployeeId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                // TODO (Tuấn): Thêm indexes để optimize queries
                 entity.HasIndex(ws => new { ws.EmployeeId, ws.WorkDay, ws.Shift, ws.StartDate })
                       .HasDatabaseName("IX_WorkSchedule_Employee_Day_Shift_Date");
             });
