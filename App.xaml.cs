@@ -96,7 +96,7 @@ public partial class App : Application
                 // 🛎️ Business Services with enhanced audit support
                 services.AddScoped<BookingService>();
                 services.AddScoped<CustomerService>();
-                services.AddScoped<IEmployeeService, EmployeeService>();
+                services.AddScoped<EmployeeService>();
                 services.AddScoped<RoomService>();
                 services.AddScoped<PaymentService>();
                 services.AddScoped<InvoiceService>();
@@ -154,7 +154,7 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>(provider =>
                     new ViewModels.ManagerViewModels.WorkScheduleManagementViewModel(
                         null,
-                        provider.GetRequiredService<IEmployeeService>(),
+                        provider.GetRequiredService<EmployeeService>(),
                         provider.GetRequiredService<INotificationService>(),
                         provider.GetRequiredService<ILogger<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>>()
                     )
