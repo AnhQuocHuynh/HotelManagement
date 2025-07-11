@@ -98,6 +98,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand BackToReceptionistViewCommand { get; }
         public ICommand NavigateProfileCommand { get; }
         public ICommand LogoutCommand { get; }
+        public ICommand NavigateMyScheduleCommand { get; private set; }
 
         public ReceptionistRoomViewModel() : base()
         {
@@ -130,6 +131,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             RefreshCommand = new AsyncRelayCommand(RefreshAsync);
             UpdateRoomStatusCommand = new AsyncRelayCommand<Room>(UpdateRoomStatusAsync);
             ClearFiltersCommand = new AsyncRelayCommand(ClearFiltersAsync);
+            NavigateMyScheduleCommand = new RelayCommand(NavigateMySchedule);
         }
 
         protected override async Task OnLoadedAsync()
@@ -313,6 +315,11 @@ namespace HotelManager.ViewModels.StaffViewModels
                 _logger?.LogError(ex, "Error filtering rooms");
                 MessageBox.Show("Lỗi khi lọc danh sách phòng. Vui lòng thử lại.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void NavigateMySchedule()
+        {
+            _navigationService.NavigateTo<MyScheduleViewModel>();
         }
     }
 } 

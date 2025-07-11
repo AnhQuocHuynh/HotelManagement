@@ -90,6 +90,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand NavigateProfileCommand { get; private set; }
         public ICommand LogoutCommand { get; private set; }
         public ICommand LoadedCommand { get; private set; }
+        public ICommand NavigateMyScheduleCommand { get; private set; }
 
         public CleanerViewModel()
         {
@@ -144,6 +145,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
             LogoutCommand = new RelayCommand(Logout);
             LoadedCommand = new AsyncRelayCommand(LoadDataAsync);
+            NavigateMyScheduleCommand = new RelayCommand(NavigateMySchedule);
         }
 
         private async void InitializeAsyncSafely()
@@ -429,6 +431,11 @@ namespace HotelManager.ViewModels.StaffViewModels
                 _autoRefreshTimer = null;
                 _disposed = true;
             }
+        }
+
+        private void NavigateMySchedule()
+        {
+            _navigationService.NavigateTo<MyScheduleViewModel>();
         }
     }
 }

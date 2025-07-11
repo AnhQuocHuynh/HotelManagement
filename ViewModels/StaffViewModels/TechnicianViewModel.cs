@@ -41,6 +41,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand ClearFilterCommand { get; }
         public ICommand NavigateProfileCommand { get; set; }
         public ICommand LogoutCommand { get; }
+        public ICommand NavigateMyScheduleCommand { get; private set; }
 
         public TechnicianViewModel(IMaintenanceService maintenanceService, INavigationService navigationService)
         {
@@ -57,6 +58,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             ClearFilterCommand = new RelayCommand(ClearFilter);
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
             LogoutCommand = new RelayCommand(Logout);
+            NavigateMyScheduleCommand = new RelayCommand(NavigateMySchedule);
 
             LoadMaintenanceReports();
         }
@@ -251,6 +253,11 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             var mainVM = System.Windows.Application.Current.MainWindow?.DataContext as HotelManager.ViewModels.MainViewModel;
             mainVM?.Logout();
+        }
+
+        private void NavigateMySchedule()
+        {
+            _navigationService.NavigateTo<MyScheduleViewModel>();
         }
     }
 }

@@ -274,6 +274,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand NavigateProfileCommand { get; private set; }
         public ICommand LogoutCommand { get; private set; }
         public ICommand DeleteBookingCommand { get;private set; }
+        public ICommand NavigateMyScheduleCommand { get; private set; }
         // edit booking commands
         public ICommand EditBookingCommand { get; private set; }
         public ICommand SaveEditCommand { get; private set; }
@@ -1153,6 +1154,11 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             // TODO: Implement pagination logic
             await Task.CompletedTask;
+        }
+
+        private void NavigateMySchedule()
+        {
+            _navigationService.NavigateTo<MyScheduleViewModel>();
         }
 #pragma warning restore IDE0060
     }
