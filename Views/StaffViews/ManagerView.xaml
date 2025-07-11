@@ -110,52 +110,69 @@
                                  Columns="3" 
                                  Margin="24,10,24,0">
                         <!-- Quick Actions Card -->
-                        <materialDesign:Card Margin="0,0,16,0" 
+                        <Button x:Name="ReportsCardButton"
+                                Command="{Binding NavigateWorkScheduleCommand}"
+                                Background="Transparent"
+                                BorderBrush="{x:Null}"
+                                Style="{x:Null}"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"
+                                Padding="0"
+                                Margin="0">
+
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </Button.Template>
+
+                            <materialDesign:Card Margin="0,0,16,0" 
                                         Effect="{StaticResource Elevation2}"
                                         Background="{StaticResource Primary100Brush}">
-                            <materialDesign:Card.Triggers>
-                                <EventTrigger RoutedEvent="MouseEnter">
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                <materialDesign:Card.Triggers>
+                                    <EventTrigger RoutedEvent="MouseEnter">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
                                                        To="1.02" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
                                                        To="1.02" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                                <EventTrigger RoutedEvent="MouseLeave">
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                    <EventTrigger RoutedEvent="MouseLeave">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
                                                        To="1.0" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
                                                        To="1.0" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                            </materialDesign:Card.Triggers>
-                            <materialDesign:Card.RenderTransform>
-                                <ScaleTransform/>
-                            </materialDesign:Card.RenderTransform>
-                            <StackPanel Margin="24" HorizontalAlignment="Center">
-                                <materialDesign:PackIcon Kind="ViewDashboard" 
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </materialDesign:Card.Triggers>
+                                <materialDesign:Card.RenderTransform>
+                                    <ScaleTransform/>
+                                </materialDesign:Card.RenderTransform>
+                                <StackPanel Margin="24" HorizontalAlignment="Center">
+                                    <materialDesign:PackIcon Kind="ScheduledMaintenance" 
                                                    Width="40" Height="40" 
                                                    Foreground="{StaticResource PrimaryBrush}"
                                                    HorizontalAlignment="Center"/>
-                                <TextBlock Text="Dashboard" 
+                                    <TextBlock Text="Dashboard" 
                                      Style="{StaticResource TitleLarge}" 
                                      HorizontalAlignment="Center" 
                                      Margin="0,16,0,0"/>
-                                <TextBlock Text="Overview &amp; Analytics" 
+                                    <TextBlock Text="Overview &amp; Analytics" 
                                      Style="{StaticResource BodyMedium}" 
                                      Foreground="{DynamicResource OnSurface600Brush}"
                                      HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </materialDesign:Card>
+                                </StackPanel>
+                            </materialDesign:Card>
+                        </Button>
 
                         <!-- Reports Card -->
-                        <Button x:Name="ReportsCardButton"
+                        <Button x:Name="WorkScheduleButton"
                                 Command="{Binding ShowReportsCommand}"
                                 Background="Transparent"
                                 BorderBrush="{x:Null}"

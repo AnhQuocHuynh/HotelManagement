@@ -131,12 +131,16 @@
                                
 
                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button x:Name="btnSchedule" Style="{StaticResource MaterialDesignIconButton}"
+                                            ToolTip="Schedule" Command="{Binding NavigateMyScheduleCommand}" Margin="16,0,0,0">
+                                        <materialDesign:PackIcon Kind="Schedule" Foreground="White"/>
+                                    </Button>
                                     <Button x:Name="btnProfile" Style="{StaticResource MaterialDesignIconButton}"
-                                            ToolTip="Profile" Command="{Binding NavigateProfileCommand}" Margin="0,0,8,0">
+                                            ToolTip="Profile" Command="{Binding NavigateProfileCommand}" Margin="16,0,0,0">
                                         <materialDesign:PackIcon Kind="Account" Foreground="White"/>
                                     </Button>
                                     <Button x:Name="btnLogout" Style="{StaticResource MaterialDesignIconButton}"
-                                            ToolTip="Logout" Command="{Binding LogoutCommand}" Margin="8,0,0,0">
+                                            ToolTip="Logout" Command="{Binding LogoutCommand}" Margin="16,0,0,0">
                                         <materialDesign:PackIcon Kind="Logout" Foreground="White"/>
                                     </Button>
                                 </StackPanel>
