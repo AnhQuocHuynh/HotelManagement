@@ -4,8 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="1200">
+             d:DesignHeight="600" d:DesignWidth="1200">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     
     <!-- TODO (Bảo): Customize colors, styles theo Material Design theme -->
     <UserControl.Resources>
@@ -94,30 +101,13 @@
                     
                     <ComboBox Grid.Column="1" 
                              materialDesign:HintAssist.Hint="Ngày Trong Tuần"
-                             SelectedItem="{Binding SelectedDay}">
-                        <!-- TODO (Bảo): Bind enum WorkDay values -->
-                        <ComboBox.Items>
-                            <ComboBoxItem Content="Thứ 2" Tag="Monday"/>
-                            <ComboBoxItem Content="Thứ 3" Tag="Tuesday"/>
-                            <ComboBoxItem Content="Thứ 4" Tag="Wednesday"/>
-                            <ComboBoxItem Content="Thứ 5" Tag="Thursday"/>
-                            <ComboBoxItem Content="Thứ 6" Tag="Friday"/>
-                            <ComboBoxItem Content="Thứ 7" Tag="Saturday"/>
-                            <ComboBoxItem Content="Chủ Nhật" Tag="Sunday"/>
-                        </ComboBox.Items>
-                    </ComboBox>
+                             ItemsSource="{Binding WorkDayValues}"
+                             SelectedItem="{Binding SelectedDay}"/>
                     
                     <ComboBox Grid.Column="2" 
                              materialDesign:HintAssist.Hint="Ca Làm Việc"
-                             SelectedItem="{Binding SelectedShift}">
-                        <!-- TODO (Bảo): Bind enum WorkShift values -->
-                        <ComboBox.Items>
-                            <ComboBoxItem Content="Ca Sáng" Tag="Morning"/>
-                            <ComboBoxItem Content="Ca Chiều" Tag="Afternoon"/>
-                            <ComboBoxItem Content="Ca Tối" Tag="Evening"/>
-                            <ComboBoxItem Content="Ca Đêm" Tag="Night"/>
-                        </ComboBox.Items>
-                    </ComboBox>
+                             ItemsSource="{Binding WorkShiftValues}"
+                             SelectedItem="{Binding SelectedShift}"/>
                     
                     <DatePicker Grid.Column="3" 
                                materialDesign:HintAssist.Hint="Ngày Bắt Đầu"

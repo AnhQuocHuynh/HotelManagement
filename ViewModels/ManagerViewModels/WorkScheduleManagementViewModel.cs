@@ -13,6 +13,8 @@ using System.ComponentModel;
 using System.Windows;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace HotelManager.ViewModels.ManagerViewModels
 {
@@ -158,6 +160,11 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// </summary>
         public ICommand RefreshCommand { get; private set; }
 
+        /// <summary>
+        /// Command to load data when view is loaded
+        /// </summary>
+        public ICommand LoadedCommand { get; private set; }
+
         #endregion
 
         #region Constructor
@@ -177,6 +184,11 @@ namespace HotelManager.ViewModels.ManagerViewModels
             {
                 Employees = new ObservableCollection<Employee>(SampleWorkScheduleData.GetSampleEmployees());
                 WeeklySchedules = new ObservableCollection<WorkSchedule>(SampleWorkScheduleData.GetSampleSchedules());
+            }
+            else
+            {
+                // Đảm bảo load data trong runtime
+                _logger?.LogInformation("WorkScheduleManagementViewModel: Non-design mode, will load data");
             }
 
             // TODO (Bảo): Initialize commands
@@ -204,6 +216,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             NavigatePreviousWeekCommand = new AsyncRelayCommand(NavigateToPreviousWeek);
             NavigateNextWeekCommand = new AsyncRelayCommand(NavigateToNextWeek);
             RefreshCommand = new AsyncRelayCommand(RefreshDataAsync);
+            LoadedCommand = new AsyncRelayCommand(LoadInitialDataAsync);
 
             // TODO (Bảo): Load initial data
             _ = LoadInitialDataAsync();
@@ -272,13 +285,17 @@ namespace HotelManager.ViewModels.ManagerViewModels
             try
             {
                 // TODO (Bảo): Implement loading logic
-                DayOfWeek firstDayOfWeek = DayOfWeek.Monday;
-                int diff = (7 + (SelectedWeek.DayOfWeek - firstDayOfWeek)) % 7;
-                SelectedWeek = DateTime.Today.AddDays(-diff).Date;
+                if (_workScheduleService == null) return; // design-time
 
-                WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(SelectedWeek));
+                // Tính ngày đầu tuần (thứ 2)
+                int diff = (7 + (SelectedWeek.DayOfWeek - DayOfWeek.Monday)) % 7;
+                DateTime weekStart = SelectedWeek.AddDays(-diff).Date;
 
-                throw new NotImplementedException("TODO (Bảo): Implement LoadWeeklySchedulesAsync");
+                var result = await _workScheduleService.GetWeeklyScheduleAsync(weekStart);
+                WeeklySchedules = new ObservableCollection<WorkSchedule>(result);
+
+                if (WeeklySchedules.Count == 0)
+                    _notificationService?.ShowInfo("Không có lịch làm việc cho tuần này");
             }
             catch (Exception ex)
             {
@@ -372,15 +389,39 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// </summary>
         private async Task RefreshDataAsync()
         {
-            // TODO (Bảo): Reload employees và schedules
-            DayOfWeek firstDayOfWeek = DayOfWeek.Monday;
-            int diff = (7 + (DateTime.Today.DayOfWeek - firstDayOfWeek)) % 7;
-            SelectedWeek = DateTime.Today.AddDays(-diff).Date;
+            try
+            {
+                if (_workScheduleService == null || _employeeService == null) 
+                {
+                    _logger?.LogWarning("Services are null during RefreshDataAsync - design-time mode");
+                    return; // design-time
+                }
 
-            Employees = new ObservableCollection<Employee>(await _employeeService.GetAllAsync());
-            WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(SelectedWeek));
+                _logger?.LogInformation("Starting RefreshDataAsync...");
 
-            throw new NotImplementedException("TODO (Bảo): Implement RefreshDataAsync");
+                // Lấy tuần hiện tại (bắt đầu thứ 2)
+                int diff = (7 + (DateTime.Today.DayOfWeek - DayOfWeek.Monday)) % 7;
+                SelectedWeek = DateTime.Today.AddDays(-diff).Date;
+
+                _logger?.LogInformation("Loading employees from database...");
+                var employees = await _employeeService.GetAllAsync();
+                _logger?.LogInformation($"Loaded {employees?.Count() ?? 0} employees from database");
+                
+                Employees = new ObservableCollection<Employee>(employees ?? new List<Employee>());
+                
+                _logger?.LogInformation("Loading weekly schedules...");
+                var schedules = await _workScheduleService.GetWeeklyScheduleAsync(SelectedWeek);
+                _logger?.LogInformation($"Loaded {schedules?.Count() ?? 0} schedules for week {SelectedWeek:yyyy-MM-dd}");
+                
+                WeeklySchedules = new ObservableCollection<WorkSchedule>(schedules ?? new List<WorkSchedule>());
+
+                _notificationService?.ShowInfo($"Đã tải {Employees.Count} nhân viên và {WeeklySchedules.Count} lịch làm việc");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error in RefreshDataAsync");
+                _notificationService?.ShowError($"Lỗi tải dữ liệu: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -388,10 +429,30 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// </summary>
         private async Task LoadInitialDataAsync()
         {
-            // TODO (Bảo): Load employees và current week schedules
-            RefreshDataAsync();
+            try
+            {
+                if (_workScheduleService == null || _employeeService == null)
+                {
+                    _logger?.LogWarning("Services are null during LoadInitialDataAsync - design-time mode");
+                    // Design-time sample only
+                    return;
+                }
+
+                _logger?.LogInformation("Starting LoadInitialDataAsync...");
+                await RefreshDataAsync();
+                _logger?.LogInformation("LoadInitialDataAsync completed successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error in LoadInitialDataAsync");
+                _notificationService?.ShowError($"Lỗi khởi tạo dữ liệu: {ex.Message}");
+            }
         }
 
         #endregion
+
+        // Helper collections for XAML binding
+        public IEnumerable<WorkDay> WorkDayValues => Enum.GetValues(typeof(WorkDay)).Cast<WorkDay>();
+        public IEnumerable<WorkShift> WorkShiftValues => Enum.GetValues(typeof(WorkShift)).Cast<WorkShift>();
     }
 } 

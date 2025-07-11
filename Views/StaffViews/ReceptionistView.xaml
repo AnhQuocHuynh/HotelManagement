@@ -11,7 +11,7 @@
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type=vm:ReceptionistViewModel, IsDesignTimeCreatable=True}" d:DesignWidth="1400" Height="900">
+             d:DataContext="{d:DesignInstance Type=vm:ReceptionistViewModel, IsDesignTimeCreatable=False}" d:DesignWidth="1400" Height="900">
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">

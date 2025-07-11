@@ -165,6 +165,11 @@ namespace HotelManager.ViewModels.StaffViewModels
         /// </summary>
         private async Task LoadMyScheduleAsync()
         {
+            if (_workScheduleService == null)
+            {
+                // Design-time or service not injected – skip loading
+                return;
+            }
             try
             {
                 if (CurrentEmployeeId == 0)
