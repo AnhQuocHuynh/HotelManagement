@@ -13,6 +13,7 @@ using HotelManager.Interfaces;
 using HotelManager.Services;
 using MaterialDesignThemes.Wpf;
 using HotelManager.Repositories;
+using HotelManager.Core.Interfaces;
 
 namespace HotelManager;
 
@@ -95,7 +96,7 @@ public partial class App : Application
                 // 🛎️ Business Services with enhanced audit support
                 services.AddScoped<BookingService>();
                 services.AddScoped<CustomerService>();
-                services.AddScoped<EmployeeService>();
+                services.AddScoped<IEmployeeService, EmployeeService>();
                 services.AddScoped<RoomService>();
                 services.AddScoped<PaymentService>();
                 services.AddScoped<InvoiceService>();
@@ -125,7 +126,6 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.ManagerViewModel>();
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.ReceptionistViewModel>();
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.ReceptionistRoomViewModel>();
-                services.AddTransient<HotelManager.ViewModels.StaffViewModels.MyScheduleViewModel>();
                 services.AddTransient<HotelManager.ViewModels.Admin.AdminViewModel>(provider =>
                     new HotelManager.ViewModels.Admin.AdminViewModel(
                         provider.GetRequiredService<EmployeeService>(),
@@ -143,7 +143,6 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.Reports.RevenueReportChartViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.Reports.ReceptionistActivityReportChartViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.EmployeeListViewModel>();
-                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ProfileViewModel>();
                 services.AddTransient<HotelManager.ViewModels.Dialogs.ChangePasswordDialogViewModel>();
 
@@ -152,8 +151,16 @@ public partial class App : Application
                 // services.AddScoped<HotelManager.Core.Interfaces.IWorkScheduleRepository, HotelManager.Core.Repositories.WorkScheduleRepository>();
 
                 // TODO (Bảo): Uncomment sau khi implement ViewModels
-                // services.AddTransient<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>();
-                // services.AddTransient<HotelManager.ViewModels.StaffViewModels.MyScheduleViewModel>();
+                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>(provider =>
+                    new ViewModels.ManagerViewModels.WorkScheduleManagementViewModel(
+                        null,
+                        provider.GetRequiredService<IEmployeeService>(),
+                        provider.GetRequiredService<INotificationService>(),
+                        provider.GetRequiredService<ILogger<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>>()
+                    )
+                );
+
+                services.AddTransient<HotelManager.ViewModels.StaffViewModels.MyScheduleViewModel>();
 
                 services.AddSingleton<ICurrentUserProvider, WpfCurrentUserProvider>();
 

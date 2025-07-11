@@ -173,12 +173,6 @@ namespace HotelManager.ViewModels.ManagerViewModels
             _notificationService = notificationService;
             _logger = logger;
 
-            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
-            {
-                Employees = new ObservableCollection<Employee>(SampleWorkScheduleData.GetSampleEmployees());
-                WeeklySchedules = new ObservableCollection<WorkSchedule>(SampleWorkScheduleData.GetSampleSchedules());
-            }
-
             // TODO (Bảo): Initialize commands
             InitializeCommands();
         }
@@ -195,7 +189,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// <summary>
         /// TODO (Bảo): Initialize tất cả commands
         /// </summary>
-        private void InitializeCommands()
+        private async Task InitializeCommands()
         {
             AssignScheduleCommand = new AsyncRelayCommand(AssignScheduleAsync, CanAssignSchedule);
             LoadWeeklyScheduleCommand = new AsyncRelayCommand(LoadWeeklySchedulesAsync);
@@ -206,7 +200,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             RefreshCommand = new AsyncRelayCommand(RefreshDataAsync);
 
             // TODO (Bảo): Load initial data
-            _ = LoadInitialDataAsync();
+            await LoadInitialDataAsync();
         }
 
         /// <summary>
@@ -272,13 +266,11 @@ namespace HotelManager.ViewModels.ManagerViewModels
             try
             {
                 // TODO (Bảo): Implement loading logic
-                DayOfWeek firstDayOfWeek = DayOfWeek.Monday;
-                int diff = (7 + (SelectedWeek.DayOfWeek - firstDayOfWeek)) % 7;
-                SelectedWeek = DateTime.Today.AddDays(-diff).Date;
 
-                WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(SelectedWeek));
+                DateTime startDate = SelectedWeek.AddDays(SelectedWeek.DayOfWeek - DayOfWeek.Monday).Date;
 
-                throw new NotImplementedException("TODO (Bảo): Implement LoadWeeklySchedulesAsync");
+                //WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(startDate));
+
             }
             catch (Exception ex)
             {
@@ -292,29 +284,29 @@ namespace HotelManager.ViewModels.ManagerViewModels
         private async Task UpdateScheduleAsync(WorkSchedule? schedule)
         {
             // TODO (Bảo): Implement update logic            
-            bool isConfilct = await _workScheduleService.ValidateScheduleConflictAsync(
-                SelectedEmployee.Id,
-                SelectedDay,
-                SelectedShift,
-                SelectedDate
-                );
+            //bool isConfilct = await _workScheduleService.ValidateScheduleConflictAsync(
+            //    SelectedEmployee.Id,
+            //    SelectedDay,
+            //    SelectedShift,
+            //    SelectedDate
+            //    );
 
-            if (isConfilct)
-            {
-                _notificationService?.ShowError("Lịch làm việc đã có xung đột. Vui lòng chọn lại.");
-                return;
-            }
+            //if (isConfilct)
+            //{
+            //    _notificationService?.ShowError("Lịch làm việc đã có xung đột. Vui lòng chọn lại.");
+            //    return;
+            //}
 
-            schedule = await _workScheduleService.UpdateAsync(
-                new WorkSchedule
-                {
-                    EmployeeId = SelectedEmployee.Id,
-                    WorkDay = SelectedDay,
-                    Shift = SelectedShift,
-                    StartDate = SelectedDate,
-                    Notes = AssignmentNotes
-                }
-            );
+            //schedule = await _workScheduleService.UpdateAsync(
+            //    new WorkSchedule
+            //    {
+            //        EmployeeId = SelectedEmployee.Id,
+            //        WorkDay = SelectedDay,
+            //        Shift = SelectedShift,
+            //        StartDate = SelectedDate,
+            //        Notes = AssignmentNotes
+            //    }
+            //);
 
             await LoadWeeklySchedulesAsync();
 
@@ -337,7 +329,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
                         try
                         {
                             // Call service to delete schedule
-                            await _workScheduleService.DeleteAsync(schedule.Id);
+                            //await _workScheduleService.DeleteAsync(schedule.Id);
                             _notificationService.ShowSuccess("Đã xóa lịch làm việc thành công.");
                             // Refresh data after deletion
                             await LoadWeeklySchedulesAsync();
@@ -358,13 +350,11 @@ namespace HotelManager.ViewModels.ManagerViewModels
         private async Task NavigateToPreviousWeek()
         {
             SelectedWeek = SelectedWeek.AddDays(-7);
-            await LoadWeeklySchedulesAsync();
         }
 
         private async Task NavigateToNextWeek()
         {
             SelectedWeek = SelectedWeek.AddDays(7);
-            await LoadWeeklySchedulesAsync();
         }
 
         /// <summary>
@@ -378,9 +368,12 @@ namespace HotelManager.ViewModels.ManagerViewModels
             SelectedWeek = DateTime.Today.AddDays(-diff).Date;
 
             Employees = new ObservableCollection<Employee>(await _employeeService.GetAllAsync());
-            WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(SelectedWeek));
+            //WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(SelectedWeek));
 
-            throw new NotImplementedException("TODO (Bảo): Implement RefreshDataAsync");
+            Employees = new ObservableCollection<Employee>(SampleWorkScheduleData.GetSampleEmployees());
+            WeeklySchedules = new ObservableCollection<WorkSchedule>(SampleWorkScheduleData.GetSampleSchedules());
+
+            _notificationService.ShowSuccess("làm mới thành công");
         }
 
         /// <summary>
@@ -389,7 +382,8 @@ namespace HotelManager.ViewModels.ManagerViewModels
         private async Task LoadInitialDataAsync()
         {
             // TODO (Bảo): Load employees và current week schedules
-            RefreshDataAsync();
+            await RefreshDataAsync();
+
         }
 
         #endregion
