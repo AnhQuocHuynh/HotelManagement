@@ -1124,36 +1124,78 @@ namespace HotelManager.ViewModels.StaffViewModels
                    CheckInDate < CheckOutDate;
         }
 
-#pragma warning disable IDE0060 //Remove unused parameter
         private async Task GoToPreviousPageAsync()
         {
-            // TODO: Implement pagination logic
-            await Task.CompletedTask;
+            if (CanGoToPreviousPage)
+            {
+                CurrentPage--;
+                await LoadCurrentPageAsync();
+                NotifyPaginationCommandsChanged();
+            }
         }
 
         private async Task GoToNextPageAsync()
         {
-            // TODO: Implement pagination logic
-            await Task.CompletedTask;
+            if (CanGoToNextPage)
+            {
+                CurrentPage++;
+                await LoadCurrentPageAsync();
+                NotifyPaginationCommandsChanged();
+            }
         }
 
         private async Task GoToFirstPageAsync()
         {
-            // TODO: Implement pagination logic
-            await Task.CompletedTask;
+            if (CanGoToPreviousPage)
+            {
+                CurrentPage = 1;
+                await LoadCurrentPageAsync();
+                NotifyPaginationCommandsChanged();
+            }
         }
 
         private async Task GoToLastPageAsync()
         {
-            // TODO: Implement pagination logic
-            await Task.CompletedTask;
+            if (CanGoToNextPage)
+            {
+                CurrentPage = TotalPages;
+                await LoadCurrentPageAsync();
+                NotifyPaginationCommandsChanged();
+            }
         }
 
         private async Task LoadCurrentPageAsync()
         {
-            // TODO: Implement pagination logic
-            await Task.CompletedTask;
+            try
+            {
+                if (_allBookings == null || !_allBookings.Any())
+                {
+                    Bookings.Clear();
+                    TotalBookings = 0;
+                    return;
+                }
+
+                var startIndex = (CurrentPage - 1) * PageSize;
+                var pageBookings = _allBookings
+                    .Skip(startIndex)
+                    .Take(PageSize)
+                    .ToList();
+
+                Bookings.Clear();
+                foreach (var booking in pageBookings)
+                {
+                    Bookings.Add(booking);
+                }
+                TotalBookings = Bookings.Count;
+
+                _logger?.LogDebug("Loaded page {CurrentPage} of {TotalPages} with {BookingCount} bookings", 
+                    CurrentPage, TotalPages, pageBookings.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error loading current page");
+                MessageBox.Show("Error loading page. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
-#pragma warning restore IDE0060
     }
 }
