@@ -1,35 +1,40 @@
-<UserControl x:Class="HotelManager.Views.ManagerViews.WorkScheduleManagementView"
+﻿<UserControl x:Class="HotelManager.Views.StaffViews.MyScheduleView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HotelManager.Views.StaffViews"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1200">
-    
-    <!-- TODO (Bảo): Customize colors, styles theo Material Design theme -->
     <UserControl.Resources>
         <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
             <Setter Property="Margin" Value="5"/>
             <Setter Property="Padding" Value="10,5"/>
         </Style>
-        
+
         <Style TargetType="ComboBox" BasedOn="{StaticResource MaterialDesignComboBox}">
             <Setter Property="Margin" Value="5"/>
         </Style>
-        
+
         <Style TargetType="DatePicker" BasedOn="{StaticResource MaterialDesignDatePicker}">
             <Setter Property="Margin" Value="5"/>
         </Style>
     </UserControl.Resources>
-    
+
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
+        <TextBlock Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Text="QUẢN LÝ LỊCH LÀM VIỆC"
+                           Foreground="White"
+                           Style="{StaticResource MaterialDesignHeadline4TextBlock}"
+                           HorizontalAlignment="Left" Margin="20,0,0,0"/>
+
         <!-- Header Section -->
         <materialDesign:Card Background="{StaticResource PrimaryGradient}" 
                              Grid.Row="0" 
@@ -41,102 +46,31 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <TextBlock Grid.Column="0"
                            VerticalAlignment="Center"
-                           Text="QUẢN LÝ LỊCH LÀM VIỆC"
+                           Text="LỊCH LÀM VIỆC"
                            Foreground="White"
                            Style="{StaticResource MaterialDesignHeadline4TextBlock}"
                            HorizontalAlignment="Left" Margin="20,0,0,0"/>
-                
+
                 <!-- TODO (Bảo): Thêm summary statistics cards -->
                 <WrapPanel Grid.Column="1"
                            HorizontalAlignment="Center">
+
                     <materialDesign:Card Margin="5" Padding="15">
                         <StackPanel>
-                            <TextBlock Text="Tổng Nhân Viên" Style="{StaticResource MaterialDesignBody2TextBlock}"/>
-                            <TextBlock Text="{Binding Employees.Count}" Style="{StaticResource MaterialDesignHeadline6TextBlock}" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </materialDesign:Card>
-                    
-                    <materialDesign:Card Margin="5" Padding="15">
-                        <StackPanel>
-                            <TextBlock Text="Lịch Tuần Này" Style="{StaticResource MaterialDesignBody2TextBlock}"/>
-                            <TextBlock Text="{Binding WeeklySchedules.Count}" Style="{StaticResource MaterialDesignHeadline6TextBlock}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Lịch Tuần Này" 
+                                       Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                            <TextBlock Text="{Binding MySchedules.Count}" 
+                                       Style="{StaticResource MaterialDesignHeadline6TextBlock}" 
+                                       HorizontalAlignment="Center"/>
                         </StackPanel>
                     </materialDesign:Card>
                 </WrapPanel>
             </Grid>
         </materialDesign:Card>
-        
-        <!-- Assignment Section -->
-        <materialDesign:Card Grid.Row="1" Padding="20" Margin="0,0,0,10">
-            <StackPanel>
-                <TextBlock Text="PHÂN CÔNG LỊCH LÀM VIỆC" 
-                          Style="{StaticResource MaterialDesignHeadline6TextBlock}" 
-                          Margin="0,0,0,15"/>
-                
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <!-- TODO (Bảo): Bind properties vào controls -->
-                    <ComboBox Grid.Column="0" 
-                             materialDesign:HintAssist.Hint="Chọn Nhân Viên"
-                             ItemsSource="{Binding Employees}"
-                             SelectedItem="{Binding SelectedEmployee}"
-                             DisplayMemberPath="FullName"/>
-                    
-                    <ComboBox Grid.Column="1" 
-                             materialDesign:HintAssist.Hint="Ngày Trong Tuần"
-                             SelectedItem="{Binding SelectedDay}">
-                        <!-- TODO (Bảo): Bind enum WorkDay values -->
-                        <ComboBox.Items>
-                            <ComboBoxItem Content="Thứ 2" Tag="Monday"/>
-                            <ComboBoxItem Content="Thứ 3" Tag="Tuesday"/>
-                            <ComboBoxItem Content="Thứ 4" Tag="Wednesday"/>
-                            <ComboBoxItem Content="Thứ 5" Tag="Thursday"/>
-                            <ComboBoxItem Content="Thứ 6" Tag="Friday"/>
-                            <ComboBoxItem Content="Thứ 7" Tag="Saturday"/>
-                            <ComboBoxItem Content="Chủ Nhật" Tag="Sunday"/>
-                        </ComboBox.Items>
-                    </ComboBox>
-                    
-                    <ComboBox Grid.Column="2" 
-                             materialDesign:HintAssist.Hint="Ca Làm Việc"
-                             SelectedItem="{Binding SelectedShift}">
-                        <!-- TODO (Bảo): Bind enum WorkShift values -->
-                        <ComboBox.Items>
-                            <ComboBoxItem Content="Ca Sáng" Tag="Morning"/>
-                            <ComboBoxItem Content="Ca Chiều" Tag="Afternoon"/>
-                            <ComboBoxItem Content="Ca Tối" Tag="Evening"/>
-                            <ComboBoxItem Content="Ca Đêm" Tag="Night"/>
-                        </ComboBox.Items>
-                    </ComboBox>
-                    
-                    <DatePicker Grid.Column="3" 
-                               materialDesign:HintAssist.Hint="Ngày Bắt Đầu"
-                               SelectedDate="{Binding SelectedDate}"/>
-                    
-                    <Button Grid.Column="4" 
-                           Content="PHÂN CÔNG"
-                            Margin="10"
-                           Command="{Binding AssignScheduleCommand}"
-                           Style="{StaticResource MaterialDesignContainedButton}"/>
-                </Grid>
-                
-                <!-- TODO (Bảo): Thêm TextBox cho notes -->
-                <TextBox materialDesign:HintAssist.Hint="Ghi Chú (Tùy Chọn)"
-                        Text="{Binding AssignmentNotes}"
-                        Margin="0,10,0,0"/>
-            </StackPanel>
-        </materialDesign:Card>
-        
+
         <!-- Schedule View Section -->
         <materialDesign:Card Grid.Row="2" Padding="20">
             <Grid>
@@ -144,7 +78,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                
+
                 <!-- Week Navigation -->
                 <Grid Grid.Row="0" Margin="0,0,0,15">
                     <Grid.ColumnDefinitions>
@@ -154,36 +88,35 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    
+
                     <Button Grid.Column="1" 
                            Content="❮ TUẦN TRƯỚC"
                            Command="{Binding NavigatePreviousWeekCommand}"
                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             Margin="20,0"/>
-                    
+
                     <DatePicker Grid.Column="2" 
                               SelectedDate="{Binding SelectedWeek, StringFormat='Tuần: {0:dd/MM/yyyy}'}"
                               Style="{StaticResource MaterialDesignDatePicker}"
-                              HorizontalAlignment="Center" VerticalAlignment="Center"
-                                Margin="20,0"/>
-                    
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                              Margin="20,0"/>
+
                     <Button Grid.Column="3" 
                            Content="TUẦN SAU ❯"
                            Command="{Binding NavigateNextWeekCommand}"
                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             Margin="20,0"/>
-                    
+
                     <Button Grid.Column="4" 
                            Content="🔄 LÀM MỚI"
                            Command="{Binding RefreshCommand}"
                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             Margin="20,0"/>
                 </Grid>
-                
+
                 <!-- Schedule Grid -->
-                <!-- TODO (Bảo): Implement calendar/grid view cho weekly schedules -->
                 <DataGrid Grid.Row="1" 
-                         ItemsSource="{Binding WeeklySchedules}"
+                         ItemsSource="{Binding MySchedules}"
                          Style="{StaticResource MaterialDesignDataGrid}"
                          AutoGenerateColumns="False"
                          CanUserAddRows="False">
@@ -206,7 +139,7 @@
                         <DataGridTextColumn Header="Ghi Chú" 
                                            Binding="{Binding Notes}" 
                                            Width="*"/>
-                        
+
                         <!-- TODO (Bảo): Thêm action buttons -->
                         <DataGridTemplateColumn Header="Thao Tác" Width="150">
                             <DataGridTemplateColumn.CellTemplate>
@@ -231,4 +164,4 @@
             </Grid>
         </materialDesign:Card>
     </Grid>
-</UserControl> 
+</UserControl>
