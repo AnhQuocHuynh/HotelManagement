@@ -448,7 +448,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 }
 
                 // Validate dates
-                if (CheckInDate < DateTime.Now)
+                if (CheckInDate.Value.Date < DateTime.Now.Date)
                 {
                     MessageBox.Show("Check-in date cannot be in the past.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -461,7 +461,10 @@ namespace HotelManager.ViewModels.StaffViewModels
                 }
 
                 // Validate booking duration (not exceeding 30 days)
-                var bookingDays = (CheckOutDate.Value - CheckInDate.Value).Days;
+                var bookingDays = (CheckOutDate.Value.Date - CheckInDate.Value.Date).Days;
+                _logger?.LogDebug("Booking duration calculation: CheckIn={CheckInDate}, CheckOut={CheckOutDate}, Days={BookingDays}", 
+                    CheckInDate.Value.Date, CheckOutDate.Value.Date, bookingDays);
+                
                 if (bookingDays > 30)
                 {
                     MessageBox.Show("Booking duration cannot exceed 30 days.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -493,7 +496,9 @@ namespace HotelManager.ViewModels.StaffViewModels
                     MessageBox.Show("Selected room number does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                decimal totalAmount = room.PricePerNight * (CheckOutDate.Value.Date - CheckInDate.Value.Date).Days;
+                decimal totalAmount = room.PricePerNight * bookingDays;
+                _logger?.LogDebug("Total amount calculation: PricePerNight={PricePerNight}, BookingDays={BookingDays}, TotalAmount={TotalAmount}", 
+                    room.PricePerNight, bookingDays, totalAmount);
                 
                 var employee = AppSession.GetCurrentUserAccount()?.Employee;
 
@@ -653,6 +658,8 @@ namespace HotelManager.ViewModels.StaffViewModels
 
                 int numberOfNights = (CheckOutDate.Value.Date - CheckInDate.Value.Date).Days;
                 decimal totalAmount = room.PricePerNight * numberOfNights;
+                _logger?.LogDebug("Edit booking calculation: CheckIn={CheckInDate}, CheckOut={CheckOutDate}, Nights={NumberOfNights}, PricePerNight={PricePerNight}, TotalAmount={TotalAmount}", 
+                    CheckInDate.Value.Date, CheckOutDate.Value.Date, numberOfNights, room.PricePerNight, totalAmount);
 
                 // Update the booking's properties
                 SelectedBookingForEdit.Customer.FullName = CustomerFullName;
@@ -924,6 +931,17 @@ namespace HotelManager.ViewModels.StaffViewModels
                     MessageBoxImage.Question);
                 if (result != MessageBoxResult.Yes)
                     return;
+
+                //set checkout employee
+                var currentCheckoutEmployee = AppSession.GetCurrentUserAccount();
+                if (currentCheckoutEmployee?.EmployeeId != null)
+                {
+                    booking.CheckOutEmployeeID = currentCheckoutEmployee.EmployeeId;
+                }
+                else
+                {
+                    _logger?.LogWarning("Current user does not have an associated employee ID for checkout");
+                }
 
                 var invoiceService = App.ServiceProvider.GetRequiredService<HotelManager.Services.InvoiceService>();
 
