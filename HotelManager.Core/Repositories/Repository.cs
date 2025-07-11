@@ -31,5 +31,6 @@ namespace HotelManager.Repositories
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate) => await _dbSet.Where(predicate).ToListAsync();
         public async Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate) => await _dbSet.SingleOrDefaultAsync(predicate);
         public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate) => await _dbSet.AnyAsync(predicate);
+        public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
     }
 } 

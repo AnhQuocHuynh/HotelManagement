@@ -146,8 +146,8 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.Dialogs.ChangePasswordDialogViewModel>();
 
                 // TODO (Tuấn): Uncomment sau khi implement WorkScheduleService
-                // services.AddScoped<HotelManager.Core.Interfaces.IWorkScheduleService, HotelManager.Core.Services.WorkScheduleService>();
-                // services.AddScoped<HotelManager.Core.Interfaces.IWorkScheduleRepository, HotelManager.Core.Repositories.WorkScheduleRepository>();
+                services.AddScoped<HotelManager.Core.Interfaces.IWorkScheduleService, HotelManager.Core.Services.WorkScheduleService>();
+                services.AddScoped<HotelManager.Core.Interfaces.IWorkScheduleRepository, HotelManager.Core.Repositories.WorkScheduleRepository>();
 
                 // TODO (Bảo): Uncomment sau khi implement ViewModels
                 // services.AddTransient<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>();
