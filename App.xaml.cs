@@ -125,6 +125,7 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.ManagerViewModel>();
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.ReceptionistViewModel>();
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.ReceptionistRoomViewModel>();
+                services.AddTransient<HotelManager.ViewModels.StaffViewModels.MyScheduleViewModel>();
                 services.AddTransient<HotelManager.ViewModels.Admin.AdminViewModel>(provider =>
                     new HotelManager.ViewModels.Admin.AdminViewModel(
                         provider.GetRequiredService<EmployeeService>(),
@@ -142,6 +143,7 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.Reports.RevenueReportChartViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.Reports.ReceptionistActivityReportChartViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.EmployeeListViewModel>();
+                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ProfileViewModel>();
                 services.AddTransient<HotelManager.ViewModels.Dialogs.ChangePasswordDialogViewModel>();
 

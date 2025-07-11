@@ -1,4 +1,7 @@
-﻿using System;
+﻿using HotelManager.ViewModels.ManagerViewModels.Reports;
+using HotelManager.ViewModels.StaffViewModels;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +26,10 @@ namespace HotelManager.Views.StaffViews
         public MyScheduleView()
         {
             InitializeComponent();
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<MyScheduleViewModel>();
+            }
         }
     }
 }
