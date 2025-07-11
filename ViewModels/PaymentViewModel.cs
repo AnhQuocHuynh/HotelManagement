@@ -75,6 +75,12 @@ namespace HotelManager.ViewModels
                 _amount = value;
                 OnPropertyChanged(nameof(Amount));
                 OnCanExecuteChanged();
+                
+                // Update remaining amount when editing a payment
+                if (IsEditing && EditingInvoice != null)
+                {
+                    UpdateRemainingAmountForEditing();
+                }
             }
         }
 
@@ -147,6 +153,13 @@ namespace HotelManager.ViewModels
             {
                 _editingInvoice = value;
                 OnPropertyChanged(nameof(EditingInvoice));
+                OnCanExecuteChanged();
+                
+                // Update remaining amount when editing invoice changes
+                if (IsEditing && value != null)
+                {
+                    UpdateRemainingAmountForEditing();
+                }
             }
         }
 
@@ -250,6 +263,14 @@ namespace HotelManager.ViewModels
             IsEditing = false;
             SelectedPayment = null; // Clear selected payment
             EditingInvoice = null; // Clear editing invoice
+            
+            // Reset remaining amount to current invoice's remaining amount
+            if (CurrentInvoice != null)
+            {
+                RemainingAmount = CurrentInvoice.TotalAmount;
+            }
+            
+            OnCanExecuteChanged();
         }
 
         public void OnNavigatedFrom()
@@ -426,6 +447,12 @@ namespace HotelManager.ViewModels
                     // Refresh the payments list to show updated data
                     await RefreshPaymentsAsync();
                     
+                    // Update remaining amount to reflect the new state after saving
+                    if (CurrentInvoice != null)
+                    {
+                        RemainingAmount = CurrentInvoice.TotalAmount;
+                    }
+                    
                     Application.Current.Dispatcher.Invoke(() =>
                         MessageBox.Show("Payment saved successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information)
                     );
@@ -530,14 +557,25 @@ namespace HotelManager.ViewModels
             if (Amount <= 0)
                 return false;
 
-            // Calculate the total amount already paid for this invoice
-            var totalPaid = Payments.Where(p => p.InvoiceId == EditingInvoice.Id && p.Id != SelectedPayment.Id)
-                                   .Sum(p => p.Amount);
-            var newTotalPaid = totalPaid + Amount;
+            // Calculate the original invoice amount by adding back all payments to the current total
+            var allPaymentsForInvoice = Payments.Where(p => p.InvoiceId == EditingInvoice.Id).ToList();
+            var originalInvoiceAmount = EditingInvoice.TotalAmount + allPaymentsForInvoice.Sum(p => p.Amount);
             
-            // Optional: prevent overpaying
-            if (newTotalPaid > EditingInvoice.TotalAmount)
+            // Calculate the total amount already paid for this invoice (excluding the payment being edited)
+            var totalPaidExcludingCurrent = allPaymentsForInvoice.Where(p => p.Id != SelectedPayment.Id)
+                                                                 .Sum(p => p.Amount);
+            var newTotalPaid = totalPaidExcludingCurrent + Amount;
+            
+            Debug.WriteLine($"CanSavePayment: OriginalInvoiceAmount={originalInvoiceAmount:C}, " +
+                           $"TotalPaidExcludingCurrent={totalPaidExcludingCurrent:C}, " +
+                           $"NewAmount={Amount:C}, NewTotalPaid={newTotalPaid:C}");
+            
+            // Optional: prevent overpaying - check against original invoice amount
+            if (newTotalPaid > originalInvoiceAmount)
+            {
+                Debug.WriteLine($"CanSavePayment: Overpayment detected - {newTotalPaid:C} > {originalInvoiceAmount:C}");
                 return false;
+            }
 
             // Optional: disable save if no real changes
             bool hasChanges =
@@ -545,6 +583,7 @@ namespace HotelManager.ViewModels
                 SelectedPayment.PaymentDate != PaymentDate ||
                 SelectedPayment.PaymentMethod != PaymentMethod;
 
+            Debug.WriteLine($"CanSavePayment: HasChanges={hasChanges}, CanSave={hasChanges}");
             return hasChanges;
         }
 
@@ -600,7 +639,10 @@ namespace HotelManager.ViewModels
                 LoadPaymentForEdit(payment);
                 IsEditing = true;
                 
-                Debug.WriteLine($"EditPaymentAsync: Editing payment ID={payment.Id}, Amount={payment.Amount}, Invoice ID={paymentInvoice.Id}");
+                // Update command states
+                OnCanExecuteChanged();
+                
+                Debug.WriteLine($"EditPaymentAsync: Editing payment ID={payment.Id}, Amount={payment.Amount}, Invoice ID={paymentInvoice.Id}, Invoice TotalAmount={paymentInvoice.TotalAmount:C}");
             }
             catch (Exception ex)
             {
@@ -617,6 +659,34 @@ namespace HotelManager.ViewModels
             Amount = payment.Amount;
             PaymentMethod = payment.PaymentMethod;
             Debug.WriteLine($"LoadPaymentForEdit: Loaded payment ID={payment.Id}, Amount={payment.Amount}");
+            
+            // Update command states after loading payment data
+            OnCanExecuteChanged();
+            
+            // Update remaining amount for editing
+            UpdateRemainingAmountForEditing();
+        }
+        
+        private void UpdateRemainingAmountForEditing()
+        {
+            if (!IsEditing || EditingInvoice == null) return;
+            
+            // Calculate the original invoice amount by adding back all payments
+            var allPaymentsForInvoice = Payments.Where(p => p.InvoiceId == EditingInvoice.Id).ToList();
+            var originalInvoiceAmount = EditingInvoice.TotalAmount + allPaymentsForInvoice.Sum(p => p.Amount);
+            
+            // Calculate the total amount already paid (excluding the payment being edited)
+            var totalPaidExcludingCurrent = allPaymentsForInvoice.Where(p => p.Id != SelectedPayment?.Id)
+                                                                 .Sum(p => p.Amount);
+            
+            // Calculate remaining amount after the current payment edit
+            var newRemainingAmount = originalInvoiceAmount - totalPaidExcludingCurrent - Amount;
+            
+            RemainingAmount = newRemainingAmount;
+            
+            Debug.WriteLine($"UpdateRemainingAmountForEditing: OriginalAmount={originalInvoiceAmount:C}, " +
+                           $"TotalPaidExcludingCurrent={totalPaidExcludingCurrent:C}, " +
+                           $"NewAmount={Amount:C}, RemainingAmount={RemainingAmount:C}");
         }
 
         // Search functionality

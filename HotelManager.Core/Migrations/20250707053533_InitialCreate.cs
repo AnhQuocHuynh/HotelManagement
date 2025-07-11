@@ -98,7 +98,8 @@ namespace HotelManager.Core.Migrations
                     CheckInEmployeeID = table.Column<int>(type: "int", nullable: true),
                     CheckOutEmployeeID = table.Column<int>(type: "int", nullable: true),
                     RoomNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoomType = table.Column<int>(type: "int", nullable: false)
+                    RoomType = table.Column<int>(type: "int", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {

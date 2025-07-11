@@ -72,13 +72,34 @@ namespace HotelManager.Services
                     _logger.LogWarning("Booking not found for update. BookingId: {BookingId}", booking.Id);
                     throw new EntityNotFoundException("Booking", booking.Id);
                 }
-                // Update properties
+                
+                // Update customer information if provided
+                if (booking.Customer != null && existingBooking.Customer != null)
+                {
+                    existingBooking.Customer.FullName = booking.Customer.FullName;
+                    existingBooking.Customer.CCCD = booking.Customer.CCCD;
+                    existingBooking.Customer.PhoneNumber = booking.Customer.PhoneNumber;
+                    existingBooking.Customer.Type = booking.Customer.Type;
+                }
+                
+                // Update booking properties
                 existingBooking.RoomNumber = booking.RoomNumber;
                 existingBooking.RoomType = booking.RoomType;
                 existingBooking.Status = booking.Status;
                 existingBooking.CheckInDate = booking.CheckInDate;
                 existingBooking.CheckOutDate = booking.CheckOutDate;
-                // ... update các trường khác nếu cần
+                existingBooking.TotalAmount = booking.TotalAmount;
+                
+                // Update employee IDs based on status
+                if (booking.Status == BookingStatus.CheckedIn)
+                {
+                    existingBooking.CheckInEmployeeID = booking.CheckInEmployeeID;
+                }
+                else if (booking.Status == BookingStatus.CheckedOut)
+                {
+                    existingBooking.CheckOutEmployeeID = booking.CheckOutEmployeeID;
+                }
+                
                 await _unitOfWork.Bookings.UpdateAsync(existingBooking);
                 await _unitOfWork.SaveChangesAsync();
                 _logger.LogInformation("Booking updated successfully. BookingId: {BookingId}", booking.Id);

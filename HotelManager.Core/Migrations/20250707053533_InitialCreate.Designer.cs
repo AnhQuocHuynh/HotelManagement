@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManager.Core.Migrations
 {
     [DbContext(typeof(HotelDbContext))]
-    [Migration("20250706222644_InitialCreate")]
+    [Migration("20250707053533_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -101,6 +101,9 @@ namespace HotelManager.Core.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 

@@ -20,7 +20,8 @@
         Receptionist = 0,
         Cleaner = 1,
         Technician = 2,
-        Manager = 3
+        Manager = 3,
+        Admin = 4,
     }
 
     public enum UserRole

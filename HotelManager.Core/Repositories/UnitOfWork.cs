@@ -18,6 +18,7 @@ namespace HotelManager.Repositories
         private readonly Dictionary<Type, object> _repositories = new();
         private EmployeeRepository _employeeRepository;
         private WorkAssignmentRepository _workAssignmentRepository;
+        private BookingRepository _bookingRepository;
 
         public UnitOfWork(HotelDbContext context, ILoggerFactory loggerFactory)
         {
@@ -27,7 +28,7 @@ namespace HotelManager.Repositories
 
         public IRepository<Customer> Customers => GetRepository<Customer>();
         public IRepository<Room> Rooms => GetRepository<Room>();
-        public IRepository<Booking> Bookings => GetRepository<Booking>();
+        public IRepository<Booking> Bookings => BookingRepository;
         public IRepository<Employee> Employees => GetRepository<Employee>();
         public IRepository<UserAccount> UserAccounts => GetRepository<UserAccount>();
         public IRepository<Invoice> Invoices => GetRepository<Invoice>();
@@ -37,6 +38,7 @@ namespace HotelManager.Repositories
         public IRepository<WorkAssignment> WorkAssignments => GetRepository<WorkAssignment>();
         public EmployeeRepository EmployeeRepository => _employeeRepository ??= new EmployeeRepository(_context, _loggerFactory.CreateLogger<EmployeeRepository>());
         public WorkAssignmentRepository WorkAssignmentRepository => _workAssignmentRepository ??= new WorkAssignmentRepository(_context, _loggerFactory.CreateLogger<WorkAssignmentRepository>());
+        public BookingRepository BookingRepository => _bookingRepository ??= new BookingRepository(_context, _loggerFactory.CreateLogger<BookingRepository>());
 
         private IRepository<T> GetRepository<T>() where T : class
         {

@@ -19,74 +19,183 @@ namespace HotelManager.Core.Repositories
         }
 
         /// <summary>
-        /// TODO (Tuấn): Implement lấy lịch theo employee với Include navigation properties
+        /// Lấy lịch theo employee với Include navigation properties
         /// </summary>
         public async Task<List<WorkSchedule>> GetByEmployeeAsync(int employeeId)
         {
-            // TODO: Implement
-            // Gợi ý: return await _context.WorkSchedules
-            //     .Include(w => w.Employee)
-            //     .Include(w => w.AssignedByEmployee)
-            //     .Where(w => w.EmployeeId == employeeId)
-            //     .OrderBy(w => w.StartDate)
-            //     .ToListAsync();
-            
-            throw new NotImplementedException("TODO (Tuấn): Implement GetByEmployeeAsync");
+            try
+            {
+                return await _context.WorkSchedules
+                    .Include(w => w.Employee)
+                    .Include(w => w.AssignedByEmployee)
+                    .Where(w => w.EmployeeId == employeeId)
+                    .OrderBy(w => w.StartDate)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting work schedules for employee {EmployeeId}", employeeId);
+                throw;
+            }
         }
 
         /// <summary>
-        /// TODO (Tuấn): Implement lấy lịch theo date range với optimization
+        /// Lấy lịch theo date range với optimization
         /// </summary>
         public async Task<List<WorkSchedule>> GetByDateRangeAsync(DateTime startDate, DateTime endDate)
         {
-            // TODO: Implement với proper date comparison
-            throw new NotImplementedException("TODO (Tuấn): Implement GetByDateRangeAsync");
+            try
+            {
+                return await _context.WorkSchedules
+                    .Include(w => w.Employee)
+                    .Include(w => w.AssignedByEmployee)
+                    .Where(w => w.StartDate >= startDate && w.StartDate <= endDate)
+                    .OrderBy(w => w.StartDate)
+                    .ThenBy(w => w.EmployeeId)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting work schedules for date range {StartDate} to {EndDate}", startDate, endDate);
+                throw;
+            }
         }
 
         /// <summary>
-        /// TODO (Tuấn): Implement lấy lịch theo day và shift
+        /// Lấy lịch theo day và shift
         /// </summary>
         public async Task<List<WorkSchedule>> GetByDayAndShiftAsync(WorkDay day, WorkShift shift)
         {
-            // TODO: Implement
-            throw new NotImplementedException("TODO (Tuấn): Implement GetByDayAndShiftAsync");
+            try
+            {
+                return await _context.WorkSchedules
+                    .Include(w => w.Employee)
+                    .Include(w => w.AssignedByEmployee)
+                    .Where(w => w.WorkDay == day && w.Shift == shift)
+                    .OrderBy(w => w.StartDate)
+                    .ThenBy(w => w.EmployeeId)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting work schedules for day {Day} and shift {Shift}", day, shift);
+                throw;
+            }
         }
 
         /// <summary>
-        /// TODO (Tuấn): Implement conflict detection logic - QUAN TRỌNG!
+        /// Conflict detection logic - QUAN TRỌNG!
         /// </summary>
         public async Task<bool> HasConflictAsync(int employeeId, WorkDay day, WorkShift shift, DateTime date, int? excludeId = null)
         {
-            // TODO: Implement sophisticated conflict detection
-            // Check for overlapping schedules, same day/shift assignments, etc.
-            throw new NotImplementedException("TODO (Tuấn): Implement HasConflictAsync - CRITICAL METHOD");
+            try
+            {
+                var query = _context.WorkSchedules
+                    .Where(w => w.EmployeeId == employeeId 
+                           && w.WorkDay == day 
+                           && w.Shift == shift
+                           && w.Status != ScheduleStatus.Cancelled);
+
+                // Exclude specific schedule if provided (for updates)
+                if (excludeId.HasValue)
+                {
+                    query = query.Where(w => w.Id != excludeId.Value);
+                }
+
+                // Check for exact date conflicts
+                var exactDateConflict = await query
+                    .AnyAsync(w => w.StartDate.Date == date.Date);
+
+                if (exactDateConflict)
+                {
+                    return true;
+                }
+
+                // Check for overlapping date ranges
+                var overlappingConflict = await query
+                    .AnyAsync(w => 
+                        (w.StartDate <= date && (w.EndDate == null || w.EndDate >= date)) ||
+                        (date >= w.StartDate && (w.EndDate == null || date <= w.EndDate)));
+
+                return overlappingConflict;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking conflict for employee {EmployeeId}, day {Day}, shift {Shift}, date {Date}", 
+                    employeeId, day, shift, date);
+                throw;
+            }
         }
 
         /// <summary>
-        /// TODO (Tuấn): Implement weekly schedule retrieval
+        /// Weekly schedule retrieval
         /// </summary>
         public async Task<List<WorkSchedule>> GetWeeklySchedulesAsync(DateTime weekStart)
         {
-            // TODO: Calculate week end date và retrieve schedules
-            throw new NotImplementedException("TODO (Tuấn): Implement GetWeeklySchedulesAsync");
+            try
+            {
+                var weekEnd = weekStart.AddDays(6);
+                return await _context.WorkSchedules
+                    .Include(w => w.Employee)
+                    .Include(w => w.AssignedByEmployee)
+                    .Where(w => w.StartDate >= weekStart && w.StartDate <= weekEnd)
+                    .OrderBy(w => w.StartDate)
+                    .ThenBy(w => w.EmployeeId)
+                    .ThenBy(w => w.WorkDay)
+                    .ThenBy(w => w.Shift)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting weekly schedules for week starting {WeekStart}", weekStart);
+                throw;
+            }
         }
 
         /// <summary>
-        /// TODO (Tuấn): Implement lấy lịch theo status
+        /// Lấy lịch theo status
         /// </summary>
         public async Task<List<WorkSchedule>> GetByStatusAsync(ScheduleStatus status)
         {
-            // TODO: Implement
-            throw new NotImplementedException("TODO (Tuấn): Implement GetByStatusAsync");
+            try
+            {
+                return await _context.WorkSchedules
+                    .Include(w => w.Employee)
+                    .Include(w => w.AssignedByEmployee)
+                    .Where(w => w.Status == status)
+                    .OrderBy(w => w.StartDate)
+                    .ThenBy(w => w.EmployeeId)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting work schedules for status {Status}", status);
+                throw;
+            }
         }
 
         /// <summary>
-        /// TODO (Tuấn): Implement counting schedules cho workload balancing
+        /// Counting schedules cho workload balancing
         /// </summary>
         public async Task<int> CountEmployeeSchedulesInMonthAsync(int employeeId, DateTime month)
         {
-            // TODO: Count schedules in specified month
-            throw new NotImplementedException("TODO (Tuấn): Implement CountEmployeeSchedulesInMonthAsync");
+            try
+            {
+                var monthStart = new DateTime(month.Year, month.Month, 1);
+                var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+
+                return await _context.WorkSchedules
+                    .Where(w => w.EmployeeId == employeeId 
+                           && w.StartDate >= monthStart 
+                           && w.StartDate <= monthEnd
+                           && w.Status != ScheduleStatus.Cancelled)
+                    .CountAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error counting schedules for employee {EmployeeId} in month {Month}", employeeId, month);
+                throw;
+            }
         }
     }
 } 

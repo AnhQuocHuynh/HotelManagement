@@ -50,7 +50,7 @@ namespace HotelManager.Data
                 var adminEmp = new Employee
                 {
                     FullName = "Admin User",
-                    Position = EmployeePosition.Manager, 
+                    Position = EmployeePosition.Admin, 
                     Email = "admin@hotelmanager.com",
                     PhoneNumber = "0900000000",
                     HireDate = DateTime.Now.AddYears(-2),
