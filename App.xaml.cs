@@ -160,7 +160,13 @@ public partial class App : Application
                     )
                 );
 
-                services.AddTransient<HotelManager.ViewModels.StaffViewModels.MyScheduleViewModel>();
+                services.AddTransient<HotelManager.ViewModels.StaffViewModels.MyScheduleViewModel>(provider =>
+                    new ViewModels.StaffViewModels.MyScheduleViewModel(
+                        null,
+                        provider.GetRequiredService<INotificationService>(),
+                        provider.GetRequiredService<ILogger<HotelManager.ViewModels.StaffViewModels.MyScheduleViewModel>>()
+                    )
+                );
 
                 services.AddSingleton<ICurrentUserProvider, WpfCurrentUserProvider>();
 

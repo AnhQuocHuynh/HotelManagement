@@ -357,6 +357,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             SearchCommand = new RelayCommand(PerformSearch);
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
             LogoutCommand = new RelayCommand(Logout);
+            NavigateMyScheduleCommand = new RelayCommand(NavigateMySchedule);
             // DeleteBookingCommand
             DeleteBookingCommand = new AsyncRelayCommand<Booking?>(
                 execute: b => DeleteAsync(b!),
