@@ -48,7 +48,7 @@ namespace HotelManager.Services
                 throw;
             }
         }
-        public async Task MarkRoomAsCleanedAsync(Room room)
+        public async Task MarkRoomAsCleanedAsync(Room room, int cleanerId)
         {
             try
             {
@@ -77,6 +77,18 @@ namespace HotelManager.Services
                         latestBooking.Status = BookingStatus.Completed; // Hoàn thành
                         _logger.LogInformation("Updated booking {BookingId} status to Completed", latestBooking.Id);
                     }
+
+                    // Tạo record Cleaning
+                    var cleaning = new Cleaning
+                    {
+                        RoomNumber = room.RoomNumber,
+                        CleaningDate = DateTime.Now,
+                        EmployeeId = cleanerId,
+                        Notes = "Auto-clean record from MarkRoomAsCleaned"
+                    };
+                    await context.Cleanings.AddAsync(cleaning);
+                    _logger.LogInformation("Inserted cleaning record for room {RoomNumber}", room.RoomNumber);
+
 
                     await context.SaveChangesAsync();
                     _logger.LogInformation("Room marked as cleaned successfully. RoomNumber: {RoomNumber}", room.RoomNumber);
