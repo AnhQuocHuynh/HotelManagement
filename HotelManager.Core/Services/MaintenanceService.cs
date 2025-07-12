@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using System;
 using HotelManager.Exceptions;
 using Microsoft.Extensions.Logging;
+using HotelManager.Core.Models;
+using HotelManager.Core.Interfaces;
+using HotelManager.Core.Repositories;
 
 namespace HotelManager.Services
 {
@@ -14,12 +17,21 @@ namespace HotelManager.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<MaintenanceService> _logger;
+        private readonly IMaintenanceRepository _maintenanceRepository;
 
         public MaintenanceService(IUnitOfWork unitOfWork, ILogger<MaintenanceService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _maintenanceRepository = unitOfWork.Maintenances;
         }
+
+        public async Task AddMaintenanceAsync(Maintenance maintenance)
+        {
+            await _maintenanceRepository.AddAsync(maintenance);
+            await _maintenanceRepository.SaveChangesAsync();
+        }
+
 
         public async Task<List<MaintenanceReport>> GetAllReportsAsync()
         {
