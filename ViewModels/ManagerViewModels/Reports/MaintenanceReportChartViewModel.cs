@@ -16,16 +16,18 @@ using System.Windows.Input;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Axis = LiveChartsCore.SkiaSharpView.Axis;
 using LiveChartsCore.Defaults;
+using HotelManager.Models.Enums;
+using System.Windows.Media;
 
 
 namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
-    public class MaintenanceReportChartViewModel : BaseViewModel
+    public class MaintenanceReportChartViewModel : BaseViewModel, IDisposable
     {
         MaintenanceDataService maintenanceDataService;
         ExportService _exportService;
 
-
+        private bool _isChanged = false;
 
         public ObservableCollection<string> ViewTypeOptions { get; set; }
         private void ViewTypeOptionsInit()
@@ -49,6 +51,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 {
                     _selectedViewType = value;
                     OnPropertyChanged(nameof(SelectedViewType));
+                    _isChanged = true; // Đánh dấu đã thay đổi
                 }
             }
         }
@@ -61,8 +64,10 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 if (_startDate != value)
                 {
-                    _startDate = value;
+                    _startDate = value > EndDate ? EndDate : value;
                     OnPropertyChanged(nameof(StartDate));
+                    SetTimeBackground(false); // Đặt nền ngày
+                    _isChanged = true; // Đánh dấu đã thay đổi
                 }
             }
         }
@@ -76,9 +81,118 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 if (_endDate != value)
                 {
-                    _endDate = value;
+                    _endDate = value < StartDate ? StartDate : value;
                     OnPropertyChanged(nameof(EndDate));
+                    SetTimeBackground(false); // Đặt nền ngày
+                    _isChanged = true; // Đánh dấu đã thay đổi
                 }
+            }
+        }
+
+
+        // time ranges
+        public ObservableCollection<string> TimeRanges { get; set; }
+
+        private string _selectedTimeRange;
+        public string SelectedTimeRange
+        {
+            get => _selectedTimeRange;
+            set
+            {
+                if (_selectedTimeRange != value)
+                {
+                    _selectedTimeRange = value;
+                    OnPropertyChanged(nameof(SelectedTimeRange));
+                    SetTimeRange();
+                    SetTimeBackground(true);
+                    _isChanged = true;
+                }
+            }
+        }
+
+        // high light
+        private Brush _timeRangeBackground;
+        public Brush TimeRangeBackground
+        {
+            get => _timeRangeBackground;
+            set
+            {
+                if (_timeRangeBackground != value)
+                {
+                    _timeRangeBackground = value;
+                    OnPropertyChanged(nameof(TimeRangeBackground));
+                }
+            }
+        }
+        private Brush _dateBackground;
+        public Brush DateBackground
+        {
+            get => _dateBackground;
+            set
+            {
+                if (_dateBackground != value)
+                {
+                    _dateBackground = value;
+                    OnPropertyChanged(nameof(DateBackground));
+                }
+            }
+        }
+
+        void TimeRangeInit()
+        {
+            TimeRanges = new ObservableCollection<string>
+            {
+                "Last 7 days",
+                "Last 1 month",
+                "Last 3 months",
+                "Last 6 months",
+                "Last 1 year",
+                "Last 3 years",
+            };
+            SelectedTimeRange = TimeRanges.FirstOrDefault();
+        }
+
+        void SetTimeRange()
+        {
+            DateTime today = DateTime.Today;
+
+            EndDate = today;
+            switch (SelectedTimeRange)
+            {
+                case "Last 7 days":
+                    StartDate = today.AddDays(-7);
+                    break;
+                case "Last 1 month":
+                    StartDate = today.AddMonths(-1);
+                    break;
+                case "Last 3 months":
+                    StartDate = today.AddMonths(-3);
+                    break;
+                case "Last 6 months":
+                    StartDate = today.AddMonths(-6);
+                    break;
+                case "Last 1 year":
+                    StartDate = today.AddYears(-1);
+                    break;
+                case "Last 3 years":
+                    StartDate = today.AddYears(-3);
+                    break;
+                Default:
+                    return;
+            }
+        }
+
+        void SetTimeBackground(bool isTimeRange)
+        {
+            if (isTimeRange)
+            {
+                TimeRangeBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8CCDEB"));
+                DateBackground = Brushes.White;
+            }
+            else
+            {
+                TimeRangeBackground = Brushes.White;
+                DateBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8CCDEB"));
             }
         }
 
@@ -134,8 +248,8 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             _exportService = new ExportService();
 
             ViewTypeOptionsInit();
-            StartDate = DateTime.Now.AddDays(-7);
-            EndDate = DateTime.Now;
+            TimeRangeInit();
+
 
             _ = RefreshChartAsync();
 
@@ -157,9 +271,11 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         public Dictionary<string, (int DeluxeCount, int StandardCount, int SuiteCount)> eachTechnicianData;
         private async Task FetchEachTechnicianChartDataAsync()
         {
+            var fixedEndDate = EndDate.Date.AddDays(1).AddTicks(-1);
+
             var data = await maintenanceDataService.GetCountNumbersOfRoomEachTechnicianMaintained(
                 StartDate,
-                EndDate
+                fixedEndDate
             );
 
             eachTechnicianData = data ?? new Dictionary<string, (int DeluxeCount, int StandardCount, int SuiteCount)>();
@@ -234,9 +350,11 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         Dictionary<string, (string RoomType, int MaintenanceCount)> eachRoomData;
         private async Task FetchEachRoomChartDataAsync()
         {
+            var fixedEndDate = EndDate.Date.AddDays(1).AddTicks(-1);
+
             var data = await maintenanceDataService.GetCountNumbersOfMaintenanceEachRoom(
                 StartDate,
-                EndDate
+                fixedEndDate
             );
 
             eachRoomData = data ?? new Dictionary<string, (string RoomType, int MaintenanceCount)>();
@@ -253,39 +371,25 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             var roomList = eachRoomData.Keys.ToList();
             Labels = roomList.ToArray();
 
-            // tạo series cho từng phòng để đổi màu
-            var seriesList = new List<ISeries>();
+            // chuẩn bị mảng ObservableValue chứa số lần bảo trì cho mỗi phòng
+            var values = new ObservableValue[roomList.Count];
 
             for (int i = 0; i < roomList.Count; i++)
             {
                 var roomName = roomList[i];
-                var (roomType, maintenanceCount) = eachRoomData[roomName];
-
-                // xây dựng Values với chỉ duy nhất vị trí i có maintenanceCount, còn lại = 0
-                var values = new ObservableValue[roomList.Count];
-                for (int j = 0; j < roomList.Count; j++)
-                {
-                    values[j] = new ObservableValue(j == i ? maintenanceCount : 0);
-                }
-
-                var color = roomType switch
-                {
-                    "Deluxe" => SKColors.Yellow,
-                    "Standard" => SKColors.Green,
-                    "Suite" => SKColors.Blue,
-                    _ => SKColors.Gray
-                };
-
-                seriesList.Add(new RowSeries<ObservableValue>
-                {
-                    Name = $"{roomName} ({roomType})",
-                    Values = values,
-                    Fill = new SolidColorPaint(color),
-                    MaxBarWidth = 25
-                });
+                var (_, maintenanceCount) = eachRoomData[roomName];
+                values[i] = new ObservableValue(maintenanceCount);
             }
 
-            Series = seriesList.ToArray();
+            Series = new ISeries[]
+            {
+        new RowSeries<ObservableValue>
+        {
+            Name = "Số lần bảo trì",
+            Values = values,
+            Fill = new SolidColorPaint(SKColors.ForestGreen),
+        }
+            };
 
             XAxes = new Axis[]
             {
@@ -295,7 +399,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             SeparatorsPaint = new SolidColorPaint(SKColors.LightGray),
             MinStep = 1,
             MinLimit = 0,
-            Labeler = value => ((int)value).ToString(),
+            Labeler = value => ((int)value).ToString()
         }
             };
 
@@ -305,19 +409,23 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         {
             Name = "Phòng",
             Labels = Labels,
-            LabelsRotation = 0
+            LabelsRotation = 0,
+            MinStep = 1
         }
             };
         }
+
 
 
         // chart counting maintenance activities by room type each month
         private Dictionary<string, (int Deluxe, int Standard, int Suite)> _monthlyData;
         private async Task FetchMonthlyMaintenanceChartDataAsync()
         {
+            var fixedEndDate = EndDate.Date.AddDays(1).AddTicks(-1);
+
             var data = await maintenanceDataService.GetMonthlyMaintenanceCountsByRoomType(
                 StartDate,
-                EndDate
+                fixedEndDate
             );
 
             _monthlyData = data ?? new Dictionary<string, (int Deluxe, int Standard, int Suite)>();
@@ -384,11 +492,12 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         private bool _isLoading = false;
         private async Task RefreshChartAsync()
         {
-            if (_isLoading) return;
-            _isLoading = true;
+            if (_isLoading || !_isChanged) return;
 
             try
             {
+                _isLoading = true;
+
                 switch (SelectedViewType)
                 {
                     case "Each technician on time":
@@ -420,6 +529,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             finally
             {
                 _isLoading = false;
+                _isChanged = false; // Reset the change flag after loading
             }
         }
 

@@ -4,7 +4,7 @@ namespace HotelManager.Config
 {
     public static class DatabaseConfig
     {
-        public const string ServerName = @"(local)\SQLEXPRESS";
+        public const string ServerName = @"(localdb)\MSSQLLocalDB";
         public const string DatabaseName = "HotelManager";
         public const bool IntegratedSecurity = true;
 

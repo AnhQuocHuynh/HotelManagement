@@ -450,7 +450,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 }
 
                 // Validate dates
-                if (CheckInDate < DateTime.Now)
+                if (CheckInDate.Value.Date < DateTime.Now.Date)
                 {
                     MessageBox.Show("Check-in date cannot be in the past.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -463,7 +463,10 @@ namespace HotelManager.ViewModels.StaffViewModels
                 }
 
                 // Validate booking duration (not exceeding 30 days)
-                var bookingDays = (CheckOutDate.Value - CheckInDate.Value).Days;
+                var bookingDays = (CheckOutDate.Value.Date - CheckInDate.Value.Date).Days;
+                _logger?.LogDebug("Booking duration calculation: CheckIn={CheckInDate}, CheckOut={CheckOutDate}, Days={BookingDays}", 
+                    CheckInDate.Value.Date, CheckOutDate.Value.Date, bookingDays);
+                
                 if (bookingDays > 30)
                 {
                     MessageBox.Show("Booking duration cannot exceed 30 days.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -495,7 +498,9 @@ namespace HotelManager.ViewModels.StaffViewModels
                     MessageBox.Show("Selected room number does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                decimal totalAmount = room.PricePerNight * (CheckOutDate.Value.Date - CheckInDate.Value.Date).Days;
+                decimal totalAmount = room.PricePerNight * bookingDays;
+                _logger?.LogDebug("Total amount calculation: PricePerNight={PricePerNight}, BookingDays={BookingDays}, TotalAmount={TotalAmount}", 
+                    room.PricePerNight, bookingDays, totalAmount);
                 
                 var employee = AppSession.GetCurrentUserAccount()?.Employee;
 
@@ -655,6 +660,8 @@ namespace HotelManager.ViewModels.StaffViewModels
 
                 int numberOfNights = (CheckOutDate.Value.Date - CheckInDate.Value.Date).Days;
                 decimal totalAmount = room.PricePerNight * numberOfNights;
+                _logger?.LogDebug("Edit booking calculation: CheckIn={CheckInDate}, CheckOut={CheckOutDate}, Nights={NumberOfNights}, PricePerNight={PricePerNight}, TotalAmount={TotalAmount}", 
+                    CheckInDate.Value.Date, CheckOutDate.Value.Date, numberOfNights, room.PricePerNight, totalAmount);
 
                 // Update the booking's properties
                 SelectedBookingForEdit.Customer.FullName = CustomerFullName;
@@ -920,12 +927,23 @@ namespace HotelManager.ViewModels.StaffViewModels
                 _logger?.LogInformation("Processing checkout for booking {BookingId}", booking.Id);
                 var result = MessageBox.Show(
                     $"Confirm checkout for customer {booking.Customer?.FullName} from room {booking.RoomNumber}?\n\n" +
-                    "This will:\n• Navigate to Payment View for processing\n• Update room status to Pending (awaiting cleaning)",
+                    "This will:\n• Mark room as pending cleaning\n• Automatically process payment",
                     "Confirm Checkout",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question);
                 if (result != MessageBoxResult.Yes)
                     return;
+
+                //set checkout employee
+                var currentCheckoutEmployee = AppSession.GetCurrentUserAccount();
+                if (currentCheckoutEmployee?.EmployeeId != null)
+                {
+                    booking.CheckOutEmployeeID = currentCheckoutEmployee.EmployeeId;
+                }
+                else
+                {
+                    _logger?.LogWarning("Current user does not have an associated employee ID for checkout");
+                }
 
                 var invoiceService = App.ServiceProvider.GetRequiredService<HotelManager.Services.InvoiceService>();
 
@@ -963,13 +981,20 @@ namespace HotelManager.ViewModels.StaffViewModels
                 }
                 await LoadDataAsync();
 
-                //Đảm bảo phải pay hêt khi checkout
-                // Tạo mới invoice cho booking
-                // Điều hướng sang PaymentViewModel, truyền invoice
-                Debug.WriteLine($"Navigating to PaymentViewModel with Invoice's Booking ID: {invoice.BookingId}, TotalAmount: {invoice.TotalAmount}");
-                _navigationService?.NavigateTo<PaymentViewModel>(invoice);
-                _notificationService?.ShowSuccess($"Checkout completed for room {booking.RoomNumber}. Navigated to Payment View.");
-                _logger?.LogInformation("Successfully processed checkout for booking {BookingId}", booking.Id);
+                // Ensure payment is recorded for the (existing or newly-created) invoice
+                var paymentService = App.ServiceProvider.GetRequiredService<HotelManager.Services.PaymentService>();
+                var payment = new HotelManager.Models.Payment
+                {
+                    InvoiceId = invoice.Id,
+                    Amount = booking.TotalAmount,
+                    PaymentDate = DateTime.Now,
+                    PaymentMethod = HotelManager.Models.Enums.PaymentMethod.Cash // default payment method
+                };
+                await paymentService.CreateAsync(payment);
+                // TODO: Nếu có bảng/tính revenue, cộng tiền vào revenue ở đây
+                MessageBox.Show($"Đã checkout và thanh toán thành công cho phòng {booking.RoomNumber}.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                _notificationService?.ShowSuccess($"Checkout and payment completed for room {booking.RoomNumber}.");
+                _logger?.LogInformation("Successfully processed checkout and payment for booking {BookingId}", booking.Id);
             }
             catch (EntityNotFoundException ex)
             {
@@ -1126,7 +1151,6 @@ namespace HotelManager.ViewModels.StaffViewModels
                    CheckInDate < CheckOutDate;
         }
 
-#pragma warning disable IDE0060 //Remove unused parameter
         private async Task GoToPreviousPageAsync()
         {
             // TODO: Implement pagination logic

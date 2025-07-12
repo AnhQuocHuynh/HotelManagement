@@ -84,6 +84,40 @@ namespace HotelManager.Core.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "WorkSchedules",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
+                    WorkDay = table.Column<int>(type: "int", nullable: false),
+                    Shift = table.Column<int>(type: "int", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AssignedByEmployeeId = table.Column<int>(type: "int", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WorkSchedules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WorkSchedules_Employees_AssignedByEmployeeId",
+                        column: x => x.AssignedByEmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkSchedules_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Bookings",
                 columns: table => new
                 {
@@ -98,7 +132,8 @@ namespace HotelManager.Core.Migrations
                     CheckInEmployeeID = table.Column<int>(type: "int", nullable: true),
                     CheckOutEmployeeID = table.Column<int>(type: "int", nullable: true),
                     RoomNumber = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoomType = table.Column<int>(type: "int", nullable: false)
+                    RoomType = table.Column<int>(type: "int", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -427,6 +462,16 @@ namespace HotelManager.Core.Migrations
                 name: "IX_WorkAssignments_RoomNumber",
                 table: "WorkAssignments",
                 column: "RoomNumber");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkSchedule_Employee_Day_Shift_Date",
+                table: "WorkSchedules",
+                columns: new[] { "EmployeeId", "WorkDay", "Shift", "StartDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkSchedules_AssignedByEmployeeId",
+                table: "WorkSchedules",
+                column: "AssignedByEmployeeId");
         }
 
         /// <inheritdoc />
@@ -449,6 +494,9 @@ namespace HotelManager.Core.Migrations
 
             migrationBuilder.DropTable(
                 name: "WorkAssignments");
+
+            migrationBuilder.DropTable(
+                name: "WorkSchedules");
 
             migrationBuilder.DropTable(
                 name: "MaintenanceReports");

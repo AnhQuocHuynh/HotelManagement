@@ -13,6 +13,8 @@ using System.ComponentModel;
 using System.Windows;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace HotelManager.ViewModels.ManagerViewModels
 {
@@ -158,6 +160,11 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// </summary>
         public ICommand RefreshCommand { get; private set; }
 
+        /// <summary>
+        /// Command to load data when view is loaded
+        /// </summary>
+        public ICommand LoadedCommand { get; private set; }
+
         #endregion
 
         #region Constructor
@@ -198,6 +205,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             NavigatePreviousWeekCommand = new AsyncRelayCommand(NavigateToPreviousWeek);
             NavigateNextWeekCommand = new AsyncRelayCommand(NavigateToNextWeek);
             RefreshCommand = new AsyncRelayCommand(RefreshDataAsync);
+            LoadedCommand = new AsyncRelayCommand(LoadInitialDataAsync);
 
             // TODO (Bảo): Load initial data
             await LoadInitialDataAsync();
@@ -265,12 +273,17 @@ namespace HotelManager.ViewModels.ManagerViewModels
         {
             try
             {
-                // TODO (Bảo): Implement loading logic
+                if (_workScheduleService == null) return; // design-time
 
-                DateTime startDate = SelectedWeek.AddDays(SelectedWeek.DayOfWeek - DayOfWeek.Monday).Date;
+                // Tính ngày đầu tuần (thứ 2)
+                int diff = (7 + (SelectedWeek.DayOfWeek - DayOfWeek.Monday)) % 7;
+                DateTime weekStart = SelectedWeek.AddDays(-diff).Date;
 
-                //WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(startDate));
+                var result = await _workScheduleService.GetWeeklyScheduleAsync(weekStart);
+                WeeklySchedules = new ObservableCollection<WorkSchedule>(result);
 
+                if (WeeklySchedules.Count == 0)
+                    _notificationService?.ShowInfo("Không có lịch làm việc cho tuần này");
             }
             catch (Exception ex)
             {
@@ -283,30 +296,32 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// </summary>
         private async Task UpdateScheduleAsync(WorkSchedule? schedule)
         {
+            if (_workScheduleService == null) return;
+
             // TODO (Bảo): Implement update logic            
-            //bool isConfilct = await _workScheduleService.ValidateScheduleConflictAsync(
-            //    SelectedEmployee.Id,
-            //    SelectedDay,
-            //    SelectedShift,
-            //    SelectedDate
-            //    );
+            bool isConfilct = await _workScheduleService.ValidateScheduleConflictAsync(
+                SelectedEmployee.Id,
+                SelectedDay,
+                SelectedShift,
+                SelectedDate
+                );
 
-            //if (isConfilct)
-            //{
-            //    _notificationService?.ShowError("Lịch làm việc đã có xung đột. Vui lòng chọn lại.");
-            //    return;
-            //}
+            if (isConfilct)
+            {
+                _notificationService?.ShowError("Lịch làm việc đã có xung đột. Vui lòng chọn lại.");
+                return;
+            }
 
-            //schedule = await _workScheduleService.UpdateAsync(
-            //    new WorkSchedule
-            //    {
-            //        EmployeeId = SelectedEmployee.Id,
-            //        WorkDay = SelectedDay,
-            //        Shift = SelectedShift,
-            //        StartDate = SelectedDate,
-            //        Notes = AssignmentNotes
-            //    }
-            //);
+            schedule = await _workScheduleService.UpdateAsync(
+                new WorkSchedule
+                {
+                    EmployeeId = SelectedEmployee.Id,
+                    WorkDay = SelectedDay,
+                    Shift = SelectedShift,
+                    StartDate = SelectedDate,
+                    Notes = AssignmentNotes
+                }
+            );
 
             await LoadWeeklySchedulesAsync();
 
@@ -318,6 +333,8 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// </summary>
         private async Task DeleteScheduleAsync(WorkSchedule? schedule)
         {
+            if (_workScheduleService == null) return;
+
             // TODO (Bảo): Implement delete với user confirmation
             _notificationService.ShowActionSnackbar(
                 "Bạn có chắc chắn muốn xóa lịch làm việc này?",
@@ -329,7 +346,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
                         try
                         {
                             // Call service to delete schedule
-                            //await _workScheduleService.DeleteAsync(schedule.Id);
+                            await _workScheduleService.DeleteAsync(schedule.Id);
                             _notificationService.ShowSuccess("Đã xóa lịch làm việc thành công.");
                             // Refresh data after deletion
                             await LoadWeeklySchedulesAsync();
@@ -362,18 +379,44 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// </summary>
         private async Task RefreshDataAsync()
         {
-            // TODO (Bảo): Reload employees và schedules
-            DayOfWeek firstDayOfWeek = DayOfWeek.Monday;
-            int diff = (7 + (DateTime.Today.DayOfWeek - firstDayOfWeek)) % 7;
-            SelectedWeek = DateTime.Today.AddDays(-diff).Date;
+            try
+            {
+                if (_workScheduleService == null || _employeeService == null) 
+                {
+                    _logger?.LogWarning("Services are null during RefreshDataAsync - design-time mode");
+                    return; // design-time
+                }
 
-            Employees = new ObservableCollection<Employee>(await _employeeService.GetAllAsync());
-            //WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(SelectedWeek));
+                //Employees = new ObservableCollection<Employee>(await _employeeService.GetAllAsync());
+                //WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(SelectedWeek));
 
-            Employees = new ObservableCollection<Employee>(SampleWorkScheduleData.GetSampleEmployees());
-            WeeklySchedules = new ObservableCollection<WorkSchedule>(SampleWorkScheduleData.GetSampleSchedules());
+                //_notificationService.ShowSuccess("làm mới thành công");
 
-            _notificationService.ShowSuccess("làm mới thành công");
+                _logger?.LogInformation("Starting RefreshDataAsync...");
+
+                // Lấy tuần hiện tại (bắt đầu thứ 2)
+                int diff = (7 + (DateTime.Today.DayOfWeek - DayOfWeek.Monday)) % 7;
+                SelectedWeek = DateTime.Today.AddDays(-diff).Date;
+
+                _logger?.LogInformation("Loading employees from database...");
+                var employees = await _employeeService.GetAllAsync();
+                _logger?.LogInformation($"Loaded {employees?.Count() ?? 0} employees from database");
+                
+                Employees = new ObservableCollection<Employee>(employees ?? new List<Employee>());
+                
+                _logger?.LogInformation("Loading weekly schedules...");
+                var schedules = await _workScheduleService.GetWeeklyScheduleAsync(SelectedWeek);
+                _logger?.LogInformation($"Loaded {schedules?.Count() ?? 0} schedules for week {SelectedWeek:yyyy-MM-dd}");
+                
+                WeeklySchedules = new ObservableCollection<WorkSchedule>(schedules ?? new List<WorkSchedule>());
+
+                _notificationService?.ShowInfo($"Đã tải {Employees.Count} nhân viên và {WeeklySchedules.Count} lịch làm việc");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error in RefreshDataAsync");
+                _notificationService?.ShowError($"Lỗi tải dữ liệu: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -381,11 +424,30 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// </summary>
         private async Task LoadInitialDataAsync()
         {
-            // TODO (Bảo): Load employees và current week schedules
-            await RefreshDataAsync();
+            try
+            {
+                if (_workScheduleService == null || _employeeService == null)
+                {
+                    _logger?.LogWarning("Services are null during LoadInitialDataAsync - design-time mode");
+                    // Design-time sample only
+                    return;
+                }
 
+                _logger?.LogInformation("Starting LoadInitialDataAsync...");
+                await RefreshDataAsync();
+                _logger?.LogInformation("LoadInitialDataAsync completed successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error in LoadInitialDataAsync");
+                _notificationService?.ShowError($"Lỗi khởi tạo dữ liệu: {ex.Message}");
+            }
         }
 
         #endregion
+
+        // Helper collections for XAML binding
+        public IEnumerable<WorkDay> WorkDayValues => Enum.GetValues(typeof(WorkDay)).Cast<WorkDay>();
+        public IEnumerable<WorkShift> WorkShiftValues => Enum.GetValues(typeof(WorkShift)).Cast<WorkShift>();
     }
 } 

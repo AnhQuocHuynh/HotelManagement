@@ -142,8 +142,11 @@ public partial class App : Application
                 services.AddTransient<HotelManager.ViewModels.Common.LoginViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.Reports.RevenueReportChartViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.Reports.ReceptionistActivityReportChartViewModel>();
+                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.Reports.CleanerActivityReportChartViewModel>();
+                services.AddTransient<HotelManager.ViewModels.ManagerViewModels.Reports.MaintenanceReportChartViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.EmployeeListViewModel>();
                 services.AddTransient<HotelManager.ViewModels.ProfileViewModel>();
+
                 services.AddTransient<HotelManager.ViewModels.Dialogs.ChangePasswordDialogViewModel>();
 
                 // TODO (Tuấn): Uncomment sau khi implement WorkScheduleService
@@ -153,7 +156,7 @@ public partial class App : Application
                 // TODO (Bảo): Uncomment sau khi implement ViewModels
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>(provider =>
                     new ViewModels.ManagerViewModels.WorkScheduleManagementViewModel(
-                        null,
+                        provider.GetRequiredService<IWorkScheduleService>(),
                         provider.GetRequiredService<EmployeeService>(),
                         provider.GetRequiredService<INotificationService>(),
                         provider.GetRequiredService<ILogger<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>>()
@@ -167,6 +170,10 @@ public partial class App : Application
                         provider.GetRequiredService<ILogger<HotelManager.ViewModels.StaffViewModels.MyScheduleViewModel>>()
                     )
                 );
+
+                services.AddScoped<HotelManager.Core.Interfaces.IWorkScheduleService, HotelManager.Core.Services.WorkScheduleService>();
+                services.AddScoped<HotelManager.Core.Interfaces.IWorkScheduleRepository, HotelManager.Core.Repositories.WorkScheduleRepository>();
+                services.AddScoped<HotelManager.Core.Interfaces.IEmployeeService, HotelManager.Services.EmployeeService>();
 
                 services.AddSingleton<ICurrentUserProvider, WpfCurrentUserProvider>();
 
