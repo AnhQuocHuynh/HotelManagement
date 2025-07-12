@@ -376,6 +376,8 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// </summary>
         private async Task DeleteScheduleAsync(WorkSchedule? schedule)
         {
+            Debug.WriteLine($"[DEBUG] DeleteScheduleAsync called with id={schedule?.Id}");
+
             // TODO (Bảo): Implement delete với user confirmation
             _notificationService.ShowActionSnackbar(
                 "Bạn có chắc chắn muốn xóa lịch làm việc này?",
@@ -387,10 +389,11 @@ namespace HotelManager.ViewModels.ManagerViewModels
                         try
                         {
                             // Call service to delete schedule
-                            //await _workScheduleService.DeleteAsync(schedule.Id);
+                            await _workScheduleService.DeleteAsync(schedule.Id);
                             _notificationService.ShowSuccess("Đã xóa lịch làm việc thành công.");
                             // Refresh data after deletion
-                            await LoadWeeklySchedulesAsync();
+                            if (IsSameWeek(schedule.StartDate, SelectedWeek))
+                                LoadWeeklySchedulesAsync();
                         }
                         catch (Exception ex)
                         {
