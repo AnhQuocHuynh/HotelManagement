@@ -117,6 +117,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         /// TODO (Bảo): Command refresh data
         /// </summary>
         public ICommand RefreshCommand { get; private set; }
+        public ICommand BackCommand { get; private set; }
 
         #endregion
 
@@ -155,6 +156,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             NavigateCurrentWeekCommand = new RelayCommand(NavigateToCurrentWeek);
             ViewScheduleDetailsCommand = new AsyncRelayCommand<WorkSchedule>(ViewScheduleDetailsAsync);
             RefreshCommand = new AsyncRelayCommand(RefreshDataAsync);
+            BackCommand = new RelayCommand(Back);
 
             // TODO (Bảo): Load initial data
             _ = LoadMyScheduleAsync();
@@ -267,6 +269,21 @@ namespace HotelManager.ViewModels.StaffViewModels
             {
                 _logger?.LogError(ex, "Error refreshing data");
                 _notificationService?.ShowError("Lỗi làm mới dữ liệu");
+            }
+        }
+
+        private void Back()
+        {
+            try
+            {
+                LogInformation("Navigating back from My Schedule");
+                _navigationService?.GoBack();
+                //LogInformation("Navigation back successful");
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "Error navigating back from My Schedule");
+                _notificationService?.ShowError($"Navigation error: {ex.Message}");
             }
         }
 
