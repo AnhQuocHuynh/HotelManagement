@@ -339,15 +339,16 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// <summary>
         /// TODO (Bảo): Implement update schedule
         /// </summary>
+        private Boolean isUpdating = false;
         private async Task UpdateScheduleAsync(WorkSchedule? schedule)
         {
-            // TODO (Bảo): Implement update logic            
+            // TODO (Bảo): Implement update logic
             bool isConfilct = await _workScheduleService.ValidateScheduleConflictAsync(
                 SelectedEmployee.Id,
                 SelectedDay,
                 SelectedShift,
                 SelectedDate
-                );
+            );
 
             if (isConfilct)
             {
@@ -434,6 +435,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
             var employees = (await _employeeService.GetAllAsync()).ToList();
             Employees = new ObservableCollection<Employee>(employees);
+            SelectedEmployee = Employees.FirstOrDefault();
 
             SelectedWeek = DateTime.Today.Date;
             DateTime startDate = SelectedWeek.AddDays(SelectedWeek.DayOfWeek - DayOfWeek.Monday).Date;
