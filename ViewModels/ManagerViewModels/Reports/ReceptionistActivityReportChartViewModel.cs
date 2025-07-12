@@ -25,24 +25,16 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
-    public class ReceptionistActivityReportChartViewModel : BaseViewModel
+    public class ReceptionistActivityReportChartViewModel : BaseViewModel, IDisposable
     {
         ReceptionistService _receptionistService;
         ExportService _exportService;
 
-        // khi start date hoặc end date đổi refresh chart
-        // khi dùng time ranges sẽ set nhanh cả start với end date
-        // ==> nếu set time range nhanh cần đợi set cả start và end date xong mới refresh chart
-        private bool _isUpdatingRange = false;
-
-
-        // khi gọi constructor sẽ set giá trị cho tất cả unit, startDate, endDate, roomType
-        // ==> refresh chart bị gọi 4 lần
-        // ==> cần vô hiệu hóa refresh chart khi đang set giá trị trong constructor đến khi hoàn tất
-        private bool _isInitializing = false;
 
         // tránh gọi update data liên tục khi data chưa update xong
         private bool _isLoading = false;
+        private bool _isChanged = false;
+
 
         private ReceptionistChartData data = new ReceptionistChartData();
 
@@ -59,10 +51,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 {
                     _selectedUnit = value;
                     OnPropertyChanged(nameof(SelectedUnit));
-                    if (!_isInitializing)
-                    {
-                    _ = RefreshChartAsync();
-                    }
+                    _isChanged = true;
                 }
             }
         }
@@ -76,17 +65,17 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 if (_startDate != value)
                 {
-                    _startDate = value;
-                    OnPropertyChanged(nameof(StartDate));
-
-                    if (!_isUpdatingRange && !_isInitializing)
+                    if (value > EndDate)
                     {
-                        SelectedTimeRange = "Custom";
-
-                        _ = RefreshChartAsync();
-
-                        SetTimeBackground(false);
+                        _startDate = EndDate;
                     }
+                    else
+                    {
+                        _startDate = value;
+                    }
+                    OnPropertyChanged(nameof(StartDate));
+                    SetTimeBackground(false);
+                    _isChanged = true;
                 }
             }
         }
@@ -100,15 +89,17 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 if (_endDate != value)
                 {
-                    _endDate = value;
-                    OnPropertyChanged(nameof(EndDate));
-                    if (!_isUpdatingRange && !_isInitializing)
+                    if (value < StartDate)
                     {
-                        SelectedTimeRange = "Custom";
-                        _ = RefreshChartAsync();
-
-                        SetTimeBackground(false);
+                        _endDate = StartDate;
                     }
+                    else
+                    {
+                        _endDate = value;
+                    }
+                    OnPropertyChanged(nameof(EndDate));
+                    SetTimeBackground(false);
+                    _isChanged = true;
                 }
             }
         }
@@ -128,11 +119,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                     OnPropertyChanged(nameof(SelectedTimeRange));
                     SetTimeRange();
                     SetTimeBackground(true);
-                    if (!_isInitializing)
-                    {
-                        _ = RefreshChartAsync();
-
-                    }
+                    _isChanged = true;
                 }
             }
         }
@@ -150,8 +137,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 {
                     _selectedRoomType = value;
                     OnPropertyChanged(nameof(SelectedRoomType));
-                    if (!_isInitializing)
-                        _ = RefreshChartAsync();
+                    _isChanged = true;
 
                 }
             }
@@ -213,29 +199,38 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         // constructor
         private IServiceScope _scope;
         public ICommand ExportChartAndDataCommand { get; }
+        public ICommand ApplyFilterCommand { get; }
 
         public ReceptionistActivityReportChartViewModel()
         {
-            _isInitializing = true;
+
 
             _scope = App.ServiceProvider.CreateScope(); // GIỮ scope trong ViewModel
             var dbContext = _scope.ServiceProvider.GetRequiredService<HotelDbContext>();
             _receptionistService = new ReceptionistService(dbContext);
             _exportService = new ExportService();
 
-            UnitInit();
-            TimeRangeInit();
-            RoomTypeInit();
-
             ExportChartAndDataCommand = new RelayCommand(ExportChartAndData);
+            ApplyFilterCommand = new RelayCommand(async () =>
+            {
+                await RefreshChartAsync();
+            });
 
-            _isInitializing = false;
-            _ = RefreshChartAsync();
+            _ = InitAsync();
         }
 
         public void Dispose()
         {
             _scope?.Dispose();
+        }
+
+
+        public async Task InitAsync()
+        {
+            UnitInit();
+            TimeRangeInit();
+            RoomTypeInit();
+            await RefreshChartAsync();
         }
 
         private void ExportChartAndData() {
@@ -270,7 +265,6 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 "Last 6 months",
                 "Last 1 year",
                 "Last 3 years",
-                "Custom"
             };
             SelectedTimeRange = TimeRanges.FirstOrDefault();
         }
@@ -290,38 +284,31 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         void SetTimeRange()
         {
             DateTime today = DateTime.Today;
-            _isUpdatingRange = true;
+
+            EndDate = today;
             switch (SelectedTimeRange)
             {
                 case "Last 7 days":
-                    StartDate = DateTime.Now.AddDays(-7).Date;
-                    EndDate = today;
+                    StartDate = today.AddDays(-7);
                     break;
                 case "Last 1 month":
-                    StartDate = DateTime.Now.AddDays(-30).Date;
-                    EndDate = today;
+                    StartDate = today.AddMonths(-1);
                     break;
                 case "Last 3 months":
-                    StartDate = DateTime.Now.AddDays(-90).Date;
-                    EndDate = today;
+                    StartDate = today.AddMonths(-3);
                     break;
                 case "Last 6 months":
-                    StartDate = DateTime.Now.AddMonths(-6).Date;
-                    EndDate = today;
+                    StartDate = today.AddMonths(-6);
                     break;
                 case "Last 1 year":
-                    StartDate = DateTime.Now.AddMonths(-12).Date;
-                    EndDate = today;
+                    StartDate = today.AddYears(-1);
                     break;
                 case "Last 3 years":
-                    StartDate = DateTime.Now.AddYears(-3).Date;
-                    EndDate = today;
+                    StartDate = today.AddYears(-3);
                     break;
-                case "Custom":
-                    _isUpdatingRange = false;
+                Default:
                     return;
             }
-            _isUpdatingRange = false;
         }
 
         void SetTimeBackground(bool isTimeRange)
@@ -346,11 +333,17 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 Debug.WriteLine($"🚀 LoadDataAsync called, SelectedUnit = {SelectedUnit}");
 
+                var fixedEndDate = EndDate.Date.AddDays(1).AddTicks(-1);
+                string roomType = SelectedRoomType is RoomType rt ? rt.ToString() : SelectedRoomType?.ToString();
+
                 if (SelectedUnit == "Counting")
                 {
                     Debug.WriteLine("⚙ Counting branch selected");
                     var data = await _receptionistService.GetCountBookingByReceptionistAsync(
-                        StartDate, EndDate, SelectedRoomType?.ToString());
+                        StartDate, 
+                        fixedEndDate, 
+                        roomType
+                        );
                     Debug.WriteLine($"Load Counting: found {data.Count} receptionists");
 
                     chartData.Labels = data.Select(x => x.Key).ToArray();
@@ -362,7 +355,10 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
                 {
                     Debug.WriteLine("💰 Revenue branch selected");
                     var data = await _receptionistService.GetRevenueBreakdownByReceptionistAsync(
-                        StartDate, EndDate, SelectedRoomType?.ToString());
+                        StartDate, 
+                        fixedEndDate, 
+                        roomType
+                        );
                     Debug.WriteLine($"Load Revenue: found {data.Count} receptionists");
 
                     chartData.Labels = data.Select(x => x.Key).ToArray();
@@ -519,7 +515,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         public async Task RefreshChartAsync()
         {
             // ngane gọi refresh đến khi refresh xong
-            if (_isLoading) return;
+            if (_isLoading || !_isChanged) return;
             try
             {
                 _isLoading = true;
@@ -534,6 +530,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             finally
             {
                 _isLoading = false;
+                _isChanged = false;
             }
         }
 

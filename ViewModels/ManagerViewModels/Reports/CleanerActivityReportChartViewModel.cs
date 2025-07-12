@@ -15,39 +15,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
+using System.Windows.Media;
 
 namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
-    public class CleanerActivityReportChartViewModel : BaseViewModel
+    public class CleanerActivityReportChartViewModel : BaseViewModel, IDisposable
     {
         CleanerActivityService cleanerActivityService;
         ExportService _exportService;
 
+        private bool _isChanged = false;
+
         public ObservableCollection<string> ViewTypeOptions { get; set; }
-
-        private string _selectedViewType;
-        public string SelectedViewType
-        {
-            get => _selectedViewType;
-            set
-            {
-                if (_selectedViewType != value)
-                {
-                    _selectedViewType = value;
-                    OnPropertyChanged(nameof(SelectedViewType));
-                }
-            }
-        }
-
-        private void ViewTypeOptionsInit()
-        {
-            ViewTypeOptions = new ObservableCollection<string>
-            {
-                "Total by time",
-                "Each cleaner on time",
-            };
-            SelectedViewType = ViewTypeOptions.FirstOrDefault();
-        }
 
         private DateTime _startDate;
         public DateTime StartDate
@@ -57,8 +36,10 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 if (_startDate != value)
                 {
-                    _startDate = value;
+                    _startDate = value > EndDate ? EndDate : value;
                     OnPropertyChanged(nameof(StartDate));
+                    _isChanged = true; // Đánh dấu đã thay đổi
+                    SetTimeBackground(false);
                 }
             }
         }
@@ -72,9 +53,118 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             {
                 if (_endDate != value)
                 {
-                    _endDate = value;
+                    _endDate = value < StartDate ? StartDate : value;
                     OnPropertyChanged(nameof(EndDate));
+                    _isChanged = true; // Đánh dấu đã thay đổi
+                    SetTimeBackground(false);
                 }
+            }
+        }
+
+
+        // time ranges
+        public ObservableCollection<string> TimeRanges { get; set; }
+
+        private string _selectedTimeRange;
+        public string SelectedTimeRange
+        {
+            get => _selectedTimeRange;
+            set
+            {
+                if (_selectedTimeRange != value)
+                {
+                    _selectedTimeRange = value;
+                    OnPropertyChanged(nameof(SelectedTimeRange));
+                    SetTimeRange();
+                    SetTimeBackground(true);
+                    _isChanged = true;
+                }
+            }
+        }
+
+        // high light
+        private Brush _timeRangeBackground;
+        public Brush TimeRangeBackground
+        {
+            get => _timeRangeBackground;
+            set
+            {
+                if (_timeRangeBackground != value)
+                {
+                    _timeRangeBackground = value;
+                    OnPropertyChanged(nameof(TimeRangeBackground));
+                }
+            }
+        }
+        private Brush _dateBackground;
+        public Brush DateBackground
+        {
+            get => _dateBackground;
+            set
+            {
+                if (_dateBackground != value)
+                {
+                    _dateBackground = value;
+                    OnPropertyChanged(nameof(DateBackground));
+                }
+            }
+        }
+
+        void TimeRangeInit()
+        {
+            TimeRanges = new ObservableCollection<string>
+            {
+                "Last 7 days",
+                "Last 1 month",
+                "Last 3 months",
+                "Last 6 months",
+                "Last 1 year",
+                "Last 3 years",
+            };
+            SelectedTimeRange = TimeRanges.FirstOrDefault();
+        }
+
+        void SetTimeRange()
+        {
+            DateTime today = DateTime.Today;
+
+            EndDate = today;
+            switch (SelectedTimeRange)
+            {
+                case "Last 7 days":
+                    StartDate = today.AddDays(-7);
+                    break;
+                case "Last 1 month":
+                    StartDate = today.AddMonths(-1);
+                    break;
+                case "Last 3 months":
+                    StartDate = today.AddMonths(-3);
+                    break;
+                case "Last 6 months":
+                    StartDate = today.AddMonths(-6);
+                    break;
+                case "Last 1 year":
+                    StartDate = today.AddYears(-1);
+                    break;
+                case "Last 3 years":
+                    StartDate = today.AddYears(-3);
+                    break;
+                Default:
+                    return;
+            }
+        }
+
+        void SetTimeBackground(bool isTimeRange)
+        {
+            if (isTimeRange)
+            {
+                TimeRangeBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8CCDEB"));
+                DateBackground = Brushes.White;
+            }
+            else
+            {
+                TimeRangeBackground = Brushes.White;
+                DateBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8CCDEB"));
             }
         }
 
@@ -119,9 +209,8 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             cleanerActivityService = new CleanerActivityService(dbContext);
             _exportService = new ExportService();
 
-            ViewTypeOptionsInit();
-            StartDate = DateTime.Now.AddDays(-7);
-            EndDate = DateTime.Now;
+            TimeRangeInit();
+
 
             _ = RefreshChartAsync();
 
@@ -156,12 +245,30 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         public Dictionary<string, (int DeluxeCount, int StandardCount, int SuiteCount)> _chartData;
         private async Task FetchChartDataAsync()
         {
-            var data = await cleanerActivityService.getCountNumbersOfRoomEachCleanerCleaned(
+            DateTime fixedEndDate = EndDate.Date.AddDays(1).AddTicks(-1);
+
+
+        var data = await cleanerActivityService.getCountNumbersOfRoomEachCleanerCleaned(
                 StartDate,
-                EndDate
+                fixedEndDate
             );
 
             _chartData = data ?? new Dictionary<string, (int DeluxeCount, int StandardCount, int SuiteCount)>();
+
+            System.Diagnostics.Debug.WriteLine($"=== FetchChartDataAsync result for {StartDate:yyyy-MM-dd} to {EndDate:yyyy-MM-dd} ===");
+            if (_chartData.Any())
+            {
+                foreach (var item in _chartData)
+                {
+                    var (deluxe, standard, suite) = item.Value;
+                    System.Diagnostics.Debug.WriteLine($"Cleaner: {item.Key} | Deluxe: {deluxe}, Standard: {standard}, Suite: {suite}");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("⚠ Không có dữ liệu cleaner nào được trả về.");
+            }
+
         }
 
         // update chart
@@ -237,11 +344,11 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         private async Task RefreshChartAsync()
         {
             // ngăn khi đang refresh
-            if (_isLoading) return;
-            _isLoading = true;
+            if (_isLoading || !_isChanged) return;
 
             try
             {
+                _isLoading = true;
                 await FetchChartDataAsync();
                 //update chart sau khi đủ data
                 UpdateChart();
@@ -253,6 +360,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             finally
             {
                 _isLoading = false;
+                _isChanged = false; // Reset flag sau khi cập nhật
             }
         }
 
