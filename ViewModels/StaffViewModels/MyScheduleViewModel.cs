@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using HotelManager.Utilities;
+using Microsoft.VisualBasic;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -174,13 +175,26 @@ namespace HotelManager.ViewModels.StaffViewModels
 
                 IsLoading = true;
 
-                // TODO (Bảo): Implement loading logic
                 // 1. Calculate week start/end dates
-                // 2. Call _workScheduleService.GetEmployeeScheduleAsync
-                // 3. Update MySchedules collection
-                // 4. Handle empty results
+                int diff = (7 + (DateTime.Today.DayOfWeek - DayOfWeek.Monday)) % 7;
+                DateTime startDate = DateTime.Today.AddDays(-diff).Date;
+                DateTime endDate = startDate.AddDays(7).Date;
 
-                throw new NotImplementedException("TODO (Bảo): Implement LoadMyScheduleAsync");
+                // 2. Call service
+                var schedules = await _workScheduleService.GetEmployeeScheduleAsync(
+                    CurrentEmployeeId,
+                    startDate,
+                    endDate
+                );
+
+                // 3. Update collection
+                MySchedules = new ObservableCollection<WorkSchedule>(schedules);
+
+                // 4. Handle empty
+                if (MySchedules.Count == 0)
+                {
+                    _notificationService?.ShowInfo("Không có lịch làm việc trong tuần này");
+                }
             }
             catch (Exception ex)
             {
@@ -224,8 +238,8 @@ namespace HotelManager.ViewModels.StaffViewModels
 
                 // TODO (Bảo): Show details in popup/side panel
                 // Có thể navigate đến detail view hoặc show dialog
+                
 
-                throw new NotImplementedException("TODO (Bảo): Implement ViewScheduleDetailsAsync");
             }
             catch (Exception ex)
             {

@@ -1,3 +1,6 @@
+using HotelManager.ViewModels.ManagerViewModels;
+using HotelManager.ViewModels.ManagerViewModels.Reports;
+using Microsoft.Extensions.DependencyInjection;
 using System.Windows.Controls;
 
 namespace HotelManager.Views.ManagerViews
@@ -11,9 +14,13 @@ namespace HotelManager.Views.ManagerViews
         public WorkScheduleManagementView()
         {
             InitializeComponent();
-            
+
             // TODO (Bảo): Set DataContext nếu cần
             // Hoặc để ViewModelLocator handle việc này
+            if (App.ServiceProvider != null)
+            {
+                DataContext = App.ServiceProvider.GetRequiredService<WorkScheduleManagementViewModel>();
+            }
         }
     }
 } 

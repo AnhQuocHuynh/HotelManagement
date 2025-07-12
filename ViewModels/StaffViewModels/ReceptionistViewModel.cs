@@ -274,6 +274,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public ICommand NavigateProfileCommand { get; private set; }
         public ICommand LogoutCommand { get; private set; }
         public ICommand DeleteBookingCommand { get;private set; }
+        public ICommand NavigateMyScheduleCommand { get; private set; }
         // edit booking commands
         public ICommand EditBookingCommand { get; private set; }
         public ICommand SaveEditCommand { get; private set; }
@@ -356,6 +357,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             SearchCommand = new RelayCommand(PerformSearch);
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
             LogoutCommand = new RelayCommand(Logout);
+            NavigateMyScheduleCommand = new RelayCommand(NavigateMySchedule);
             // DeleteBookingCommand
             DeleteBookingCommand = new AsyncRelayCommand<Booking?>(
                 execute: b => DeleteAsync(b!),

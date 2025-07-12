@@ -33,6 +33,7 @@ namespace HotelManager.ViewModels.StaffViewModels
         public IRelayCommand ShowReportsCommand { get; }
         public ICommand NavigateProfileCommand { get; set; }
         public ICommand LogoutCommand { get; }
+        public ICommand NavigateWorkScheduleCommand { get; private set; }
 
         public ManagerViewModel()
         {
@@ -41,8 +42,24 @@ namespace HotelManager.ViewModels.StaffViewModels
             ShowReportsCommand = new RelayCommand(ShowReports);
             NavigateProfileCommand = new RelayCommand(NavigateProfile);
             LogoutCommand = new RelayCommand(Logout);
+            NavigateWorkScheduleCommand = new RelayCommand(NavigateWorkSchedule);
 
             ShowReports();
+        }
+
+        private void NavigateWorkSchedule()
+        {
+            if (CurrentView == "WorkSchedule")
+                return;
+
+            // Dispose old content nếu có
+            if (CurrentContent is FrameworkElement oldView && oldView.DataContext is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
+            CurrentContent = new Views.ManagerViews.WorkScheduleManagementView();
+            CurrentView = "WorkSchedule";
         }
 
         private void ShowEmployeeList()
