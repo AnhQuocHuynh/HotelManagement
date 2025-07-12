@@ -98,6 +98,8 @@ namespace HotelManager.ViewModels
                 CurrentView = new Views.ProfileView();
             else if (viewModel is LoginViewModel)
                 CurrentView = new Views.Common.LoginView();
+            else if (viewModel is StaffViewModels.MyScheduleViewModel)
+                CurrentView = new Views.StaffViews.MyScheduleView();
             else
                 CurrentView = new Views.HomeView();
         }

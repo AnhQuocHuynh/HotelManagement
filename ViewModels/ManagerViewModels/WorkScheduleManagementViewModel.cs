@@ -17,6 +17,24 @@ using System.Diagnostics;
 namespace HotelManager.ViewModels.ManagerViewModels
 {
     /// <summary>
+    /// Option class cho WorkDay binding
+    /// </summary>
+    public class WorkDayOption
+    {
+        public WorkDay Value { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Option class cho WorkShift binding
+    /// </summary>
+    public class WorkShiftOption
+    {
+        public WorkShift Value { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
+    }
+
+    /// <summary>
     /// ViewModel cho Manager quản lý lịch làm việc
     /// TODO (Bảo): Implement tất cả properties và commands với proper data binding
     /// </summary>
@@ -122,6 +140,31 @@ namespace HotelManager.ViewModels.ManagerViewModels
             set { _assignmentNotes = value; OnPropertyChanged(); }
         }
 
+        /// <summary>
+        /// Danh sách các ngày trong tuần cho ComboBox
+        /// </summary>
+        public ObservableCollection<WorkDayOption> WorkDays { get; } = new()
+        {
+            new WorkDayOption { Value = WorkDay.Monday, DisplayName = "Thứ 2" },
+            new WorkDayOption { Value = WorkDay.Tuesday, DisplayName = "Thứ 3" },
+            new WorkDayOption { Value = WorkDay.Wednesday, DisplayName = "Thứ 4" },
+            new WorkDayOption { Value = WorkDay.Thursday, DisplayName = "Thứ 5" },
+            new WorkDayOption { Value = WorkDay.Friday, DisplayName = "Thứ 6" },
+            new WorkDayOption { Value = WorkDay.Saturday, DisplayName = "Thứ 7" },
+            new WorkDayOption { Value = WorkDay.Sunday, DisplayName = "Chủ Nhật" }
+        };
+
+        /// <summary>
+        /// Danh sách các ca làm việc cho ComboBox
+        /// </summary>
+        public ObservableCollection<WorkShiftOption> WorkShifts { get; } = new()
+        {
+            new WorkShiftOption { Value = WorkShift.Morning, DisplayName = "Ca Sáng" },
+            new WorkShiftOption { Value = WorkShift.Afternoon, DisplayName = "Ca Chiều" },
+            new WorkShiftOption { Value = WorkShift.Evening, DisplayName = "Ca Tối" },
+            new WorkShiftOption { Value = WorkShift.Night, DisplayName = "Ca Đêm" }
+        };
+
         #endregion
 
 
@@ -219,6 +262,19 @@ namespace HotelManager.ViewModels.ManagerViewModels
         {
             try
             {
+                // Validate services
+                if (_workScheduleService == null)
+                {
+                    _notificationService?.ShowError("WorkScheduleService chưa được khởi tạo");
+                    return;
+                }
+
+                if (SelectedEmployee == null)
+                {
+                    _notificationService?.ShowError("Vui lòng chọn nhân viên");
+                    return;
+                }
+
                 // TODO (Bảo): Implement assignment logic
                 // 1. Validate input
                 bool isConfilct = await _workScheduleService.ValidateScheduleConflictAsync(

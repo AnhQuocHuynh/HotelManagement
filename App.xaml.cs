@@ -156,7 +156,7 @@ public partial class App : Application
                 // TODO (Bảo): Uncomment sau khi implement ViewModels
                 services.AddTransient<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>(provider =>
                     new ViewModels.ManagerViewModels.WorkScheduleManagementViewModel(
-                        null,
+                        provider.GetRequiredService<HotelManager.Core.Interfaces.IWorkScheduleService>(),
                         provider.GetRequiredService<EmployeeService>(),
                         provider.GetRequiredService<INotificationService>(),
                         provider.GetRequiredService<ILogger<HotelManager.ViewModels.ManagerViewModels.WorkScheduleManagementViewModel>>()
@@ -165,7 +165,7 @@ public partial class App : Application
 
                 services.AddTransient<HotelManager.ViewModels.StaffViewModels.MyScheduleViewModel>(provider =>
                     new ViewModels.StaffViewModels.MyScheduleViewModel(
-                        null,
+                        provider.GetRequiredService<HotelManager.Core.Interfaces.IWorkScheduleService>(),
                         provider.GetRequiredService<INotificationService>(),
                         provider.GetRequiredService<ILogger<HotelManager.ViewModels.StaffViewModels.MyScheduleViewModel>>()
                     )

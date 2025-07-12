@@ -1108,6 +1108,11 @@ namespace HotelManager.ViewModels.StaffViewModels
             mainVM?.Logout();
         }
 
+        private void NavigateMySchedule()
+        {
+            _navigationService.NavigateTo<MyScheduleViewModel>();
+        }
+
         // Method to load booking details for editing
         private void LoadBookingForEdit(Booking booking)
         {
