@@ -46,7 +46,7 @@
 
                     <TextBlock Grid.Column="0"
                            VerticalAlignment="Center"
-                           Text="QUẢN LÝ LỊCH LÀM VIỆC"
+                           Text="WORK SCHEDULE MANAGEMENT"
                            Foreground="White"
                            Style="{StaticResource MaterialDesignHeadline4TextBlock}"
                            HorizontalAlignment="Left" Margin="20,0,0,0"/>
@@ -56,14 +56,14 @@
                            HorizontalAlignment="Center">
                         <materialDesign:Card Margin="5" Padding="15">
                             <StackPanel>
-                                <TextBlock Text="Tổng Nhân Viên" Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                                <TextBlock Text="Employees" Style="{StaticResource MaterialDesignBody2TextBlock}"/>
                                 <TextBlock Text="{Binding Employees.Count}" Style="{StaticResource MaterialDesignHeadline6TextBlock}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </materialDesign:Card>
 
                         <materialDesign:Card Margin="5" Padding="15">
                             <StackPanel>
-                                <TextBlock Text="Lịch Tuần Này" Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                                <TextBlock Text="This week schedule" Style="{StaticResource MaterialDesignBody2TextBlock}"/>
                                 <TextBlock Text="{Binding WeeklySchedules.Count}" Style="{StaticResource MaterialDesignHeadline6TextBlock}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </materialDesign:Card>
@@ -74,7 +74,7 @@
             <!-- Assignment Section -->
             <materialDesign:Card Grid.Row="1" Padding="20" Margin="0,0,0,10">
                 <StackPanel>
-                    <TextBlock Text="PHÂN CÔNG LỊCH LÀM VIỆC" 
+                    <TextBlock Text="ASSIGN SCHEDULES" 
                           Style="{StaticResource MaterialDesignHeadline6TextBlock}" 
                           Margin="0,0,0,15"/>
 
@@ -89,38 +89,38 @@
 
                         <!-- TODO (Bảo): Bind properties vào controls -->
                         <ComboBox Grid.Column="0" 
-                             materialDesign:HintAssist.Hint="Chọn Nhân Viên"
+                             materialDesign:HintAssist.Hint="Employee"
                              ItemsSource="{Binding Employees}"
                              SelectedItem="{Binding SelectedEmployee}"
                              DisplayMemberPath="FullName"/>
 
                         <ComboBox Grid.Column="1" 
-                             materialDesign:HintAssist.Hint="Ngày Trong Tuần"
+                             materialDesign:HintAssist.Hint="Work day"
                              ItemsSource="{Binding WorkDays}"
                              SelectedValue="{Binding SelectedDay}"
                              SelectedValuePath="Value"
                              DisplayMemberPath="DisplayName"/>
 
                         <ComboBox Grid.Column="2" 
-                             materialDesign:HintAssist.Hint="Ca Làm Việc"
+                             materialDesign:HintAssist.Hint="Work shift"
                              ItemsSource="{Binding WorkShifts}"
                              SelectedValue="{Binding SelectedShift}"
                              SelectedValuePath="Value"
                              DisplayMemberPath="DisplayName"/>
 
                         <DatePicker Grid.Column="3" 
-                               materialDesign:HintAssist.Hint="Ngày Bắt Đầu"
+                               materialDesign:HintAssist.Hint="Start date"
                                SelectedDate="{Binding SelectedDate}"/>
 
                         <Button Grid.Column="4" 
-                           Content="PHÂN CÔNG"
+                           Content="Assign"
                             Margin="10"
                            Command="{Binding AssignScheduleCommand}"
                            Style="{StaticResource MaterialDesignContainedButton}"/>
                     </Grid>
 
                     <!-- TODO (Bảo): Thêm TextBox cho notes -->
-                    <TextBox materialDesign:HintAssist.Hint="Ghi Chú (Tùy Chọn)"
+                    <TextBox materialDesign:HintAssist.Hint="Notes"
                         Text="{Binding AssignmentNotes}"
                         Margin="0,10,0,0"/>
                 </StackPanel>
@@ -145,7 +145,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="1" 
-                           Content="❮ TUẦN TRƯỚC"
+                           Content="❮ LAST WEEK"
                            Command="{Binding NavigatePreviousWeekCommand}"
                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             Margin="20,0"/>
@@ -157,13 +157,13 @@
                                 Margin="20,0"/>
 
                         <Button Grid.Column="3" 
-                           Content="TUẦN SAU ❯"
+                           Content="NEXT WEEK ❯"
                            Command="{Binding NavigateNextWeekCommand}"
                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             Margin="20,0"/>
 
                         <Button Grid.Column="4" 
-                           Content="🔄 LÀM MỚI"
+                           Content="🔄 REFRESH"
                            Command="{Binding RefreshCommand}"
                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             Margin="20,0"/>
@@ -177,27 +177,30 @@
                          AutoGenerateColumns="False"
                          CanUserAddRows="False">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Nhân Viên" 
+                            <DataGridTextColumn Header="Employee" 
                                            Binding="{Binding Employee.FullName}" 
                                            Width="150"/>
-                            <DataGridTextColumn Header="Ngày" 
+                            <DataGridTextColumn Header="Position" 
+                                           Binding="{Binding Employee.Position}" 
+                                           Width="150"/>
+                            <DataGridTextColumn Header="Work day" 
                                            Binding="{Binding WorkDay}" 
                                            Width="100"/>
-                            <DataGridTextColumn Header="Ca Làm" 
+                            <DataGridTextColumn Header="Work shift" 
                                            Binding="{Binding Shift}" 
                                            Width="100"/>
-                            <DataGridTextColumn Header="Ngày Bắt Đầu" 
+                            <DataGridTextColumn Header="Start date" 
                                            Binding="{Binding StartDate, StringFormat=dd/MM/yyyy}" 
                                            Width="120"/>
-                            <DataGridTextColumn Header="Trạng Thái" 
+                            <DataGridTextColumn Header="Status" 
                                            Binding="{Binding Status}" 
                                            Width="100"/>
-                            <DataGridTextColumn Header="Ghi Chú" 
+                            <DataGridTextColumn Header="Notes" 
                                            Binding="{Binding Notes}" 
                                            Width="*"/>
 
                             <!-- TODO (Bảo): Thêm action buttons -->
-                            <DataGridTemplateColumn Header="Thao Tác" Width="150">
+                            <DataGridTemplateColumn Header="Actions" Width="150">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">

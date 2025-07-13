@@ -57,10 +57,23 @@
                 <!-- TODO (Bảo): Thêm summary statistics cards -->
                 <WrapPanel Grid.Column="1"
                            HorizontalAlignment="Center">
+                    <!-- Back Button -->
+                    <Button Grid.Column="1"
+                            Command="{Binding BackCommand}"
+                            Style="{StaticResource ContainedButton}"
+                            Background="White"
+                            Foreground="{StaticResource PrimaryBrush}"
+                            FontWeight="SemiBold"
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="ArrowLeft" Width="20" Height="20" Margin="0,0,8,0"/>
+                            <TextBlock Text="Back"/>
+                        </StackPanel>
+                    </Button>
 
-                    <materialDesign:Card Margin="5" Padding="15">
+                    <materialDesign:Card Margin="20,5" Padding="15">
                         <StackPanel>
-                            <TextBlock Text="Lịch Tuần Này" 
+                            <TextBlock Text="This week Schedule" 
                                        Style="{StaticResource MaterialDesignBody2TextBlock}"/>
                             <TextBlock Text="{Binding MySchedules.Count}" 
                                        Style="{StaticResource MaterialDesignHeadline6TextBlock}" 
@@ -90,7 +103,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Button Grid.Column="1" 
-                           Content="❮ TUẦN TRƯỚC"
+                           Content="❮ LAST WEEK"
                            Command="{Binding NavigatePreviousWeekCommand}"
                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             Margin="20,0"/>
@@ -102,13 +115,13 @@
                               Margin="20,0"/>
 
                     <Button Grid.Column="3" 
-                           Content="TUẦN SAU ❯"
+                           Content="NEXT WEEK ❯"
                            Command="{Binding NavigateNextWeekCommand}"
                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             Margin="20,0"/>
 
                     <Button Grid.Column="4" 
-                           Content="🔄 LÀM MỚI"
+                           Content="🔄 REFRESH"
                            Command="{Binding RefreshCommand}"
                            Style="{StaticResource MaterialDesignOutlinedButton}"
                             Margin="20,0"/>
@@ -121,27 +134,30 @@
                          AutoGenerateColumns="False"
                          CanUserAddRows="False">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Nhân Viên" 
+                        <DataGridTextColumn Header="Name" 
                                            Binding="{Binding Employee.FullName}" 
                                            Width="150"/>
-                        <DataGridTextColumn Header="Ngày" 
+                        <DataGridTextColumn Header="Position"
+                                            Binding="{Binding Employee.Position}"
+                                            Width="100"/>
+                        <DataGridTextColumn Header="Work day" 
                                            Binding="{Binding WorkDay}" 
                                            Width="100"/>
-                        <DataGridTextColumn Header="Ca Làm" 
+                        <DataGridTextColumn Header="Work shift" 
                                            Binding="{Binding Shift}" 
                                            Width="100"/>
-                        <DataGridTextColumn Header="Ngày Bắt Đầu" 
+                        <DataGridTextColumn Header="Start date" 
                                            Binding="{Binding StartDate, StringFormat=dd/MM/yyyy}" 
                                            Width="120"/>
-                        <DataGridTextColumn Header="Trạng Thái" 
+                        <DataGridTextColumn Header="Status" 
                                            Binding="{Binding Status}" 
                                            Width="100"/>
-                        <DataGridTextColumn Header="Ghi Chú" 
+                        <DataGridTextColumn Header="Notes" 
                                            Binding="{Binding Notes}" 
                                            Width="*"/>
 
                         <!-- TODO (Bảo): Thêm action buttons -->
-                        <DataGridTemplateColumn Header="Thao Tác" Width="150">
+                        <DataGridTemplateColumn Header="Actions" Width="150">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
