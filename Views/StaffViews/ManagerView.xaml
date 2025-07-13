@@ -155,15 +155,15 @@
                                     <ScaleTransform/>
                                 </materialDesign:Card.RenderTransform>
                                 <StackPanel Margin="24" HorizontalAlignment="Center">
-                                    <materialDesign:PackIcon Kind="ScheduledMaintenance" 
+                                    <materialDesign:PackIcon Kind="Timetable" 
                                                    Width="40" Height="40" 
                                                    Foreground="{StaticResource PrimaryBrush}"
                                                    HorizontalAlignment="Center"/>
-                                    <TextBlock Text="Dashboard" 
+                                    <TextBlock Text="Schedule" 
                                      Style="{StaticResource TitleLarge}" 
                                      HorizontalAlignment="Center" 
                                      Margin="0,16,0,0"/>
-                                    <TextBlock Text="Overview &amp; Analytics" 
+                                    <TextBlock Text="Work Schedule Management" 
                                      Style="{StaticResource BodyMedium}" 
                                      Foreground="{DynamicResource OnSurface600Brush}"
                                      HorizontalAlignment="Center"/>
