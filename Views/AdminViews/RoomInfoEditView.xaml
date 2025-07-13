@@ -4,53 +4,74 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HotelManager.Views"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="RoomInfoEditView" Height="450" Width="800">
+        Title="Edit Room Information" Height="700" Width="600"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
     <Border Background="White"
             BorderBrush="{StaticResource PrimaryBrush}"
-            BorderThickness="10"
+            BorderThickness="2"
             CornerRadius="8">
 
-        <StackPanel Margin="20" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+        <StackPanel Margin="24" VerticalAlignment="Center" HorizontalAlignment="Stretch">
             <TextBlock Text="Edit Room Information"
-                       FontSize="20"
+                       FontSize="24"
                        Foreground="{StaticResource PrimaryBrush}"
                        FontWeight="Bold"
-                       Margin="0,0,0,20"
+                       Margin="0,0,0,24"
                        HorizontalAlignment="Center"/>
 
-            <TextBlock Text="Room Number:" Foreground="{StaticResource SecondaryBrush}" />
-            <TextBlock Text="{Binding EditableRoom.RoomNumber}"
-           FontWeight="Bold"
-           Foreground="Black"
-           Margin="0,5,0,10"/>
+            <StackPanel Grid.Row="0" Margin="20">
+                <TextBlock Text="Room Number:" 
+                           Style="{StaticResource MaterialDesignBody1TextBlock}"
+                           Margin="0,0,0,5"/>
+                <TextBox Text="{Binding EditableRoom.RoomNumber, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         IsReadOnly="True"
+                         Background="{StaticResource MaterialDesignPaper}"
+                         Foreground="{StaticResource MaterialDesignBody}"/>
+            </StackPanel>
 
-            <TextBlock Text="Room Type:" Foreground="{StaticResource SecondaryBrush}" />
+            <TextBlock Text="Room Type:" 
+                       Style="{StaticResource LabelLarge}"
+                       Foreground="{StaticResource OnSurfaceBrush}" 
+                       Margin="0,0,0,8"/>
             <ComboBox ItemsSource="{Binding RoomTypes}"
                       SelectedItem="{Binding EditableRoom.RoomType}"
-                      Margin="0,5,0,10"/>
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      materialDesign:HintAssist.Hint="Select room type"
+                      Margin="0,0,0,16"/>
 
-            <TextBlock Text="Status:" Foreground="{StaticResource SecondaryBrush}" />
+            <TextBlock Text="Status:" 
+                       Style="{StaticResource LabelLarge}"
+                       Foreground="{StaticResource OnSurfaceBrush}" 
+                       Margin="0,0,0,8"/>
             <ComboBox ItemsSource="{Binding RoomStatuses}"
                       SelectedItem="{Binding EditableRoom.RoomStatus}"
-                      Margin="0,5,0,10"/>
+                      Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                      materialDesign:HintAssist.Hint="Select room status"
+                      Margin="0,0,0,16"/>
 
-            <TextBlock Text="Price per Night:" Foreground="{StaticResource SecondaryBrush}" />
+            <TextBlock Text="Price per Night:" 
+                       Style="{StaticResource LabelLarge}"
+                       Foreground="{StaticResource OnSurfaceBrush}" 
+                       Margin="0,0,0,8"/>
             <TextBox Text="{Binding EditableRoom.PricePerNight, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="0,5,0,20"/>
+                     Style="{StaticResource OutlinedTextField}"
+                     materialDesign:HintAssist.Hint="Enter price per night"
+                     Margin="0,0,0,24"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Save"
-                        Command="{Binding SaveCommand}"
-                        Background="{StaticResource PrimaryBrush}"
-                        Foreground="White"
-                        Padding="10,5"
-                        Margin="0,0,10,0"/>
                 <Button Content="Cancel"
                         Command="{Binding CancelCommand}"
-                        Background="{StaticResource AccentBrush}"
-                        Foreground="White"
-                        Padding="10,5"/>
+                        Style="{StaticResource OutlinedButton}"
+                        Margin="0,0,12,0"
+                        Padding="16,8"/>
+                <Button Content="Save"
+                        Command="{Binding SaveCommand}"
+                        Style="{StaticResource ContainedButton}"
+                        Padding="16,8"/>
             </StackPanel>
         </StackPanel>
     </Border>

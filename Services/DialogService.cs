@@ -1,6 +1,7 @@
 using HotelManager.Interfaces;
 using System.Windows;
 using HotelManager.Views;
+using System;
 
 namespace HotelManager.Services
 {
@@ -10,7 +11,7 @@ namespace HotelManager.Services
         {
             Window? window = null;
 
-            if (viewModel is ViewModels.EmployeeEditViewModel)
+            if (viewModel is ViewModels.EmployeeEditViewModel employeeEditViewModel)
             {
                 window = new EmployeeEditView
                 {
@@ -20,6 +21,21 @@ namespace HotelManager.Services
                     ResizeMode = ResizeMode.NoResize,
                     ShowInTaskbar = false
                 };
+
+                // Set up the close action for the view model
+                employeeEditViewModel.CloseAction = () =>
+                {
+                    Console.WriteLine($"DialogService: CloseAction called for EmployeeEditViewModel. DialogResult: {employeeEditViewModel.DialogResult}");
+                    if (employeeEditViewModel.DialogResult.HasValue)
+                    {
+                        window.DialogResult = employeeEditViewModel.DialogResult.Value;
+                        Console.WriteLine($"DialogService: Set window.DialogResult to {employeeEditViewModel.DialogResult.Value}");
+                    }
+                    window.Close();
+                    Console.WriteLine("DialogService: Called window.Close()");
+                };
+                
+                Console.WriteLine("DialogService: Set up CloseAction for EmployeeEditViewModel");
             }
             else if (viewModel is ViewModels.Admin.AccountCreateViewModel)
             {
@@ -32,7 +48,7 @@ namespace HotelManager.Services
                     ShowInTaskbar = false
                 };
             }
-            else if (viewModel is ViewModels.RoomInfoEditViewModel)
+            else if (viewModel is ViewModels.RoomInfoEditViewModel roomEditViewModel)
             {
                 window = new RoomInfoEditView
                 {
@@ -42,24 +58,51 @@ namespace HotelManager.Services
                     ResizeMode = ResizeMode.NoResize,
                     ShowInTaskbar = false
                 };
-            }
-            else
-            {
-                // fallback generic window
-                window = new Window
+
+                // Set up the close action for the view model
+                roomEditViewModel.CloseAction = (result) =>
                 {
-                    Content = new System.Windows.Controls.ContentControl { DataContext = viewModel },
+                    window.DialogResult = result;
+                    window.Close();
+                };
+            }
+            else if (viewModel is ViewModels.Admin.AccountCreateViewModel accountCreateViewModel)
+            {
+                window = new AccountCreateView
+                {
+                    DataContext = viewModel,
                     Owner = Application.Current.MainWindow,
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
                     ResizeMode = ResizeMode.NoResize,
-                    ShowInTaskbar = false,
-                    Width = 400,
-                    Height = 300,
-                    Title = "Dialog"
+                    ShowInTaskbar = false
                 };
+
+                // Set up the close action for the view model
+                accountCreateViewModel.CloseAction = () =>
+                {
+                    Console.WriteLine($"DialogService: CloseAction called for AccountCreateViewModel. DialogResult: {accountCreateViewModel.DialogResult}");
+                    if (accountCreateViewModel.DialogResult.HasValue)
+                    {
+                        window.DialogResult = accountCreateViewModel.DialogResult.Value;
+                        Console.WriteLine($"DialogService: Set window.DialogResult to {accountCreateViewModel.DialogResult.Value}");
+                    }
+                    window.Close();
+                    Console.WriteLine("DialogService: Called window.Close()");
+                };
+                
+                Console.WriteLine("DialogService: Set up CloseAction for AccountCreateViewModel");
+            }
+            else
+            {
+                throw new ArgumentException($"Unsupported view model type: {typeof(TViewModel).Name}");
             }
 
-            return window.ShowDialog();
+            if (window != null)
+            {
+                return window.ShowDialog();
+            }
+
+            return false;
         }
     }
 } 

@@ -23,19 +23,6 @@ namespace HotelManager.Views
         public EmployeeEditView()
         {
             InitializeComponent();
-            Loaded += EmployeeEditView_Loaded;
-        }
-
-        private void EmployeeEditView_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is ViewModels.EmployeeEditViewModel vm)
-            {
-                vm.CloseAction = () =>
-                {
-                    this.DialogResult = vm.DialogResult;
-                    this.Close();
-                };
-            }
         }
     }
 }

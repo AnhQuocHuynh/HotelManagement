@@ -15,21 +15,41 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace HotelManager.ViewModels
 {
-    internal class RoomInfoEditViewModel : BaseViewModel
+    public class RoomInfoEditViewModel : BaseViewModel
     {
         private readonly RoomService _roomService;
-        public Room EditableRoom { get; set; }
+        private Room _editableRoom;
         private readonly Room _originalRoom;
+        private bool? _dialogResult;
 
-        public IEnumerable<KeyValuePair<RoomStatus, string>> LocalizedRoomStatuses { get; }
+        public Room EditableRoom 
+        { 
+            get => _editableRoom;
+            set
+            {
+                _editableRoom = value;
+                OnPropertyChanged(nameof(EditableRoom));
+            }
+        }
+
+        public bool? DialogResult 
+        { 
+            get => _dialogResult;
+            set
+            {
+                _dialogResult = value;
+                OnPropertyChanged(nameof(DialogResult));
+            }
+        }
       
+        public IEnumerable<KeyValuePair<RoomStatus, string>> LocalizedRoomStatuses { get; }
+
         public IEnumerable<RoomStatus> RoomStatuses { get; } = EnumHelper.RoomStatuses;
 
         public IEnumerable<RoomType> RoomTypes { get; } = EnumHelper.RoomTypes;
         public ICommand SaveCommand { get; set; }
         public ICommand CancelCommand { get; set; }
-        public bool? DialogResult { get;  set; }
-        public Action? CloseAction { get; set; } // Action to close the dialog if needed
+        public Action<bool?>? CloseAction { get; set; } // Action to close the dialog with result
 
         public RoomInfoEditViewModel(Room room, RoomService roomService)
         {
@@ -49,8 +69,8 @@ namespace HotelManager.ViewModels
 
         private void Cancel()
         {
-            DialogResult = false;
-            CloseAction?.Invoke();
+            // Close the dialog with false result
+            CloseAction?.Invoke(false);
         }
 
         private async Task Save()
@@ -64,19 +84,19 @@ namespace HotelManager.ViewModels
             try
             {
                 //Áp dụng thay đổi vào original room
-                _originalRoom.RoomNumber = EditableRoom.RoomNumber;
                 _originalRoom.RoomType = EditableRoom.RoomType;
                 _originalRoom.RoomStatus = EditableRoom.RoomStatus;
                 _originalRoom.PricePerNight = EditableRoom.PricePerNight;
                 //Update csdl
                 await _roomService.UpdateAsync(_originalRoom);
-                MessageBox.Show("Thông tin phòng đã được cập nhật.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-                DialogResult = true;
-                CloseAction?.Invoke();
+                MessageBox.Show("Thông tin phòng đã được cập nhật thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                // Close the dialog with true result
+                CloseAction?.Invoke(true);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi cập nhật: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Lỗi khi cập nhật thông tin phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

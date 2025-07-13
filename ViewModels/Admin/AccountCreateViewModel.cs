@@ -29,8 +29,28 @@ namespace HotelManager.ViewModels.Admin
         public event Action? AccountCreatedSuccessfully;
 
         public Employee Employee { get; set; }
-        public Action? CloseAction { get; set; }
-        public bool? DialogResult { get; set; }
+        
+        private Action? _closeAction;
+        public Action? CloseAction 
+        { 
+            get => _closeAction;
+            set
+            {
+                _closeAction = value;
+                Console.WriteLine($"AccountCreateViewModel: CloseAction set to {(value != null ? "non-null" : "null")}");
+            }
+        }
+
+        private bool? _dialogResult;
+        public bool? DialogResult 
+        { 
+            get => _dialogResult;
+            set
+            {
+                _dialogResult = value;
+                OnPropertyChanged(nameof(DialogResult));
+            }
+        }
 
         private string _username = string.Empty;
         public string Username
@@ -102,6 +122,7 @@ namespace HotelManager.ViewModels.Admin
             SaveCommand = new AsyncRelayCommand(SaveAsync);
             CancelCommand = new RelayCommand(Cancel);
 
+            Console.WriteLine("AccountCreateViewModel: Constructor called");
         }
 
         private string GetError(string propertyName) =>
@@ -187,6 +208,7 @@ namespace HotelManager.ViewModels.Admin
                 AccountCreatedSuccessfully?.Invoke();
                 
                 DialogResult = true;
+                Console.WriteLine("AccountCreateViewModel: Setting DialogResult to true and calling CloseAction");
                 CloseAction?.Invoke();
             }
             catch (Exception ex)
@@ -198,8 +220,19 @@ namespace HotelManager.ViewModels.Admin
 
         private void Cancel()
         {
+            Console.WriteLine("AccountCreateViewModel: Cancel method called");
             DialogResult = false;
-            CloseAction?.Invoke();
+            Console.WriteLine($"AccountCreateViewModel: DialogResult set to false, CloseAction is {(CloseAction != null ? "not null" : "null")}");
+            if (CloseAction != null)
+            {
+                Console.WriteLine("AccountCreateViewModel: Calling CloseAction");
+                CloseAction.Invoke();
+                Console.WriteLine("AccountCreateViewModel: CloseAction called successfully");
+            }
+            else
+            {
+                Console.WriteLine("AccountCreateViewModel: CloseAction is null, cannot close dialog");
+            }
         }
     }
 } 

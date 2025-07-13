@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using HotelManager.ViewModels.Admin;
 using MaterialDesignThemes.Wpf;
+using System;
 
 namespace HotelManager.Views
 {
@@ -19,6 +20,15 @@ namespace HotelManager.Views
             {
                 // Subscribe to success event
                 vm.AccountCreatedSuccessfully += OnAccountCreatedSuccessfully;
+                
+                // Set up close action for dialog closing
+                vm.CloseAction = () =>
+                {
+                    Console.WriteLine("AccountCreateView: CloseAction called from view");
+                    this.DialogResult = vm.DialogResult;
+                    this.Close();
+                    Console.WriteLine("AccountCreateView: Dialog closed");
+                };
             }
         }
 

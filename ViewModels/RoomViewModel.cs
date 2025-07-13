@@ -193,7 +193,7 @@ namespace HotelManager.ViewModels
 
         private void InitializeViewModel()
         {
-            UpdateCommand = new RelayCommand<object>(_ => UpdateRoom(_selectedRoom));
+            UpdateCommand = new AsyncRelayCommand<object>(async _ => await UpdateRoomAsync(_selectedRoom));
             DeleteCommand = new RelayCommand<object>(_ => DeleteRoom(_selectedRoom));
             AddCommand = new AsyncRelayCommand(AddRoom);
             SearchCommand = new RelayCommand(FilterRooms);
@@ -337,7 +337,7 @@ namespace HotelManager.ViewModels
             }
         }
 
-        private void UpdateRoom(Room selectedRoom)
+        private async Task UpdateRoomAsync(Room selectedRoom)
         {
             // Logic to update room
             if(selectedRoom == null)
@@ -345,26 +345,36 @@ namespace HotelManager.ViewModels
                 MessageBox.Show("Vui lòng chọn một phòng để cập nhật.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            var editVM = new RoomInfoEditViewModel(selectedRoom, roomService);
-            var dialog = _dialogService.ShowDialog(editVM);
-            if (dialog == true)
+            
+            try
             {
-                // Refresh the room list after update
-                LoadRooms();
+                var editVM = new RoomInfoEditViewModel(selectedRoom, roomService);
+                var dialog = _dialogService.ShowDialog(editVM);
+                if (dialog == true)
+                {
+                    // Refresh the room list after update
+                    await RefreshRoomsAsync();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Cập nhật phòng không thành công.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"Lỗi khi mở dialog chỉnh sửa phòng: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void FilterRooms()
         {
+            Console.WriteLine($"FilterRooms called. RoomFilter: '{RoomFilter}', _allRooms count: {_allRooms.Count}");
+            
             var filtered = string.IsNullOrWhiteSpace(RoomFilter)
                 ? _allRooms
                 : _allRooms.Where(r => r.RoomNumber.Contains(RoomFilter, StringComparison.OrdinalIgnoreCase));
 
+            Console.WriteLine($"Filtered result count: {filtered.Count()}");
+            
             Rooms = new ObservableCollection<Room>(filtered);
+            Console.WriteLine($"Updated Rooms ObservableCollection with {Rooms.Count} rooms");
+            
             // Đảm bảo cập nhật các property thống kê
             OnPropertyChanged(nameof(TotalRooms));
             OnPropertyChanged(nameof(AvailableRooms));
@@ -379,6 +389,27 @@ namespace HotelManager.ViewModels
             RoomType = RoomType.Standard;
             PricePerNight = 0m;
             SelectedRoom = null;
+        }
+
+        private async Task RefreshRoomsAsync()
+        {
+            try
+            {
+                Console.WriteLine("Refreshing rooms...");
+                var rooms = await roomService.GetAllAsync();
+                Console.WriteLine($"Retrieved {rooms.Count()} rooms from database");
+                
+                _allRooms = rooms.ToList(); // Lưu trữ dữ liệu chưa lọc
+                Console.WriteLine($"Updated _allRooms with {_allRooms.Count} rooms");
+                
+                FilterRooms(); // Lọc dữ liệu ban đầu
+                Console.WriteLine($"Filtered rooms: {Rooms.Count} rooms in UI");
+            }
+            catch (Exception ex)
+            {
+                // xử lý exceptions (e.g., log them, show a message to the user)
+                Console.WriteLine($"Error refreshing rooms: {ex.Message}");
+            }
         }
 
         public void RefreshRooms() => LoadRooms();

@@ -38,7 +38,17 @@ namespace HotelManager.ViewModels
         public ICommand CancelCommand { get; }
 
         public Action CloseAction { get; set; } // Action to close the dialog if needed
-        public bool? DialogResult { get; set; } // To indicate if the dialog was accepted or canceled
+        
+        private bool? _dialogResult;
+        public bool? DialogResult 
+        { 
+            get => _dialogResult;
+            set
+            {
+                _dialogResult = value;
+                OnPropertyChanged(nameof(DialogResult));
+            }
+        }
 
         public EmployeeEditViewModel(Employee employee, EmployeeService employeeService)
         {
@@ -121,12 +131,14 @@ namespace HotelManager.ViewModels
             MessageBox.Show("Employee updated.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
             DialogResult = true; // Indicate success
+            Console.WriteLine("EmployeeEditViewModel: Setting DialogResult to true and calling CloseAction");
             CloseAction?.Invoke(); // Close the dialog if applicable
         }
 
         private void Cancel()
         {
             DialogResult = false; // Indicate cancellation
+            Console.WriteLine("EmployeeEditViewModel: Setting DialogResult to false and calling CloseAction");
             CloseAction?.Invoke(); // Close the dialog if applicable
         }
     }

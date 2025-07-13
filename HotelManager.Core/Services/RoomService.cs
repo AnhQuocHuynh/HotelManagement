@@ -100,10 +100,26 @@ namespace HotelManager.Services
             try
             {
                 _logger.LogInformation("Updating room. RoomNumber: {RoomNumber}", entity.RoomNumber);
-                await _unitOfWork.Rooms.UpdateAsync(entity);
-                await _unitOfWork.SaveChangesAsync();
+                
+                // Get the existing room from database
+                var existingRoom = await _dbContext.Rooms.FindAsync(entity.RoomNumber);
+                if (existingRoom == null)
+                {
+                    _logger.LogWarning("Room not found for update. RoomNumber: {RoomNumber}", entity.RoomNumber);
+                    throw new EntityNotFoundException("Room", entity.RoomNumber);
+                }
+
+                // Update the properties
+                existingRoom.RoomType = entity.RoomType;
+                existingRoom.RoomStatus = entity.RoomStatus;
+                existingRoom.PricePerNight = entity.PricePerNight;
+
+                // Update the entity in the context
+                _dbContext.Rooms.Update(existingRoom);
+                await _dbContext.SaveChangesAsync();
+                
                 _logger.LogInformation("Room updated successfully. RoomNumber: {RoomNumber}", entity.RoomNumber);
-                return entity;
+                return existingRoom;
             }
             catch (Exception ex)
             {
