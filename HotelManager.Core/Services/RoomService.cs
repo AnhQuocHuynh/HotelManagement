@@ -9,19 +9,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using HotelManager.Exceptions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HotelManager.Services
 {
     public class RoomService : IService<Room>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly HotelDbContext _dbContext;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<RoomService> _logger;
 
-        public RoomService(IUnitOfWork unitOfWork, HotelDbContext dbContext, ILogger<RoomService> logger)
+        public RoomService(IUnitOfWork unitOfWork, IServiceScopeFactory scopeFactory, ILogger<RoomService> logger)
         {
             _unitOfWork = unitOfWork;
-            _dbContext = dbContext;
+            _scopeFactory = scopeFactory;
             _logger = logger;
         }
 
@@ -53,16 +54,20 @@ namespace HotelManager.Services
             try
             {
                 _logger.LogInformation("Deleting room. RoomNumber: {RoomNumber}", roomNumber);
-                var room = await _dbContext.Rooms.FindAsync(roomNumber);
-                if (room == null)
+                using (var scope = _scopeFactory.CreateScope())
                 {
-                    _logger.LogWarning("Room not found for delete. RoomNumber: {RoomNumber}", roomNumber);
-                    return false;
+                    var dbContext = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
+                    var room = await dbContext.Rooms.FindAsync(roomNumber);
+                    if (room == null)
+                    {
+                        _logger.LogWarning("Room not found for delete. RoomNumber: {RoomNumber}", roomNumber);
+                        return false;
+                    }
+                    dbContext.Rooms.Remove(room);
+                    await dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Room deleted successfully. RoomNumber: {RoomNumber}", roomNumber);
+                    return true;
                 }
-                _dbContext.Rooms.Remove(room);
-                await _dbContext.SaveChangesAsync();
-                _logger.LogInformation("Room deleted successfully. RoomNumber: {RoomNumber}", roomNumber);
-                return true;
             }
             catch (Exception ex)
             {
@@ -100,26 +105,29 @@ namespace HotelManager.Services
             try
             {
                 _logger.LogInformation("Updating room. RoomNumber: {RoomNumber}", entity.RoomNumber);
-                
-                // Get the existing room from database
-                var existingRoom = await _dbContext.Rooms.FindAsync(entity.RoomNumber);
-                if (existingRoom == null)
+                using (var scope = _scopeFactory.CreateScope())
                 {
-                    _logger.LogWarning("Room not found for update. RoomNumber: {RoomNumber}", entity.RoomNumber);
-                    throw new EntityNotFoundException("Room", entity.RoomNumber);
+                    var dbContext = scope.ServiceProvider.GetRequiredService<HotelDbContext>();
+                    // Get the existing room from database
+                    var existingRoom = await dbContext.Rooms.FindAsync(entity.RoomNumber);
+                    if (existingRoom == null)
+                    {
+                        _logger.LogWarning("Room not found for update. RoomNumber: {RoomNumber}", entity.RoomNumber);
+                        throw new EntityNotFoundException("Room", entity.RoomNumber);
+                    }
+
+                    // Update the properties
+                    existingRoom.RoomType = entity.RoomType;
+                    existingRoom.RoomStatus = entity.RoomStatus;
+                    existingRoom.PricePerNight = entity.PricePerNight;
+
+                    // Update the entity in the context
+                    dbContext.Rooms.Update(existingRoom);
+                    await dbContext.SaveChangesAsync();
+
+                    _logger.LogInformation("Room updated successfully. RoomNumber: {RoomNumber}", entity.RoomNumber);
+                    return existingRoom;
                 }
-
-                // Update the properties
-                existingRoom.RoomType = entity.RoomType;
-                existingRoom.RoomStatus = entity.RoomStatus;
-                existingRoom.PricePerNight = entity.PricePerNight;
-
-                // Update the entity in the context
-                _dbContext.Rooms.Update(existingRoom);
-                await _dbContext.SaveChangesAsync();
-                
-                _logger.LogInformation("Room updated successfully. RoomNumber: {RoomNumber}", entity.RoomNumber);
-                return existingRoom;
             }
             catch (Exception ex)
             {

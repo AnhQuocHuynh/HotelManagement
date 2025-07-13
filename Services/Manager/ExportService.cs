@@ -9,7 +9,7 @@ using HotelManager.ViewModels.ManagerViewModels.UIModel;
 
 namespace HotelManager.Services.Manager
 {
-    class ExportService
+    public class ExportService
     {
         public void ExportEmployeeListToExcel<T>(IEnumerable<T> data, string filePath)
         {
