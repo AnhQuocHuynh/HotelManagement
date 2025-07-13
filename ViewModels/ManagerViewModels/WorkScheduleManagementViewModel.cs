@@ -13,6 +13,9 @@ using System.ComponentModel;
 using System.Windows;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using HotelManager.Utilities;
+using DocumentFormat.OpenXml.Drawing.Spreadsheet;
+using System.Windows.Controls;
 
 namespace HotelManager.ViewModels.ManagerViewModels
 {
@@ -297,12 +300,13 @@ namespace HotelManager.ViewModels.ManagerViewModels
                     SelectedShift,
                     SelectedDate,
                     null, // End date can be null for single day assignments
-                    0, // Assigned by employee ID (can be set to current user)
+                    AppSession.GetCurrentUserAccount().EmployeeId, // Assigned by employee ID (can be set to current user)
                     AssignmentNotes
                 );
 
                 // 3. Refresh UI
-                await RefreshDataAsync();
+                if (IsSameWeek(SelectedDate, SelectedWeek))
+                    await LoadWeeklySchedulesAsync();
 
                 // 4. Show success notification
                 _notificationService?.ShowSuccess("Thêm lịch làm việc thành công");
@@ -323,9 +327,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
             {
                 // TODO (Bảo): Implement loading logic
 
-                DateTime startDate = SelectedWeek.AddDays(SelectedWeek.DayOfWeek - DayOfWeek.Monday).Date;
-
-                //WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(startDate));
+                WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(GetStartOfWeek(SelectedWeek)));
 
             }
             catch (Exception ex)
@@ -340,29 +342,29 @@ namespace HotelManager.ViewModels.ManagerViewModels
         private async Task UpdateScheduleAsync(WorkSchedule? schedule)
         {
             // TODO (Bảo): Implement update logic            
-            //bool isConfilct = await _workScheduleService.ValidateScheduleConflictAsync(
-            //    SelectedEmployee.Id,
-            //    SelectedDay,
-            //    SelectedShift,
-            //    SelectedDate
-            //    );
+            bool isConfilct = await _workScheduleService.ValidateScheduleConflictAsync(
+                SelectedEmployee.Id,
+                SelectedDay,
+                SelectedShift,
+                SelectedDate
+                );
 
-            //if (isConfilct)
-            //{
-            //    _notificationService?.ShowError("Lịch làm việc đã có xung đột. Vui lòng chọn lại.");
-            //    return;
-            //}
+            if (isConfilct)
+            {
+                _notificationService?.ShowError("Lịch làm việc đã có xung đột. Vui lòng chọn lại.");
+                return;
+            }
 
-            //schedule = await _workScheduleService.UpdateAsync(
-            //    new WorkSchedule
-            //    {
-            //        EmployeeId = SelectedEmployee.Id,
-            //        WorkDay = SelectedDay,
-            //        Shift = SelectedShift,
-            //        StartDate = SelectedDate,
-            //        Notes = AssignmentNotes
-            //    }
-            //);
+            schedule = await _workScheduleService.UpdateAsync(
+                new WorkSchedule
+                {
+                    EmployeeId = SelectedEmployee.Id,
+                    WorkDay = SelectedDay,
+                    Shift = SelectedShift,
+                    StartDate = SelectedDate,
+                    Notes = AssignmentNotes
+                }
+            );
 
             await LoadWeeklySchedulesAsync();
 
@@ -416,20 +418,25 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// <summary>
         /// TODO (Bảo): Implement data refresh
         /// </summary>
+        private bool isRefreshing = false;
         private async Task RefreshDataAsync()
         {
+            if (isRefreshing == true)
+                return;
+            isRefreshing = true;
             // TODO (Bảo): Reload employees và schedules
-            DayOfWeek firstDayOfWeek = DayOfWeek.Monday;
-            int diff = (7 + (DateTime.Today.DayOfWeek - firstDayOfWeek)) % 7;
-            SelectedWeek = DateTime.Today.AddDays(-diff).Date;
 
-            Employees = new ObservableCollection<Employee>(await _employeeService.GetAllAsync());
-            //WeeklySchedules = new ObservableCollection<WorkSchedule>(await _workScheduleService.GetWeeklyScheduleAsync(SelectedWeek));
+            var employees = (await _employeeService.GetAllAsync()).ToList();
+            Employees = new ObservableCollection<Employee>(employees);
 
-            Employees = new ObservableCollection<Employee>(SampleWorkScheduleData.GetSampleEmployees());
-            WeeklySchedules = new ObservableCollection<WorkSchedule>(SampleWorkScheduleData.GetSampleSchedules());
+            SelectedWeek = DateTime.Today.Date;
+            DateTime startDate = SelectedWeek.AddDays(SelectedWeek.DayOfWeek - DayOfWeek.Monday).Date;
+
+            //Employees = new ObservableCollection<Employee>(SampleWorkScheduleData.GetSampleEmployees());
+            //WeeklySchedules = new ObservableCollection<WorkSchedule>(SampleWorkScheduleData.GetSampleSchedules());
 
             _notificationService.ShowSuccess("làm mới thành công");
+            isRefreshing = false;
         }
 
         /// <summary>
@@ -440,6 +447,26 @@ namespace HotelManager.ViewModels.ManagerViewModels
             // TODO (Bảo): Load employees và current week schedules
             await RefreshDataAsync();
 
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private DateTime GetStartOfWeek(DateTime date)
+        {
+            // giả sử tuần bắt đầu từ thứ 2 (Monday)
+            int diff = (int)date.DayOfWeek - (int)DayOfWeek.Monday;
+            if (diff < 0) diff += 7;
+            return date.AddDays(-diff).Date;
+        }
+
+
+        private bool IsSameWeek(DateTime date1, DateTime date2)
+        {
+            DateTime startOfWeek1 = GetStartOfWeek(date1);
+            DateTime startOfWeek2 = GetStartOfWeek(date2);
+            return startOfWeek1 == startOfWeek2;
         }
 
         #endregion
