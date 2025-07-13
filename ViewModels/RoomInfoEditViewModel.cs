@@ -69,7 +69,7 @@ namespace HotelManager.ViewModels
                 _originalRoom.RoomStatus = EditableRoom.RoomStatus;
                 _originalRoom.PricePerNight = EditableRoom.PricePerNight;
                 //Update csdl
-                await _roomService.UpdateAsync(EditableRoom);
+                await _roomService.UpdateAsync(_originalRoom);
                 MessageBox.Show("Thông tin phòng đã được cập nhật.", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
                 DialogResult = true;
                 CloseAction?.Invoke();

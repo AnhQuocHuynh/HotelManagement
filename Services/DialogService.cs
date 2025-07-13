@@ -32,6 +32,17 @@ namespace HotelManager.Services
                     ShowInTaskbar = false
                 };
             }
+            else if (viewModel is ViewModels.RoomInfoEditViewModel)
+            {
+                window = new RoomInfoEditView
+                {
+                    DataContext = viewModel,
+                    Owner = Application.Current.MainWindow,
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                    ResizeMode = ResizeMode.NoResize,
+                    ShowInTaskbar = false
+                };
+            }
             else
             {
                 // fallback generic window

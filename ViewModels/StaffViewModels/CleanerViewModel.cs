@@ -219,7 +219,9 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             try
             {
-                var roomsNeedCleaning = await _cleanroomService.GetAllAsync();
+                // Get all rooms and filter for pending ones
+                var allRooms = await _roomService.GetAllAsync();
+                var roomsNeedCleaning = allRooms.Where(r => r.RoomStatus == RoomStatus.Pending).ToList();
                 _roomsNeedCleaning = roomsNeedCleaning;
                 
                 // Mặc định hiển thị rooms cần dọn dẹp
@@ -261,6 +263,9 @@ namespace HotelManager.ViewModels.StaffViewModels
                         System.Diagnostics.Debug.WriteLine($"Error completing assignment: {assignEx.Message}");
                     }
                 }
+                
+                // Update room status locally
+                room.RoomStatus = RoomStatus.Available;
                 
                 // Refresh data sau khi mark as cleaned
                 await LoadAllRoomsAsync();
@@ -385,8 +390,9 @@ namespace HotelManager.ViewModels.StaffViewModels
 
         private void FilterPending()
         {
-            // Hiển thị rooms cần dọn dẹp (từ CleanRoomService - rooms có booking CheckedOut)
-            RoomsToClean = new ObservableCollection<Room>(_roomsNeedCleaning);
+            // Hiển thị rooms cần dọn dẹp (từ CleanRoomService - rooms có status Pending)
+            var pendingRooms = _allRooms.Where(r => r.RoomStatus == RoomStatus.Pending);
+            RoomsToClean = new ObservableCollection<Room>(pendingRooms);
         }
 
         private void FilterCleaned()

@@ -6,9 +6,16 @@
         xmlns:local="clr-namespace:HotelManager.Views.StaffViews"
         xmlns:vm="clr-namespace:HotelManager.ViewModels"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
              d:DesignHeight="900" d:DesignWidth="1400"
              Background="{StaticResource SurfaceGradient}">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     
 
     
@@ -277,10 +284,19 @@
                                                             <Style TargetType="Border">
                                                                 <Setter Property="Background" Value="{StaticResource Success100Brush}"/>
                                                                 <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding RoomStatusDisplay}" Value="Occupied">
+                                                                    <DataTrigger Binding="{Binding RoomStatus}" Value="Occupied">
                                                                         <Setter Property="Background" Value="{StaticResource Warning100Brush}"/>
                                                                     </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding RoomStatusDisplay}" Value="Maintenance">
+                                                                    <DataTrigger Binding="{Binding RoomStatus}" Value="UnderMaintenance">
+                                                                        <Setter Property="Background" Value="{StaticResource Error100Brush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding RoomStatus}" Value="Pending">
+                                                                        <Setter Property="Background" Value="{StaticResource Warning100Brush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding RoomStatus}" Value="Reserved">
+                                                                        <Setter Property="Background" Value="{StaticResource Primary100Brush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding RoomStatus}" Value="OutOfService">
                                                                         <Setter Property="Background" Value="{StaticResource Error100Brush}"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
@@ -294,12 +310,24 @@
                                                                     <Setter Property="Kind" Value="Check"/>
                                                                     <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
                                                                     <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding RoomStatusDisplay}" Value="Occupied">
+                                                                        <DataTrigger Binding="{Binding RoomStatus}" Value="Occupied">
                                                                             <Setter Property="Kind" Value="Account"/>
                                                                             <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
                                                                         </DataTrigger>
-                                                                        <DataTrigger Binding="{Binding RoomStatusDisplay}" Value="Maintenance">
+                                                                        <DataTrigger Binding="{Binding RoomStatus}" Value="UnderMaintenance">
                                                                             <Setter Property="Kind" Value="Tools"/>
+                                                                            <Setter Property="Foreground" Value="{StaticResource ErrorBrush}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding RoomStatus}" Value="Pending">
+                                                                            <Setter Property="Kind" Value="Clock"/>
+                                                                            <Setter Property="Foreground" Value="{StaticResource WarningBrush}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding RoomStatus}" Value="Reserved">
+                                                                            <Setter Property="Kind" Value="Bookmark"/>
+                                                                            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding RoomStatus}" Value="OutOfService">
+                                                                            <Setter Property="Kind" Value="Close"/>
                                                                             <Setter Property="Foreground" Value="{StaticResource ErrorBrush}"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>

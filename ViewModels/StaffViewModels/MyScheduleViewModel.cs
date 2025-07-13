@@ -165,14 +165,13 @@ namespace HotelManager.ViewModels.StaffViewModels
         /// </summary>
         private async Task LoadMyScheduleAsync()
         {
+            if (_workScheduleService == null)
+            {
+                // Design-time or service not injected – skip loading
+                return;
+            }
             try
             {
-                if (_workScheduleService == null)
-                {
-                    _notificationService?.ShowError("WorkScheduleService chưa được khởi tạo");
-                    return;
-                }
-
                 if (CurrentEmployeeId == 0)
                 {
                     _notificationService?.ShowWarning("Không thể xác định thông tin nhân viên");
@@ -261,12 +260,6 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             try
             {
-                if (_workScheduleService == null)
-                {
-                    _notificationService?.ShowError("WorkScheduleService chưa được khởi tạo");
-                    return;
-                }
-
                 await LoadMyScheduleAsync();
                 _notificationService?.ShowSuccess("Đã cập nhật lịch làm việc");
             }

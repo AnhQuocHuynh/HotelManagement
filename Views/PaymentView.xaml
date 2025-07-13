@@ -66,7 +66,7 @@
     </UserControl.Resources>
 
     <materialDesign:Card Effect="{StaticResource Elevation3}">
-                <Grid>
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="4*"/>
                 <RowDefinition Height="41*"/>
@@ -82,7 +82,7 @@
 
                     <!-- Payment Title and Info -->
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                    <TextBlock Text="Payment Management" 
+                        <TextBlock Text="Payment Management" 
                                    Style="{StaticResource HeadlineLarge}" 
                                    Foreground="White"/>
                         <TextBlock Text="Process payments and track financial transactions" 
@@ -135,7 +135,7 @@
                                          Margin="12,0,0,0" 
                                          VerticalAlignment="Center"/>
                             </StackPanel>
-                            
+
                             <!-- Booking Details Grid -->
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -309,7 +309,7 @@
                                             Command="{Binding SaveEditedPaymentCommand}"
                                             Style="{StaticResource ContainedButton}"
                                             Visibility="{Binding IsEditing, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                          HorizontalAlignment="Right">      
+                                          HorizontalAlignment="Right">
                                         <StackPanel Orientation="Horizontal">
                                             <materialDesign:PackIcon Kind="Verified" Width="20" Height="20"/>
                                             <TextBlock Text="Save Edit" Margin="8,0,0,0"/>
@@ -369,7 +369,7 @@
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
-                                    
+
                                     <TextBox Style="{StaticResource OutlinedTextField}"
                                              materialDesign:HintAssist.Hint="Search payments..."
                                              materialDesign:HintAssist.IsFloating="False"
@@ -397,7 +397,7 @@
                                   CornerRadius="{StaticResource RadiusS}" 
                                   BorderBrush="{StaticResource OnSurfaceVariantBrush}" 
                                   BorderThickness="1">
-                <DataGrid ItemsSource="{Binding Payments}" 
+                                <DataGrid ItemsSource="{Binding Payments}" 
                           AutoGenerateColumns="False" 
                           CanUserAddRows="False" 
                           SelectionMode="Single"
@@ -407,16 +407,16 @@
                           CanUserSortColumns="True"
                           SelectedItem="{Binding SelectedPayment}"
                           MinHeight="300" MaxHeight="800">
-                    <DataGrid.InputBindings>
-                        <MouseBinding Gesture="LeftDoubleClick" 
+                                    <DataGrid.InputBindings>
+                                        <MouseBinding Gesture="LeftDoubleClick" 
                                       Command="{Binding ShowPaymentDetailsCommand}" 
                                       CommandParameter="{Binding SelectedPayment}"/>
-                    </DataGrid.InputBindings>
-                    <DataGrid.Columns>
+                                    </DataGrid.InputBindings>
+                                    <DataGrid.Columns>
                                         <!-- Status Indicator -->
                                         <DataGridTemplateColumn Header="" Width="50">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
                                                     <Border Background="{StaticResource Success100Brush}" 
                                                           CornerRadius="12" 
                                                           Width="24" 
@@ -428,9 +428,9 @@
                                                                                HorizontalAlignment="Center"
                                                                                VerticalAlignment="Center"/>
                                                     </Border>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
 
                                         <DataGridTextColumn Header="Payment ID" 
                                                           Binding="{Binding Id}" 
@@ -444,7 +444,7 @@
                                                           IsReadOnly="True"
                                                           ElementStyle="{StaticResource BodyMedium}"/>
 
-                        <DataGridTextColumn Header="Amount" 
+                                        <DataGridTextColumn Header="Amount" 
                                                           Binding="{Binding Amount, StringFormat='{}{0:C}'}" 
                                                           Width="*"
                                                           IsReadOnly="True"
@@ -456,7 +456,7 @@
                                                           IsReadOnly="True"
                                                           ElementStyle="{StaticResource BodyMedium}"/>
 
-                        <DataGridTextColumn Header="Invoice ID" 
+                                        <DataGridTextColumn Header="Invoice ID" 
                                             Binding="{Binding InvoiceId}" 
                                             Width="*"
                                             IsReadOnly="True"
@@ -464,8 +464,8 @@
 
                                         <!-- Actions Column -->
                                         <DataGridTemplateColumn Header="Actions" Width="120">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
                                                     <StackPanel Orientation="Horizontal" 
                                                               HorizontalAlignment="Center">
                                                         <Button ToolTip="Edit Payment" 
@@ -492,12 +492,12 @@
                                                                                    Height="16"
                                                                                    Foreground="{StaticResource ErrorBrush}"/>
                                                         </Button>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
                             </Border>
                         </StackPanel>
                     </materialDesign:Card>

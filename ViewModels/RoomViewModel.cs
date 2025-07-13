@@ -47,6 +47,7 @@ namespace HotelManager.ViewModels
         public ICommand DeleteCommand { get; set; }
         public ICommand AddCommand { get; set; }
         public ICommand SearchCommand { get; set; }
+        public ICommand LoadedCommand { get; set; }
         public ICommand NavigateBackCommand { get; set; }
         public ICommand NavigateProfileCommand { get; set; }
         public ICommand LogoutCommand { get; set; }
@@ -152,6 +153,7 @@ namespace HotelManager.ViewModels
                 DeleteCommand = new RelayCommand<object>(_ => { });
                 AddCommand = new AsyncRelayCommand(() => Task.CompletedTask);
                 SearchCommand = new RelayCommand(() => { });
+                LoadedCommand = new RelayCommand(() => { }); // Initialize LoadedCommand for design-time
                 NavigateBackCommand = new RelayCommand(() => { });
                 NavigateProfileCommand = new RelayCommand(() => { });
                 LogoutCommand = new RelayCommand(() => { });
@@ -195,6 +197,7 @@ namespace HotelManager.ViewModels
             DeleteCommand = new RelayCommand<object>(_ => DeleteRoom(_selectedRoom));
             AddCommand = new AsyncRelayCommand(AddRoom);
             SearchCommand = new RelayCommand(FilterRooms);
+            LoadedCommand = new RelayCommand(LoadRooms); // Assign LoadRooms to LoadedCommand
             NavigateBackCommand = new RelayCommand(() => _navigationService.NavigateTo<HotelManager.ViewModels.Admin.AdminViewModel>());
             NavigateProfileCommand = new RelayCommand(() => _navigationService.NavigateTo<ProfileViewModel>());
             LogoutCommand = new RelayCommand(() => _navigationService.NavigateTo<HotelManager.ViewModels.Common.LoginViewModel>());

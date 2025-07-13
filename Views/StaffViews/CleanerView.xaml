@@ -33,6 +33,9 @@
                 <DataTrigger Binding="{Binding RoomStatus}" Value="Available">
                     <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
                 </DataTrigger>
+                <DataTrigger Binding="{Binding RoomStatus}" Value="Pending">
+                    <Setter Property="Fill" Value="{StaticResource WarningBrush}"/>
+                </DataTrigger>
                 <DataTrigger Binding="{Binding RoomStatus}" Value="UnderMaintenance">
                     <Setter Property="Fill" Value="{StaticResource WarningBrush}"/>
                 </DataTrigger>
@@ -441,7 +444,6 @@
                                 <DataGrid ItemsSource="{Binding DamageReportHistory}" 
                                     AutoGenerateColumns="False" 
                                     Style="{StaticResource ModernDataGrid}"
-                                    MaxHeight="280"
                                     CanUserAddRows="False"
                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
                                     Margin="0,0,0,16">

@@ -25,6 +25,7 @@ namespace HotelManager.Models
         {
             RoomStatus.Available => "Còn trống",
             RoomStatus.Occupied => "Đã thuê",
+            RoomStatus.Pending => "Chờ dọn dẹp",
             RoomStatus.UnderMaintenance => "Đang bảo trì",
             RoomStatus.Reserved => "Đã đặt trước",
             RoomStatus.OutOfService => "Ngừng sử dụng",
