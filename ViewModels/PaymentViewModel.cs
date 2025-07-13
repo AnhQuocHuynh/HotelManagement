@@ -102,7 +102,7 @@ namespace HotelManager.ViewModels
             {
                 _remainingAmount = value;
                 OnPropertyChanged(nameof(RemainingAmount));
-                //MessageBox.Show($"Remaining Amount: {RemainingAmount:C}", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                //MessageBox.Show($"Remaining Amount: {RemainingAmount:N0} ₫", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 //if (AddPaymentCommand is RelayCommand command) command.NotifyCanExecuteChanged();
             }
         }
@@ -348,7 +348,7 @@ namespace HotelManager.ViewModels
         {
             try
             {
-                LogInformation("Adding new payment: Amount {Amount:C}, Method {PaymentMethod}, InvoiceId {InvoiceId}",
+                LogInformation("Adding new payment: Amount {Amount:N0} ₫, Method {PaymentMethod}, InvoiceId {InvoiceId}",
                     Amount, PaymentMethod, CurrentInvoice.Id);
                 Debug.WriteLine("PaymentViewModel: AddPaymentAsync started");
 
@@ -382,7 +382,7 @@ namespace HotelManager.ViewModels
 
                 // Log user activity for audit
                 await LogUserActivityAsync("CREATE", "Payment", payment.Id.ToString(),
-                    $"Added payment: {payment.Amount:C} via {payment.PaymentMethod}");
+                    $"Added payment: {payment.Amount:N0} ₫ via {payment.PaymentMethod}");
 
                 LogInformation("Payment added successfully with ID {PaymentId}", payment.Id);
                 MessageBox.Show("Payment added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -435,7 +435,7 @@ namespace HotelManager.ViewModels
 
                     // Log user activity for audit
                     await LogUserActivityAsync("UPDATE", "Payment", paymentId.ToString(),
-                        $"Updated payment: {paymentAmount:C} via {paymentMethod}");
+                        $"Updated payment: {paymentAmount:N0} ₫ via {paymentMethod}");
 
                     LogInformation("Payment updated successfully with ID {PaymentId}", paymentId);
 
@@ -527,7 +527,7 @@ namespace HotelManager.ViewModels
                     await RefreshPaymentsAsync();
 
                     await LogUserActivityAsync("DELETE", "Payment", payment.Id.ToString(),
-                        $"Deleted payment: {payment.Amount:C} via {payment.PaymentMethod}");
+                        $"Deleted payment: {payment.Amount:N0} ₫ via {payment.PaymentMethod}");
 
                     LogInformation("Payment deleted successfully with ID {PaymentId}", payment.Id);
                     MessageBox.Show("Payment deleted successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -566,14 +566,14 @@ namespace HotelManager.ViewModels
                                                                  .Sum(p => p.Amount);
             var newTotalPaid = totalPaidExcludingCurrent + Amount;
 
-            Debug.WriteLine($"CanSavePayment: OriginalInvoiceAmount={originalInvoiceAmount:C}, " +
-                           $"TotalPaidExcludingCurrent={totalPaidExcludingCurrent:C}, " +
-                           $"NewAmount={Amount:C}, NewTotalPaid={newTotalPaid:C}");
+            Debug.WriteLine($"CanSavePayment: OriginalInvoiceAmount={originalInvoiceAmount:N0} ₫, " +
+                           $"TotalPaidExcludingCurrent={totalPaidExcludingCurrent:N0} ₫, " +
+                           $"NewAmount={Amount:N0} ₫, NewTotalPaid={newTotalPaid:N0} ₫");
 
             // Optional: prevent overpaying - check against original invoice amount
             if (newTotalPaid > originalInvoiceAmount)
             {
-                Debug.WriteLine($"CanSavePayment: Overpayment detected - {newTotalPaid:C} > {originalInvoiceAmount:C}");
+                Debug.WriteLine($"CanSavePayment: Overpayment detected - {newTotalPaid:N0} ₫ > {originalInvoiceAmount:N0} ₫");
                 return false;
             }
 
@@ -642,7 +642,7 @@ namespace HotelManager.ViewModels
                 // Update command states
                 OnCanExecuteChanged();
 
-                Debug.WriteLine($"EditPaymentAsync: Editing payment ID={payment.Id}, Amount={payment.Amount}, Invoice ID={paymentInvoice.Id}, Invoice TotalAmount={paymentInvoice.TotalAmount:C}");
+                Debug.WriteLine($"EditPaymentAsync: Editing payment ID={payment.Id}, Amount={payment.Amount}, Invoice ID={paymentInvoice.Id}, Invoice TotalAmount={paymentInvoice.TotalAmount:N0} ₫");
             }
             catch (Exception ex)
             {
@@ -684,9 +684,9 @@ namespace HotelManager.ViewModels
 
             RemainingAmount = newRemainingAmount;
 
-            Debug.WriteLine($"UpdateRemainingAmountForEditing: OriginalAmount={originalInvoiceAmount:C}, " +
-                           $"TotalPaidExcludingCurrent={totalPaidExcludingCurrent:C}, " +
-                           $"NewAmount={Amount:C}, RemainingAmount={RemainingAmount:C}");
+            Debug.WriteLine($"UpdateRemainingAmountForEditing: OriginalAmount={originalInvoiceAmount:N0} ₫, " +
+                           $"TotalPaidExcludingCurrent={totalPaidExcludingCurrent:N0} ₫, " +
+                           $"NewAmount={Amount:N0} ₫, RemainingAmount={RemainingAmount:N0} ₫");
         }
 
         // Search functionality
@@ -765,7 +765,7 @@ namespace HotelManager.ViewModels
                 var details = $"Payment Details:\n\n" +
                              $"Payment ID: {payment.Id}\n" +
                              $"Payment Date: {payment.PaymentDate:dd/MM/yyyy}\n" +
-                             $"Amount: {payment.Amount:C}\n" +
+                             $"Amount: {payment.Amount:N0} ₫\n" +
                              $"Payment Method: {payment.PaymentMethod}\n" +
                              $"Invoice ID: {payment.InvoiceId}\n\n" +
                              $"Booking Information:\n" +
@@ -774,7 +774,7 @@ namespace HotelManager.ViewModels
                              $"Booking Employee ID: {(booking.BookingEmployeeId.HasValue ? booking.BookingEmployeeId.Value.ToString() : "N/A")}\n" +
                              $"Room Number: {booking.RoomNumber ?? "N/A"}\n" +
                              $"Total Days: {(booking.CheckOutDate - booking.CheckInDate).Days}\n" +
-                             $"Total Amount: {booking.TotalAmount:C}\n" +
+                             $"Total Amount: {booking.TotalAmount:N0} ₫\n" +
                              $"Check-in: {booking.CheckInDate:dd/MM/yyyy}\n" +
                              $"Check-out: {booking.CheckOutDate:dd/MM/yyyy}\n" +
                              $"Status: {booking.Status}";

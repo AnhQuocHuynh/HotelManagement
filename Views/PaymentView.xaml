@@ -200,7 +200,7 @@
                                 <TextBlock Text="Total Amount" 
                                          Style="{StaticResource LabelMedium}" 
                                          Foreground="{StaticResource OnSurfaceVariantBrush}"/>
-                                <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:C}'}" 
+                                <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:N0} ₫'}" 
                                          Style="{StaticResource BodyMedium}" 
                                          FontWeight="Medium"/>
                             </StackPanel>
@@ -213,16 +213,17 @@
                                                Margin="8,0,0,0">
                                 <StackPanel Margin="16" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8" HorizontalAlignment="Center">
-                                        <materialDesign:PackIcon Kind="CurrencyUsd" 
-                                                               Width="20" Height="20" 
-                                                               Foreground="{StaticResource WarningBrush}"/>
+                                        <TextBlock Text="₫" 
+                                                   Width="20" Height="20" 
+                                                   Style="{StaticResource LabelLarge}"
+                                                   Foreground="{StaticResource WarningBrush}"/>
                                         <TextBlock Text="Remaining Amount" 
                                                  Style="{StaticResource LabelMedium}" 
                                                  Margin="8,0,0,0" 
                                                  VerticalAlignment="Center"
                                                  Foreground="{StaticResource WarningBrush}"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding RemainingAmount, StringFormat='{}{0:C}'}" 
+                                    <TextBlock Text="{Binding RemainingAmount, StringFormat='{}{0:N0} ₫'}" 
                                              Style="{StaticResource HeadlineMedium}" 
                                              Foreground="{StaticResource WarningBrush}" 
                                              FontWeight="Bold"
@@ -443,7 +444,7 @@
                                                       ElementStyle="{StaticResource BodyMedium}"/>
 
                                     <DataGridTextColumn Header="Amount" 
-                                                      Binding="{Binding Amount, StringFormat='{}{0:C}'}" 
+                                                      Binding="{Binding Amount, StringFormat='{}{0:N0} ₫'}" 
                                                       Width="*"
                                                       IsReadOnly="True"
                                                       ElementStyle="{StaticResource BodyMedium}"/>

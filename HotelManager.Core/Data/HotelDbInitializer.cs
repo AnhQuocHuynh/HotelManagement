@@ -423,6 +423,56 @@ namespace HotelManager.Data
                 System.Diagnostics.Debug.WriteLine("Maintenances already exist, skipping...");
             }
 
+
+            if (!context.WorkSchedules.Any())
+            {
+                var random = new Random();
+                var staff = context.Employees
+                    .Where(e => e.Position == EmployeePosition.Receptionist || e.Position == EmployeePosition.Cleaner)
+                    .ToList();
+
+                var assignedBy = context.Employees.FirstOrDefault(e => e.Position == EmployeePosition.Manager)
+                                 ?? staff.First(); // fallback nếu không có manager
+
+                var days = Enum.GetValues(typeof(HotelManager.Models.Enums.WorkDay)).Cast<HotelManager.Models.Enums.WorkDay>().ToList();
+                var shifts = Enum.GetValues(typeof(HotelManager.Models.Enums.WorkShift)).Cast<HotelManager.Models.Enums.WorkShift>().ToList();
+                var statuses = Enum.GetValues(typeof(HotelManager.Models.Enums.ScheduleStatus)).Cast<HotelManager.Models.Enums.ScheduleStatus>().ToList();
+
+                foreach (var employee in staff)
+                {
+                    for (int week = 0; week < 4; week++) // 4 tuần
+                    {
+                        for (int i = 0; i < 3; i++) // mỗi tuần tạo 3 lịch ngẫu nhiên
+                        {
+                            var startDate = DateTime.Today
+                                            .AddDays(week * 7) // nhảy từng tuần
+                                            .AddDays(random.Next(0, 7)); // ngày ngẫu nhiên trong tuần
+
+                            var workSchedule = new WorkSchedule
+                            {
+                                EmployeeId = employee.Id,
+                                AssignedByEmployeeId = assignedBy.Id,
+                                WorkDay = days[random.Next(days.Count)],
+                                Shift = shifts[random.Next(shifts.Count)],
+                                Status = statuses[random.Next(statuses.Count)],
+                                StartDate = startDate,
+                                CreatedDate = DateTime.Now
+                            };
+                            context.WorkSchedules.Add(workSchedule);
+                        }
+                    }
+                }
+
+                context.SaveChanges();
+                System.Diagnostics.Debug.WriteLine($"Seeded {context.WorkSchedules.Count()} work schedules across multiple weeks.");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("WorkSchedules already exist, skipping...");
+            }
+
+
+
         }
 
 
