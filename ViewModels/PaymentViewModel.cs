@@ -264,8 +264,11 @@ namespace HotelManager.ViewModels
             SelectedPayment = null; // Clear selected payment
             EditingInvoice = null; // Clear editing invoice
 
-            // Recalculate remaining amount
-            CalculateRemainingAmount();
+            // Reset remaining amount to current invoice's remaining amount
+            if (CurrentInvoice != null)
+            {
+                RemainingAmount = CurrentInvoice.TotalAmount;
+            }
 
             OnCanExecuteChanged();
         }
@@ -284,14 +287,10 @@ namespace HotelManager.ViewModels
             if (parameter is Invoice invoice)
             {
                 CurrentInvoice = invoice;
+                RemainingAmount = invoice.TotalAmount; //testing
+                Amount = invoice.TotalAmount; // Set initial amount to total amount of the invoice
                 currentBooking = invoice.Booking;
                 Debug.WriteLine($"Assigned CurrentInvoice's Booking ID: {invoice.BookingId}");
-
-                // Calculate remaining amount properly
-                CalculateRemainingAmount();
-
-                // Set initial amount to remaining amount (or a reasonable default)
-                Amount = RemainingAmount > 0 ? RemainingAmount : 0;
 
                 // Trigger property change notifications for booking information properties
                 OnPropertyChanged(nameof(CustomerName));
@@ -318,9 +317,7 @@ namespace HotelManager.ViewModels
         {
             var payments = await _paymentService.GetAllAsync();
             Payments = new ObservableCollection<Payment>(payments.Where(p => p.InvoiceId == CurrentInvoice.Id));
-            
-            // Calculate remaining amount after loading payments
-            CalculateRemainingAmount();
+            //RemainingAmount = 10000000;
         }
 
         private async Task RefreshPaymentsAsync()
@@ -339,9 +336,6 @@ namespace HotelManager.ViewModels
                 {
                     Payments.Add(payment);
                 }
-
-                // Calculate remaining amount after refreshing payments
-                CalculateRemainingAmount();
             }
             catch (Exception ex)
             {
@@ -375,7 +369,8 @@ namespace HotelManager.ViewModels
                     _allPayments.Add(payment);
                 }
 
-                // Update invoice total
+                // Update remaining amount and invoice total
+                RemainingAmount -= Amount;
                 CurrentInvoice.TotalAmount -= Amount;
                 await _invoiceService.UpdateAsync(CurrentInvoice);
 
@@ -452,6 +447,12 @@ namespace HotelManager.ViewModels
                     // Refresh the payments list to show updated data
                     await RefreshPaymentsAsync();
 
+                    // Update remaining amount to reflect the new state after saving
+                    if (CurrentInvoice != null)
+                    {
+                        RemainingAmount = CurrentInvoice.TotalAmount;
+                    }
+
                     Application.Current.Dispatcher.Invoke(() =>
                         MessageBox.Show("Payment saved successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information)
                     );
@@ -493,6 +494,8 @@ namespace HotelManager.ViewModels
                     {
                         _allPayments.Remove(payment);
                     }
+
+                    RemainingAmount += payment.Amount;
 
                     // Update the invoice for this payment
                     var paymentInvoice = await _invoiceService.GetByIdAsync(payment.InvoiceId);
@@ -668,12 +671,10 @@ namespace HotelManager.ViewModels
         {
             if (!IsEditing || EditingInvoice == null) return;
 
-            // Get the original invoice amount from the booking
-            var originalInvoiceAmount = EditingInvoice.Booking?.TotalAmount ?? EditingInvoice.TotalAmount;
-            
-            // Get all payments for this invoice
+            // Calculate the original invoice amount by adding back all payments
             var allPaymentsForInvoice = Payments.Where(p => p.InvoiceId == EditingInvoice.Id).ToList();
-            
+            var originalInvoiceAmount = EditingInvoice.TotalAmount + allPaymentsForInvoice.Sum(p => p.Amount);
+
             // Calculate the total amount already paid (excluding the payment being edited)
             var totalPaidExcludingCurrent = allPaymentsForInvoice.Where(p => p.Id != SelectedPayment?.Id)
                                                                  .Sum(p => p.Amount);
@@ -816,26 +817,6 @@ namespace HotelManager.ViewModels
                 Debug.WriteLine($"PaymentViewModel: LoadDataAsync error - {ex.Message}");
                 throw;
             }
-        }
-
-        private void CalculateRemainingAmount()
-        {
-            if (CurrentInvoice == null || currentBooking == null)
-            {
-                RemainingAmount = 0;
-                return;
-            }
-
-            // Get all payments for the current invoice
-            var allPaymentsForInvoice = Payments.Where(p => p.InvoiceId == CurrentInvoice.Id).ToList();
-
-            // Calculate the total amount already paid for this invoice
-            var totalPaid = allPaymentsForInvoice.Sum(p => p.Amount);
-
-            // Calculate remaining amount
-            RemainingAmount = currentBooking.TotalAmount - totalPaid;
-
-            Debug.WriteLine($"CalculateRemainingAmount: BookingTotalAmount={currentBooking.TotalAmount:C}, TotalPaid={totalPaid:C}, RemainingAmount={RemainingAmount:C}");
         }
     }
 }
