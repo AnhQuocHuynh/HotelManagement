@@ -339,25 +339,16 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// <summary>
         /// TODO (Bảo): Implement update schedule
         /// </summary>
+        private Boolean isUpdating = false;
         private async Task UpdateScheduleAsync(WorkSchedule? schedule)
         {
-            if (_workScheduleService == null)
-            {
-                _notificationService?.ShowError("WorkScheduleService chưa được khởi tạo");
-                return;
-            }
-            if (SelectedEmployee == null)
-            {
-                _notificationService?.ShowError("Vui lòng chọn nhân viên");
-                return;
-            }
-            // TODO (Bảo): Implement update logic            
+            // TODO (Bảo): Implement update logic
             bool isConfilct = await _workScheduleService.ValidateScheduleConflictAsync(
                 SelectedEmployee.Id,
                 SelectedDay,
                 SelectedShift,
                 SelectedDate
-                );
+            );
 
             if (isConfilct)
             {
@@ -389,30 +380,33 @@ namespace HotelManager.ViewModels.ManagerViewModels
             Debug.WriteLine($"[DEBUG] DeleteScheduleAsync called with id={schedule?.Id}");
 
             // TODO (Bảo): Implement delete với user confirmation
-            _notificationService.ShowActionSnackbar(
-                "Bạn có chắc chắn muốn xóa lịch làm việc này?",
-                "Xóa",
-                async () =>
+            if (schedule != null)
+            {
+                var result = MessageBox.Show(
+                    "Do you really want to delete this schedule",
+                    "Yes, delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning
+                );
+
+                if (result == MessageBoxResult.Yes)
                 {
-                    if (schedule != null)
+                    try
                     {
-                        try
-                        {
-                            // Call service to delete schedule
-                            await _workScheduleService.DeleteAsync(schedule.Id);
-                            _notificationService.ShowSuccess("Đã xóa lịch làm việc thành công.");
-                            // Refresh data after deletion
-                            if (IsSameWeek(schedule.StartDate, SelectedWeek))
-                                LoadWeeklySchedulesAsync();
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger?.LogError(ex, "Error deleting schedule");
-                            _notificationService.ShowError("Lỗi khi xóa lịch làm việc.");
-                        }
+                        await _workScheduleService.DeleteAsync(schedule.Id);
+                        _notificationService.ShowSuccess("delete succesfully", 3);
+
+                        // Refresh data after deletion
+                        if (IsSameWeek(schedule.StartDate, SelectedWeek))
+                            await LoadWeeklySchedulesAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger?.LogError(ex, "Error deleting schedule");
+                        _notificationService.ShowError("Can't delete schedule", 3);
                     }
                 }
-            );
+            }
         }
 
         /// <summary>
@@ -441,6 +435,7 @@ namespace HotelManager.ViewModels.ManagerViewModels
 
             var employees = (await _employeeService.GetAllAsync()).ToList();
             Employees = new ObservableCollection<Employee>(employees);
+            SelectedEmployee = Employees.FirstOrDefault();
 
             SelectedWeek = DateTime.Today.Date;
             DateTime startDate = SelectedWeek.AddDays(SelectedWeek.DayOfWeek - DayOfWeek.Monday).Date;
