@@ -2,6 +2,7 @@ using Xunit;
 using FluentAssertions;
 using Moq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using HotelManager.Services;
 using HotelManager.Models;
 using HotelManager.Models.Enums;
@@ -22,6 +23,9 @@ namespace HotelManager.Tests.Services
     {
         private readonly Mock<IUnitOfWork> _mockUnitOfWork;
         private readonly Mock<ILogger<RoomService>> _mockLogger;
+        private readonly Mock<IServiceScopeFactory> _mockScopeFactory;
+        private readonly Mock<IServiceScope> _mockScope;
+        private readonly Mock<IServiceProvider> _mockServiceProvider;
         private readonly HotelDbContext _dbContext;
         private readonly RoomService _roomService;
 
@@ -31,9 +35,19 @@ namespace HotelManager.Tests.Services
             _mockLogger = MockLogger.Create<RoomService>();
             _dbContext = TestDbContext.CreateInMemoryContext("RoomServiceTests");
 
+            // Setup mock scope factory
+            _mockScope = new Mock<IServiceScope>();
+            _mockServiceProvider = new Mock<IServiceProvider>();
+            _mockScopeFactory = new Mock<IServiceScopeFactory>();
+
+            // Configure mocks
+            _mockScopeFactory.Setup(x => x.CreateScope()).Returns(_mockScope.Object);
+            _mockScope.Setup(x => x.ServiceProvider).Returns(_mockServiceProvider.Object);
+            _mockServiceProvider.Setup(x => x.GetService<HotelDbContext>()).Returns(_dbContext);
+
             _roomService = new RoomService(
                 _mockUnitOfWork.Object,
-                _dbContext,
+                _mockScopeFactory.Object,
                 _mockLogger.Object);
 
             SeedTestData();
@@ -457,6 +471,7 @@ namespace HotelManager.Tests.Services
         public void Dispose()
         {
             _dbContext?.Dispose();
+            _mockScope?.Object?.Dispose();
         }
     }
 } 

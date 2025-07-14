@@ -219,7 +219,7 @@
                                          FontSize="16"
                                          Padding="16,12,50,12"
                                          VerticalAlignment="Center"
-                                         Grid.Column="0">
+                                         Grid.Column="0" Height="35">
                                 <PasswordBox.InputBindings>
                                     <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
                                 </PasswordBox.InputBindings>
