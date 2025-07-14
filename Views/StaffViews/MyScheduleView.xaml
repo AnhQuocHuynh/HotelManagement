@@ -129,10 +129,11 @@
 
                 <!-- Schedule Grid -->
                 <DataGrid Grid.Row="1" 
-                         ItemsSource="{Binding MySchedules}"
-                         Style="{StaticResource MaterialDesignDataGrid}"
-                         AutoGenerateColumns="False"
-                         CanUserAddRows="False">
+                          ItemsSource="{Binding MySchedules}"
+                          Style="{StaticResource MaterialDesignDataGrid}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          IsReadOnly="True">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Name" 
                                            Binding="{Binding Employee.FullName}" 
@@ -160,18 +161,11 @@
                         <DataGridTemplateColumn Header="Actions" Width="150">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Content="✏️" 
-                                               Command="{Binding DataContext.UpdateScheduleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                               CommandParameter="{Binding}"
-                                               Style="{StaticResource MaterialDesignIconButton}"
-                                               ToolTip="Chỉnh Sửa"/>
-                                        <Button Content="🗑️" 
-                                               Command="{Binding DataContext.DeleteScheduleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                               CommandParameter="{Binding}"
-                                               Style="{StaticResource MaterialDesignIconButton}"
-                                               ToolTip="Xóa"/>
-                                    </StackPanel>
+                                    <Button Content="detail" 
+                                            Command="{Binding DataContext.ViewScheduleDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource MaterialDesignIconButton}"
+                                            ToolTip="show detail"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

@@ -208,7 +208,7 @@
                                                Command="{Binding DataContext.UpdateScheduleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                CommandParameter="{Binding}"
                                                Style="{StaticResource MaterialDesignIconButton}"
-                                               ToolTip="Chỉnh Sửa"/>
+                                               ToolTip="Thay thế"/>
                                             <Button Content="🗑️" 
                                                Command="{Binding DataContext.DeleteScheduleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                CommandParameter="{Binding}"

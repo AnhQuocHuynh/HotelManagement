@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using HotelManager.Utilities;
 using Microsoft.VisualBasic;
+using System.Windows;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -242,8 +243,13 @@ namespace HotelManager.ViewModels.StaffViewModels
 
                 SelectedSchedule = schedule;
 
-                // TODO (Bảo): Show details in popup/side panel
-                // Có thể navigate đến detail view hoặc show dialog
+                MessageBox.Show(
+                    "Employee: " + schedule.Employee.FullName + "\n" +
+                    "Work day: " + schedule.WorkDay + "\n" +
+                    "Work shift: " + schedule.Shift + "\n" +
+                    "Status: " + schedule.Status + "\n" +
+                    "Notes: " + schedule.Notes
+                    );
                 
 
             }
