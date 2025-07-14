@@ -341,6 +341,16 @@ namespace HotelManager.ViewModels.ManagerViewModels
         /// </summary>
         private async Task UpdateScheduleAsync(WorkSchedule? schedule)
         {
+            if (_workScheduleService == null)
+            {
+                _notificationService?.ShowError("WorkScheduleService chưa được khởi tạo");
+                return;
+            }
+            if (SelectedEmployee == null)
+            {
+                _notificationService?.ShowError("Vui lòng chọn nhân viên");
+                return;
+            }
             // TODO (Bảo): Implement update logic            
             bool isConfilct = await _workScheduleService.ValidateScheduleConflictAsync(
                 SelectedEmployee.Id,
