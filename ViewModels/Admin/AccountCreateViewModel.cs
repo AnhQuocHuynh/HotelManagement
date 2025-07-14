@@ -119,6 +119,16 @@ namespace HotelManager.ViewModels.Admin
             _notificationService = notificationService;
             _logger = logger;
 
+            // Auto-fill Username from Employee.Email if possible
+            if (string.IsNullOrWhiteSpace(Username) && !string.IsNullOrWhiteSpace(Employee?.Email))
+            {
+                var atIdx = Employee.Email.IndexOf('@');
+                if (atIdx > 0)
+                {
+                    Username = Employee.Email.Substring(0, atIdx);
+                }
+            }
+
             SaveCommand = new AsyncRelayCommand(SaveAsync);
             CancelCommand = new RelayCommand(Cancel);
 
