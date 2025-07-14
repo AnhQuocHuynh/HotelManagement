@@ -21,8 +21,8 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
 {
     public class CleanerActivityReportChartViewModel : BaseViewModel, IDisposable
     {
-        CleanerActivityService cleanerActivityService;
-        ExportService _exportService;
+        private readonly ICleanerActivityService _cleanerActivityService;
+        private readonly ExportService _exportService;
 
         private bool _isChanged = false;
 
@@ -201,17 +201,12 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         public ICommand ApplyFilterCommand { get; }
 
 
-        private IServiceScope _scope;
-        public CleanerActivityReportChartViewModel()
+        public CleanerActivityReportChartViewModel(ICleanerActivityService cleanerActivityService, ExportService exportService)
         {
-            _scope = App.ServiceProvider.CreateScope(); // GIỮ scope trong ViewModel
-            var dbContext = _scope.ServiceProvider.GetRequiredService<HotelDbContext>();
-            cleanerActivityService = new CleanerActivityService(dbContext);
-            _exportService = new ExportService();
+            _cleanerActivityService = cleanerActivityService;
+            _exportService = exportService;
 
             TimeRangeInit();
-
-
             _ = RefreshChartAsync();
 
             ApplyFilterCommand = new RelayCommand(async () =>
@@ -223,7 +218,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
         }
         public void Dispose()
         {
-            _scope?.Dispose();
+            // Xóa IServiceScope _scope và Dispose
         }
 
         private void ExportChartAndData()
@@ -248,7 +243,7 @@ namespace HotelManager.ViewModels.ManagerViewModels.Reports
             DateTime fixedEndDate = EndDate.Date.AddDays(1).AddTicks(-1);
 
 
-        var data = await cleanerActivityService.getCountNumbersOfRoomEachCleanerCleaned(
+        var data = await _cleanerActivityService.getCountNumbersOfRoomEachCleanerCleaned(
                 StartDate,
                 fixedEndDate
             );

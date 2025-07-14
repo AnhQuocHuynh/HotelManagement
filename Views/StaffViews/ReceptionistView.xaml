@@ -400,6 +400,7 @@
                                           CanUserSortColumns="True"
                                           MinHeight="400" MaxHeight="850"
                                           ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                           ScrollViewer.CanContentScroll="True">
                                     <DataGrid.Columns>
                                         <!-- Status Indicator -->

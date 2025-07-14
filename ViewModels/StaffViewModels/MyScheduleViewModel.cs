@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using HotelManager.Utilities;
 using Microsoft.VisualBasic;
+using System.Windows;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -183,8 +184,7 @@ namespace HotelManager.ViewModels.StaffViewModels
                 IsLoading = true;
 
                 // 1. Calculate week start/end dates
-                int diff = (7 + (DateTime.Today.DayOfWeek - DayOfWeek.Monday)) % 7;
-                DateTime startDate = DateTime.Today.AddDays(-diff).Date;
+                DateTime startDate = GetStartOfWeek(SelectedWeek);
                 DateTime endDate = startDate.AddDays(7).Date;
 
                 // 2. Call service
@@ -243,8 +243,13 @@ namespace HotelManager.ViewModels.StaffViewModels
 
                 SelectedSchedule = schedule;
 
-                // TODO (Bảo): Show details in popup/side panel
-                // Có thể navigate đến detail view hoặc show dialog
+                MessageBox.Show(
+                    "Employee: " + schedule.Employee.FullName + "\n" +
+                    "Work day: " + schedule.WorkDay + "\n" +
+                    "Work shift: " + schedule.Shift + "\n" +
+                    "Status: " + schedule.Status + "\n" +
+                    "Notes: " + schedule.Notes
+                    );
                 
 
             }
@@ -314,6 +319,20 @@ namespace HotelManager.ViewModels.StaffViewModels
         {
             // TODO (Bảo): Calculate based on shift hours
             return MySchedules.Count * 8; // Giả sử mỗi ca 8 tiếng
+        }
+
+        private DateTime GetStartOfWeek(DateTime date)
+        {
+            // giả sử tuần bắt đầu từ thứ 2 (Monday)
+            int diff = (int)date.DayOfWeek - (int)DayOfWeek.Monday;
+            if (diff < 0) diff += 7;
+            return date.AddDays(-diff).Date;
+        }
+        private bool IsSameWeek(DateTime date1, DateTime date2)
+        {
+            DateTime startOfWeek1 = GetStartOfWeek(date1);
+            DateTime startOfWeek2 = GetStartOfWeek(date2);
+            return startOfWeek1 == startOfWeek2;
         }
 
         #endregion

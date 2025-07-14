@@ -109,6 +109,8 @@ public partial class App : Application
                 // 📈 Manager Services
                 services.AddScoped<HotelManager.Services.Manager.ReceptionistService>();
                 services.AddScoped<HotelManager.Services.Manager.InVoiceService>();
+                services.AddScoped<HotelManager.Services.Manager.ICleanerActivityService, HotelManager.Services.Manager.CleanerActivityService>();
+                services.AddTransient<HotelManager.Services.Manager.ExportService>();
 
                 // 🖥️ ViewModels
                 services.AddTransient<HotelManager.ViewModels.BookingViewModel>();
@@ -178,7 +180,13 @@ public partial class App : Application
                 services.AddScoped<HotelManager.Interfaces.IMaintenanceService, HotelManager.Services.MaintenanceService>();
                 
                 // Register IService<Room> interface
-                services.AddScoped<HotelManager.Interfaces.IService<HotelManager.Models.Room>, HotelManager.Services.RoomService>();
+                services.AddScoped<HotelManager.Interfaces.IService<HotelManager.Models.Room>, HotelManager.Services.RoomService>(provider =>
+                {
+                    var unitOfWork = provider.GetRequiredService<HotelManager.Interfaces.IUnitOfWork>();
+                    var scopeFactory = provider.GetRequiredService<IServiceScopeFactory>();
+                    var logger = provider.GetRequiredService<ILogger<HotelManager.Services.RoomService>>();
+                    return new HotelManager.Services.RoomService(unitOfWork, scopeFactory, logger);
+                });
 
                 // Register new services for Phase 4
                 services.AddSingleton<ISnackbarMessageQueue>(provider => new SnackbarMessageQueue(TimeSpan.FromSeconds(3)));
