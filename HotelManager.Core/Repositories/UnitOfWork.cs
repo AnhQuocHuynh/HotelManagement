@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HotelManager.Core.Interfaces;
+using HotelManager.Core.Services;
 using HotelManager.Data;
 using HotelManager.Interfaces;
 using HotelManager.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using HotelManager.Core.Repositories;
 
 namespace HotelManager.Repositories
 {
@@ -19,6 +22,7 @@ namespace HotelManager.Repositories
         private EmployeeRepository _employeeRepository;
         private WorkAssignmentRepository _workAssignmentRepository;
         private BookingRepository _bookingRepository;
+        private MaintenanceRepository _maintenanceRepository;
 
         public UnitOfWork(HotelDbContext context, ILoggerFactory loggerFactory)
         {
@@ -39,6 +43,7 @@ namespace HotelManager.Repositories
         public EmployeeRepository EmployeeRepository => _employeeRepository ??= new EmployeeRepository(_context, _loggerFactory.CreateLogger<EmployeeRepository>());
         public WorkAssignmentRepository WorkAssignmentRepository => _workAssignmentRepository ??= new WorkAssignmentRepository(_context, _loggerFactory.CreateLogger<WorkAssignmentRepository>());
         public BookingRepository BookingRepository => _bookingRepository ??= new BookingRepository(_context, _loggerFactory.CreateLogger<BookingRepository>());
+        public IMaintenanceRepository Maintenances => _maintenanceRepository ??= new MaintenanceRepository(_context);
 
         private IRepository<T> GetRepository<T>() where T : class
         {

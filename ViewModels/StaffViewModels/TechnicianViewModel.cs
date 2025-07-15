@@ -10,6 +10,10 @@ using HotelManager.Models.Enums;
 using HotelManager.Services;
 using Microsoft.Win32;
 using System.ComponentModel;
+using HotelManager.Utilities;
+using HotelManager.Core.Models;
+using HotelManager.Core.Interfaces;
+using HotelManager.Core.Services;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -17,6 +21,7 @@ namespace HotelManager.ViewModels.StaffViewModels
     {
         private readonly IMaintenanceService _maintenanceService;
         private readonly INavigationService _navigationService;
+        private readonly IMaintenanceRepository _maintenanceRepository;
 
         private ObservableCollection<MaintenanceReport> _maintenanceReports;
         public ObservableCollection<MaintenanceReport> MaintenanceReports
@@ -113,6 +118,7 @@ namespace HotelManager.ViewModels.StaffViewModels
             }
         }
 
+        int CurrentEmployeeId => AppSession.GetCurrentUserAccount()?.EmployeeId ?? 0;
         private async void ToggleResolved(MaintenanceReport report)
         {
             if (report == null)
@@ -127,7 +133,21 @@ namespace HotelManager.ViewModels.StaffViewModels
                     report.CompletedDate = DateTime.Now;
                     
                     System.Diagnostics.Debug.WriteLine($"Marking report {report.Id} as resolved at {report.CompletedDate}");
-                    
+
+                    // Tạo Maintenance mới
+                    var maintenance = new Maintenance
+                    {
+                        MaintenanceReportId = report.Id,
+                        EmployeeId = CurrentEmployeeId,
+                        RepairDate = DateTime.Now,
+                        Cost = 0,
+                        Notes = "Hoàn thành sửa chữa"
+                    };
+
+                    await _maintenanceService.AddMaintenanceAsync(maintenance);
+                    await _maintenanceService.UpdateReportAsync(report);
+
+
                     await _maintenanceService.UpdateReportAsync(report);
                     
                     // Force UI update bằng cách refresh collection

@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.ComponentModel;
 using Timer = System.Timers.Timer;
 using Microsoft.Extensions.DependencyInjection;
+using HotelManager.Utilities;
 
 namespace HotelManager.ViewModels.StaffViewModels
 {
@@ -26,6 +27,10 @@ namespace HotelManager.ViewModels.StaffViewModels
         private readonly INavigationService _navigationService;
         private Timer? _autoRefreshTimer;
         private bool _disposed = false;
+
+        int CurrentEmployeeId => AppSession.GetCurrentUserAccount()?.EmployeeId ?? 0;
+
+
         private ObservableCollection<Room> _roomsToClean;
         public ObservableCollection<Room> RoomsToClean
         {
@@ -241,7 +246,8 @@ namespace HotelManager.ViewModels.StaffViewModels
             if (result != MessageBoxResult.Yes) return;
             try
             {
-                await _cleanroomService.MarkRoomAsCleanedAsync(room);
+
+                await _cleanroomService.MarkRoomAsCleanedAsync(room, CurrentEmployeeId);
 
                 // Complete work assignment if exists
                 if (_workAssignmentService != null)
