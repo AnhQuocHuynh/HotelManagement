@@ -10,7 +10,7 @@ namespace HotelManager.Interfaces
     public interface ICleanRoomService
     {
         Task<List<Room>> GetAllAsync();
-        Task MarkRoomAsCleanedAsync(Room room);
+        Task MarkRoomAsCleanedAsync(Room room, int cleanerId);
         Task SendDamageReportAsync(MaintenanceReport report);
         Task<List<MaintenanceReport>> GetDamageReportsAsync();
 

@@ -1,6 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using HotelManager.Core.Models;
 using HotelManager.Models;
+using HotelManager.Core.Interfaces;
+
 
 namespace HotelManager.Interfaces
 {
@@ -15,6 +18,7 @@ namespace HotelManager.Interfaces
         IRepository<InvoiceDetail> InvoiceDetails { get; }
         IRepository<Payment> Payments { get; }
         IRepository<MaintenanceReport> MaintenanceReports { get; }
+        IMaintenanceRepository Maintenances { get; }
         IRepository<WorkAssignment> WorkAssignments { get; }
         Task<int> SaveChangesAsync();
     }
